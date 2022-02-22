@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="state type test">
+
+	<executable package_path="armada_flexbe_behaviors.state_type_test_sm" class="statetypetestSM" />
+	<tagstring></tagstring>
+	<author>Brian Flynn</author>
+	<date>Mon Feb 14 2022</date>
+	<description>
+		testing the way states are written and how they function
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="waiting_time" default="1" label="waiting_time" hint="Sets the waiting_time">
+			<min value="1" />
+			<max value="5" />
+		</param>
+
+		<param type="text" name="model_name" default="coke_can" label="model_name" hint="Sets the model_name" />
+
+		<param type="text" name="object_file_path" default="/home/brian/.gazebo/models/coke_can/model.sdf" label="object_file_path" hint="Sets the object_file_path" />
+
+		<param type="text" name="robot_namespace" default="" label="robot_namespace" hint="Sets the robot_namespace" />
+
+		<param type="text" name="reference_frame" default="" label="reference_frame" hint="Sets the reference_frame" />
+
+	</params>
+
+
+</behavior>
