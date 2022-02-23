@@ -4,7 +4,6 @@ project(armada_flexbe_states)
 find_package(catkin REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
-  uml_hri_nerve_pick_and_place
   geometry_msgs
 )
 
