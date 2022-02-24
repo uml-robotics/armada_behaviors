@@ -13,20 +13,20 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   genmsg
   actionlib_msgs
   moveit_core
-  #moveit_visual_tools
   moveit_ros_planning
   moveit_ros_planning_interface
 )
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  GraspPoses.msg
+  GraspPosesList.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -45,6 +45,7 @@ add_action_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
   actionlib_msgs
 )
 

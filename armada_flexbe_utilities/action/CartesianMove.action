@@ -1,9 +1,8 @@
-# Define the goal
-# all placeholder info
-uint32 dishwasher_id  # Specify which dishwasher we want to use
+#goal definition
+armada_flexbe_utilities/GraspPosesList pose_list
 ---
 # Define the result
-uint32 total_dishes_cleaned
+uint32 success
 ---
 # Define a feedback message
 float32 percent_complete
