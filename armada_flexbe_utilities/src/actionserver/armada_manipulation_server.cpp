@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <geometry_msgs/Pose.h>
 #include <actionlib/server/simple_action_server.h>
 #include <armada_flexbe_utilities/CartesianMoveAction.h>
 #include <moveit/move_group_interface/move_group_interface.h>
@@ -15,11 +16,19 @@ protected:
   MoveGroupPtr MoveGroupPtr_;
   armada_flexbe_utilities::CartesianMoveFeedback feedback_;
   armada_flexbe_utilities::CartesianMoveResult result_;
-  double jump_threshold_ = 0.5;            // 0.5 default, one source uses 5.0 with good results, others use 0
-  double eef_step_ = 0.01;                  // 0.01 default (1 cm)
+  double jump_threshold_ = 0.5;               // 0.5 default (works well for me), one source uses 5.0 with good results, others use 0
+  double eef_step_ = 0.01;                    // 0.01 default (1 cm)
 
 public:
 
+  /**
+   * Class Constructor.
+   *
+   * Constructor for AmadaManipulationAction class.
+   *
+   * @param[in] nh A ROS NodeHandle object.
+   * @param[in] planning_group MoveIt manipulator planning group.
+   */
   ArmadaManipulationAction(ros::NodeHandle nh, std::string planning_group) :
     CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&ArmadaManipulationAction::executeCartesianPlan, this, _1), false),
     planning_group_(planning_group)
@@ -28,6 +37,11 @@ public:
     MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group));
   }
 
+  /**
+   * Class Destructor.
+   *
+   * Destructor for AmadaManipulationAction class.
+   */
   ~ArmadaManipulationAction(void)
   {
   }
@@ -45,49 +59,32 @@ public:
   {
     moveit_msgs::RobotTrajectory trajectory;
     double success = MoveGroupPtr_->computeCartesianPath(pose_list, eef_step_, jump_threshold_, trajectory);
-    success *= 100;
     my_plan.trajectory_ = trajectory;
     return success;
   }
 
+  /**
+   * Execute a cartesian path plan.
+   *
+   * Execute a cartesian movement planned along one or more set points using the MoveIt interface.
+   *
+   * @param goal CartesianMove action goal: geometry_msgs/Pose[], a set of waypoints along a path.
+   * @return Success of motion plan execution.
+   */
   void executeCartesianPlan(const armada_flexbe_utilities::CartesianMoveGoalConstPtr &goal)
   {
-    std::vector<geometry_msgs::Pose> pre_and_grasp_pose_list;
-    std::vector<geometry_msgs::Pose> retreat_pose_list;
-    moveit::planning_interface::MoveGroupInterface::Plan pre_and_grasp_pose_plan;
-    moveit::planning_interface::MoveGroupInterface::Plan retreat_pose_plan;
+    std::vector<geometry_msgs::Pose> waypoints;
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    waypoints.insert(waypoints.begin(), std::begin(goal->grasp_waypoints), std::end(goal->grasp_waypoints));
 
-    armada_flexbe_utilities::GraspPosesList poses_list;
-    poses_list = goal->pose_list;
-
-    bool temp_flag;
-
-    unsigned long n = sizeof(poses_list);
+    unsigned long n = waypoints.size();
     for (unsigned long i = 0; i < n; ++i) {
-      pre_and_grasp_pose_list.clear();
-      //pre_and_grasp_pose_list.push_back(poses_list.poses[i].pre);
-      //pre_and_grasp_pose_list.push_back(poses_list.poses[i].target);
-      retreat_pose_list.clear();
-      //retreat_pose_list.push_back(poses_list[i].post);
-      // get cartesian plan for pre and actual grasp, if good execute and close gripper
-      double pre_and_grasp_success = cartesianPlan(pre_and_grasp_pose_list, pre_and_grasp_pose_plan);
-      if (pre_and_grasp_success == 100) {
-        MoveGroupPtr_->execute(pre_and_grasp_pose_plan);
+      feedback_.plan_success = cartesianPlan(waypoints, plan);
+      CartesianMoveServer_.publishFeedback(feedback_);
+      if (feedback_.plan_success == 1.00) {
+        MoveGroupPtr_->execute(plan);
         ros::Duration(0.5).sleep();
-        //setGripper(0.5);
-        temp_flag = 1;
       }
-      ros::Duration(.5).sleep();
-      // get cartesian plan for post grasp, if good execute
-      if (temp_flag) {
-        double post_success = cartesianPlan(retreat_pose_list, retreat_pose_plan);
-        if (post_success == 100) {
-          //move_group_ptr->execute(retreat_pose_plan);
-          ros::Duration(0.5).sleep();
-          break;
-        }
-      }
-      ros::Duration(0.5).sleep();
     }
   }
 

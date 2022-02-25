@@ -1,8 +1,8 @@
 #goal definition
-geometry_msgs/Pose[] grasp_waypoints
+armada_flexbe_utilities/GraspPosesList pose_list
 ---
 # Define the result
 bool execution_success
 ---
 # Define a feedback message
-float64 plan_success
+float32 plan_success
