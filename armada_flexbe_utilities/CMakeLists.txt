@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_core
   moveit_ros_planning
   moveit_ros_planning_interface
+  gpd_ros
 )
 
 ## Generate messages in the 'msg' folder
@@ -29,11 +30,10 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  GenGraspWaypoints.srv
+)
 
 ## Generate actions in the 'action' folder
 add_action_files(
@@ -47,6 +47,7 @@ generate_messages(
   std_msgs
   geometry_msgs
   actionlib_msgs
+  gpd_ros
 )
 
 catkin_package(
@@ -63,13 +64,10 @@ include_directories(
 )
 
 add_executable(armada_manipulation_server src/actionserver/armada_manipulation_server.cpp)
+add_executable(gen_grasp_waypoints src/service/gen_grasp_waypoints.cpp)
 
-target_link_libraries(
-  armada_manipulation_server
-  ${catkin_LIBRARIES}
-)
+target_link_libraries(armada_manipulation_server ${catkin_LIBRARIES})
+target_link_libraries(gen_grasp_waypoints ${catkin_LIBRARIES})
 
-add_dependencies(
-  armada_manipulation_server
-  ${armada_flexbe_utilities_EXPORTED_TARGETS}
-)
+#add_dependencies(armada_manipulation_server ${armada_flexbe_utilities_EXPORTED_TARGETS})
+#add_dependencies(gen_grasp_waypoints ${armada_flexbe_utilities_EXPORTED_TARGETS})
