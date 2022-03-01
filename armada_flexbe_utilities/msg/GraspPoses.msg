@@ -3,10 +3,10 @@
 # the object, and end its retreat. These points may be compiled into a list for further planning.
 
 # Position from which to begin approach
-geometry_msgs/Point pre
+geometry_msgs/Pose pre
 
 # Grasping point target on the object
-geometry_msgs/Point target
+geometry_msgs/Pose target
 
 # Position where retreat ends
-geometry_msgs/Point post
+geometry_msgs/Pose post
