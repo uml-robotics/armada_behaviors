@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning
   moveit_ros_planning_interface
   gpd_ros
+  tf
 )
 
 ## Generate messages in the 'msg' folder
@@ -63,10 +64,10 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(armada_manipulation_server src/actionserver/armada_manipulation_server.cpp)
+add_executable(cartesian_planning_cpp_server src/actionserver/cartesian_planning_cpp_server.cpp)
 add_executable(gen_grasp_waypoints src/service/gen_grasp_waypoints.cpp)
 
-target_link_libraries(armada_manipulation_server ${catkin_LIBRARIES})
+target_link_libraries(cartesian_planning_cpp_server ${catkin_LIBRARIES})
 target_link_libraries(gen_grasp_waypoints ${catkin_LIBRARIES})
 
 #add_dependencies(armada_manipulation_server ${armada_flexbe_utilities_EXPORTED_TARGETS})

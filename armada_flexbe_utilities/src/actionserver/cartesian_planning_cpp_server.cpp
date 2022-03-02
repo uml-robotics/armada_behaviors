@@ -6,7 +6,7 @@
 
 typedef boost::shared_ptr<moveit::planning_interface::MoveGroupInterface> MoveGroupPtr;
 
-class ArmadaManipulationAction
+class CartesianPlanningCPPAction
 {
 protected:
 
@@ -24,13 +24,13 @@ public:
   /**
    * Class Constructor.
    *
-   * Constructor for AmadaManipulationAction class.
+   * Constructor for CartesianPlanningCPPAction class.
    *
    * @param[in] nh A ROS NodeHandle object.
    * @param[in] planning_group MoveIt manipulator planning group.
    */
-  ArmadaManipulationAction(ros::NodeHandle nh, std::string planning_group) :
-    CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&ArmadaManipulationAction::executeCartesianPlan, this, _1), false),
+  CartesianPlanningCPPAction(ros::NodeHandle nh, std::string planning_group) :
+    CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&CartesianPlanningCPPAction::executeCartesianPlan, this, _1), false),
     planning_group_(planning_group)
   {
     CartesianMoveServer_.start();
@@ -42,7 +42,7 @@ public:
    *
    * Destructor for AmadaManipulationAction class.
    */
-  ~ArmadaManipulationAction(void)
+  ~CartesianPlanningCPPAction(void)
   {
   }
 
@@ -92,7 +92,7 @@ public:
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "armada_manipulation_server");
+  ros::init(argc, argv, "cartesian_planning_cpp_server");
   ros::NodeHandle nh;
 
   ros::AsyncSpinner spinner(2);
