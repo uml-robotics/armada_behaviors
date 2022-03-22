@@ -1,3 +1,11 @@
+/*
+ * This code uses a modification of the implemetation presented at:
+ * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8 for using GPD
+ *
+ * Please refer to the gist provided for more information
+ *
+ */
+
 #include "ros/ros.h"
 #include "armada_flexbe_utilities/GenGraspWaypoints.h"
 #include <tf/transform_listener.h>
@@ -11,12 +19,13 @@
  * @param[out] res armada_flexbe_utilities/GraspPosesList Container of sets of pose waypoints for grasp target candidates.
  * @return Bool Service completion result.
  */
-bool executeCB(armada_flexbe_utilities::GenGraspWaypoints::Request  &req,
+bool GenWaypoints(armada_flexbe_utilities::GenGraspWaypoints::Request  &req,
          armada_flexbe_utilities::GenGraspWaypoints::Response &res)
 {
   // determine size of grasp candidates list for pose waypoint processing
   unsigned long n = req.grasp_msg_list.grasps.size();
-  armada_flexbe_utilities::GraspPoses grasp_poses_arr[n];
+  std::vector<armada_flexbe_utilities::GraspPoses> grasp_poses_list;
+  armada_flexbe_utilities::GraspPosesList grasp_poses_arr;
 
   for (unsigned long i = 0; i < n; ++i) {
     armada_flexbe_utilities::GraspPoses grasp_poses;
@@ -37,10 +46,24 @@ bool executeCB(armada_flexbe_utilities::GenGraspWaypoints::Request  &req,
     } catch (tf::TransformException err) {
       ROS_ERROR("%s", err.what());
     }
-  }
 
-  armada_flexbe_utilities::GraspPosesList grasp_poses_list;
-  res.grasp_poses_list = grasp_poses_list;
+    tf::Transform tf_grasp_odom_(tf::Quaternion(0, 0, -M_PI/4 - M_PI/16, 1), tf::Vector3(0, 0, -req.grasp_offset));
+    tf::Transform tf_grasp_odom = tf_base_odom * tf_grasp_base * tf_grasp_odom_;
+    tf::poseTFToMsg(tf_grasp_odom, grasp_poses.target);
+
+    tf::Transform tf_pregrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -req.pregrasp_dist));
+    tf::Transform tf_pregrasp_odom = tf_grasp_odom * tf_pregrasp_odom_;
+    tf::poseTFToMsg(tf_pregrasp_odom, grasp_poses.pre);
+
+    tf::Transform tf_aftergrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -req.postgrasp_dist));
+    tf::Transform tf_aftergrasp_odom = tf_grasp_odom * tf_aftergrasp_odom_;
+    tf::poseTFToMsg(tf_aftergrasp_odom, grasp_poses.post);
+
+    grasp_poses_arr.poses[i] = grasp_poses;
+  } 
+
+  //std::copy(grasp_poses_list.begin(), grasp_poses_list.end(), grasp_poses_arr.poses);
+  res.grasp_poses_list = grasp_poses_arr;
   return true;
 }
 
@@ -49,7 +72,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "gen_grasp_waypoints_service");
   ros::NodeHandle nh;
 
-  ros::ServiceServer service = nh.advertiseService("gen_grasp_waypoints", executeCB);
+  ros::ServiceServer service = nh.advertiseService("gen_grasp_waypoints", GenWaypoints);
   ROS_INFO("Ready to generate grasping waypoints.");
   ros::spin();
 

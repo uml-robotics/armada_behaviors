@@ -21,13 +21,30 @@
 			<max value="5" />
 		</param>
 
-		<param type="text" name="model_name" default="coke_can" label="model_name" hint="Sets the model_name" />
+		<param type="text" name="model_name" default="" label="model_name" hint="Sets the model_name" />
 
 		<param type="text" name="object_file_path" default="/home/brian/.gazebo/models/coke_can/model.sdf" label="object_file_path" hint="Sets the object_file_path" />
 
 		<param type="text" name="robot_namespace" default="" label="robot_namespace" hint="Sets the robot_namespace" />
 
 		<param type="text" name="reference_frame" default="" label="reference_frame" hint="Sets the reference_frame" />
+
+		<param type="text" name="initial_location" default="unknown" label="initial_location" hint="Sets the initial_location" />
+
+		<param type="numeric" name="grasp_offset" default="0" label="grasp_offset" hint="Sets the grasp_offset">
+			<min value="0" />
+			<max value="1" />
+		</param>
+
+		<param type="numeric" name="pregrasp_dist" default="0" label="pregrasp_dist" hint="Sets the pregrasp_dist">
+			<min value="0" />
+			<max value="1" />
+		</param>
+
+		<param type="numeric" name="postgrasp_dist" default="0" label="postgrasp_dist" hint="Sets the postgrasp_dist">
+			<min value="0" />
+			<max value="1" />
+		</param>
 
 	</params>
 

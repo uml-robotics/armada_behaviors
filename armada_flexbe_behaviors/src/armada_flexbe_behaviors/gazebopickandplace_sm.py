@@ -34,10 +34,14 @@ class GazeboPickAndPlaceSM(Behavior):
 
 		# parameters of this behavior
 		self.add_parameter('waiting_time', 1)
-		self.add_parameter('model_name', 'coke_can')
+		self.add_parameter('model_name', '')
 		self.add_parameter('object_file_path', '/home/brian/.gazebo/models/coke_can/model.sdf')
 		self.add_parameter('robot_namespace', '')
 		self.add_parameter('reference_frame', '')
+		self.add_parameter('initial_location', 'unknown')
+		self.add_parameter('grasp_offset', 0)
+		self.add_parameter('pregrasp_dist', 0)
+		self.add_parameter('postgrasp_dist', 0)
 
 		# references to used behaviors
 
@@ -55,6 +59,9 @@ class GazeboPickAndPlaceSM(Behavior):
 		# x:17 y:538, x:385 y:266
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.pose = 0
+		_state_machine.userdata.location = "unknown"
+		_state_machine.userdata.grasp_msg_list = []
+		_state_machine.userdata.grasp_poses_list = []
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
