@@ -62,6 +62,7 @@ class GazeboPickAndPlaceSM(Behavior):
 		_state_machine.userdata.location = "unknown"
 		_state_machine.userdata.grasp_msg_list = []
 		_state_machine.userdata.grasp_poses_list = []
+		_state_machine.userdata.pointcloud = PointCloud2()
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]

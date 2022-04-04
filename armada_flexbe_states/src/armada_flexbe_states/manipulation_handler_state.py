@@ -4,7 +4,7 @@ import rospy
 from flexbe_core import EventState, Logger
 
 
-class stageHandlerState(EventState):
+class manipulationHandlerState(EventState):
         '''
         Put description here.
 
@@ -18,48 +18,60 @@ class stageHandlerState(EventState):
 
         '''
 
-        def __init__(self, stage):
+        def __init__(self, manipulation_stage):
         # def __init__(self, parameter):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 # super(stageHandlerState, self).__init__(outcomes = ['result_1', 'result_2'],
                 #                                        input_keys = ['input_userdata'],
                 #                                        output_keys = ['output_userdata'])
 
-                super(stageHandlerState, self).__init__(outcomes = ['object_handler', 'perception_handler',
-                                                                    'manipulation_handler', 'finished'],
+                super(manipulationHandlerState, self).__init__(outcomes = ['gen_waypoints', 'move_arm',
+                                                                    'gripper_control', 'finished', 'failed'],
 
                 # store object spawn pose info from previous state
                 # self._parameter = parameter
 
-                self._stage = stage
+                self._manipulation_stage = manipulation_stage
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                match self._stage:
+                match self._manipulation_stage:
                     case 0:
-                        Logger.loginfo('case 0, object handler')
-                        return 'object_handler'
+                        Logger.loginfo('case 0, generate grasp waypoints')
+                        return 'gen_waypoints'
                     case 1:
-                        Logger.loginfo('case 1, perception handler')
-                        return 'perception_handler'
+                        Logger.loginfo('case 1, move arm to grasp position')
+                        return 'move_arm'
                     case 2:
-                        Logger.loginfo('case 2, manipulation handler')
-                        return 'manipulation_handler'
+                        Logger.loginfo('case 2, close gripper')
+                        return 'gripper_control'
                     case 3:
-                        Logger.loginfo('case 3, finished (should check for repetitions)')
+                        Logger.loginfo('case 3, move to post-grasp position')
+                        return 'move_arm'
+                    case 4:
+                        Logger.loginfo('case 4, move to dropoff position')
+                        return 'move_arm'
+                    case 5:
+                        Logger.loginfo('case 5, open gripper')
+                        return 'gripper_control'
+                    case 6:
+                        Logger.loginfo('case 6, return to neutral pose')
+                        return 'move_arm'
+                    case 7:
+                        Logger.loginfo('case 7, finished')
                         return 'finished'
                     case _:
                         Logger.loginfo('exception case, something broke')
-                        return 'finished'
+                        return 'failed'
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('This is the main stage handler...' )
+                Logger.loginfo('This is the manipulation stage handler...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
