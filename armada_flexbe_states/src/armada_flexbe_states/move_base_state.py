@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from turtle import position
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient
 
@@ -13,18 +12,16 @@ from tf import transformations
 Created on 11/19/2015
 
 @author: Spyros Maniatopoulos
-
-Modified to use a PoseStamped input and publishes to the /map topic.
 """
 
 class MoveBaseState(EventState):
     """
-    Navigates a robot to a desired *map* position and orientation using move_base. Also modified to use PoseStamped.
+    Navigates a robot to a desired **map** position and orientation using move_base.
 
-    ># waypoint     PoseStamped     Target waypoint for navigation.
+    ># waypoint     Pose2D      Target waypoint for navigation.
 
-    <= arrived                      Navigation to target pose succeeded.
-    <= failed                       Navigation to target pose failed.
+    <= arrived                  Navigation to target pose succeeded.
+    <= failed                   Navigation to target pose failed.
     """
 
     def __init__(self):
@@ -70,10 +67,11 @@ class MoveBaseState(EventState):
         # Create and populate action goal
         goal = MoveBaseGoal()
 
-        pt = Point(x = userdata.waypoint.pose.position.x, y = userdata.waypoint.pose.position.y)
+        pt = Point(x = userdata.waypoint.x, y = userdata.waypoint.y)
+        qt = transformations.quaternion_from_euler(0, 0, userdata.waypoint.theta)
 
         goal.target_pose.pose = Pose(position = pt,
-                                     orientation = userdata.waypoint.pose.orientation)
+                                     orientation = Quaternion(*qt))
 
         goal.target_pose.header.frame_id = "map"
         # goal.target_pose.header.stamp.secs = 5.0
