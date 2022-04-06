@@ -18,27 +18,31 @@ class stageHandlerState(EventState):
 
         '''
 
-        def __init__(self, stage):
+        def __init__(self):
         # def __init__(self, parameter):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 # super(stageHandlerState, self).__init__(outcomes = ['result_1', 'result_2'],
                 #                                        input_keys = ['input_userdata'],
                 #                                        output_keys = ['output_userdata'])
+                # userdata is accessed by:
+                #    userdata.input_userdata,
+                #    userdata.output_userdata,
+                #    etc.
 
-                super(stageHandlerState, self).__init__(outcomes = ['object_handler', 'perception_handler',
-                                                                    'manipulation_handler', 'finished'],
+                super(stageHandlerState, self).__init__(outcomes = ['object_handler', 'perception_handler', 'manipulation_handler', 'finished'],
+                                                        input_keys = ['behavior_stage', 'object_stage', 'perception_stage', 'manipulation_stage'],
+                                                        output_keys = ['behavior_stage', 'object_stage', 'perception_stage', 'manipulation_stage'])
 
-                # store object spawn pose info from previous state
+                # access and store state behavior parameters in self
                 # self._parameter = parameter
 
-                self._stage = stage
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                match self._stage:
+                match userdata.perception_stage:
                     case 0:
                         Logger.loginfo('case 0, object handler')
                         return 'object_handler'
