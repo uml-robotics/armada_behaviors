@@ -25,8 +25,9 @@ class manipulationHandlerState(EventState):
                 #                                        input_keys = ['input_userdata'],
                 #                                        output_keys = ['output_userdata'])
 
-                super(manipulationHandlerState, self).__init__(outcomes = ['gen_waypoints', 'move_arm',
-                                                                    'gripper_control', 'finished', 'failed'],
+                super(manipulationHandlerState, self).__init__(outcomes = ['gen_waypoints', 'move_arm', 'gripper_control', 'finished', 'failed'],
+                                                               input_keys = ['behavior_stage', 'manipulation_stage'],
+                                                               output_keys = ['behavior_stage', 'manipulation_stage', 'pose_waypoints'])
 
                 # store object spawn pose info from previous state
                 # self._parameter = parameter
@@ -62,6 +63,7 @@ class manipulationHandlerState(EventState):
                         return 'move_arm'
                     case 7:
                         Logger.loginfo('case 7, finished')
+
                         return 'finished'
                     case _:
                         Logger.loginfo('exception case, something broke')

@@ -30,8 +30,8 @@ class perceptionHandlerState(EventState):
                 #    etc.
 
                 super(perceptionHandlerState, self).__init__(outcomes = ['move_arm', 'process_image', 'finished', 'failed'],
-                                                             input_keys = ['behavior_stage', 'perception_stage'],
-                                                             output_keys = [''])
+                                                             input_keys = ['behavior_stage', 'object_stage', 'perception_stage', 'manipulation_stage'],
+                                                             output_keys = ['behavior_stage', 'object_stage', 'perception_stage', 'manipulation_stage', 'pose_waypoints'])
 
                 # access and store state behavior parameters in self
                 # self._parameter = parameter
