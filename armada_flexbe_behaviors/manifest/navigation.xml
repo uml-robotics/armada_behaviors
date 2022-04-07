@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="Navigation">
+
+	<executable package_path="armada_flexbe_behaviors.navigation_sm" class="NavigationSM" />
+	<tagstring></tagstring>
+	<author>Kevin Yassini</author>
+	<date>Tue Feb 22 2022</date>
+	<description>
+		Given the robot's initial location, navigate to the next stage in pick and place.
+
+Three stages (home, pick, place) can be defined in the userdata: 
+Pose2D(x, y, theta) - in map frame.
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="text" name="current_location" default="" label="current_location" hint="Sets the current_location" />
+
+	</params>
+
+
+</behavior>
