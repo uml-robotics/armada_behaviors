@@ -8,17 +8,25 @@ class manipulationHandlerState(EventState):
         '''
         Put description here.
 
-        -- parameter            type            Description of parameter.
+        #> behavior_stage           int            Description of input key.
+        #> object_stage             int            Description of input key.
+        #> perception_stage         int            Description of input key.
+        #> manipulation_stage       int            Description of input key.
 
-        #> input_key            type            Description of input key.
+        #> behavior_stage           int            Description of output key.
+        #> object_stage             int            Description of output key.
+        #> perception_stage         int            Description of output key.
+        #> manipulation_stage       int            Description of output key.
 
-        #> output_key           type            Description of output key.
-
-        <= outcome                              Description of possible result of execution.
+        <= gen_waypoints                           Description of possible result of execution.
+        <= move_arm                                Description of possible result of execution.
+        <= gripper_control                         Description of possible result of execution.
+        <= finished                                Description of possible result of execution.
+        <= failed                                  Description of possible result of execution.
 
         '''
 
-        def __init__(self, manipulation_stage):
+        def __init__(self):
         # def __init__(self, parameter):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 # super(stageHandlerState, self).__init__(outcomes = ['result_1', 'result_2'],
@@ -26,13 +34,11 @@ class manipulationHandlerState(EventState):
                 #                                        output_keys = ['output_userdata'])
 
                 super(manipulationHandlerState, self).__init__(outcomes = ['gen_waypoints', 'move_arm', 'gripper_control', 'finished', 'failed'],
-                                                               input_keys = ['behavior_stage', 'manipulation_stage'],
-                                                               output_keys = ['behavior_stage', 'manipulation_stage', 'pose_waypoints'])
+                                                               input_keys = ['behavior_stage', 'object_stage', 'perception_stage', 'manipulation_stage'],
+                                                               output_keys = ['behavior_stage', 'object_stage', 'perception_stage', 'manipulation_stage', 'pose_waypoints'])
 
                 # store object spawn pose info from previous state
                 # self._parameter = parameter
-
-                self._manipulation_stage = manipulation_stage
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.

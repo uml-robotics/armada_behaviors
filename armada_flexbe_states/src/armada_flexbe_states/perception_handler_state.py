@@ -8,13 +8,22 @@ class perceptionHandlerState(EventState):
         '''
         Put description here.
 
-        -- parameter            type            Description of parameter.
+        -- snapshot_pose_list            int            Description of parameter.
 
-        #> input_key            type            Description of input key.
+        #> behavior_stage           int            Description of input key.
+        #> object_stage             int            Description of input key.
+        #> perception_stage         int            Description of input key.
+        #> manipulation_stage       int            Description of input key.
 
-        #> output_key           type            Description of output key.
+        #> behavior_stage           int            Description of output key.
+        #> object_stage             int            Description of output key.
+        #> perception_stage         int            Description of output key.
+        #> manipulation_stage       int            Description of output key.
 
-        <= outcome                              Description of possible result of execution.
+        <= move_arm                                Description of possible result of execution.
+        <= process_image                           Description of possible result of execution.
+        <= finished                                Description of possible result of execution.
+        <= failed                                  Description of possible result of execution.
 
         '''
 
@@ -24,10 +33,6 @@ class perceptionHandlerState(EventState):
                 # super(stageHandlerState, self).__init__(outcomes = ['result_1', 'result_2'],
                 #                                        input_keys = ['input_userdata'],
                 #                                        output_keys = ['output_userdata'])
-                # userdata is accessed by:
-                #    userdata.input_userdata,
-                #    userdata.output_userdata,
-                #    etc.
 
                 super(perceptionHandlerState, self).__init__(outcomes = ['move_arm', 'process_image', 'finished', 'failed'],
                                                              input_keys = ['behavior_stage', 'object_stage', 'perception_stage', 'manipulation_stage'],
@@ -56,6 +61,9 @@ class perceptionHandlerState(EventState):
                             # go back and move arm again, have not reached all poses
                             self._perception_stage -= 1
                         return 'process_image'
+                    case 2:
+                        Logger.loginfo('case 2, perception complete')
+                        return 'finished'
                     case _:
                         Logger.loginfo('exception case, something broke')
                         return 'failed'

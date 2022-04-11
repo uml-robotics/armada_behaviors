@@ -8,8 +8,6 @@ class stageHandlerState(EventState):
         '''
         Put description here.
 
-        -- parameter                type            Description of parameter.
-
         #> behavior_stage           int            Description of input key.
         #> object_stage             int            Description of input key.
         #> perception_stage         int            Description of input key.
