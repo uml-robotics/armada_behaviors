@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="state_testing_env">
+
+	<executable package_path="armada_flexbe_behaviors.state_testing_env_sm" class="state_testing_envSM" />
+	<tagstring></tagstring>
+	<author>brian flynn</author>
+	<date>Fri Apr 08 2022</date>
+	<description>
+		testing state functionality before implementation in the final behavior
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="target_gripper_val" default="0" label="target_gripper_val" hint="Sets the target_gripper_val">
+			<min value="0" />
+			<max value="100" />
+		</param>
+
+		<param type="text" name="gripper_command_topic" default="/r2f85_gripper_controller/gripper_cmd/goal" label="gripper_command_topic" hint="Sets the gripper_command_topic" />
+
+		<param type="numeric" name="wait_time" default="1" label="wait_time" hint="Sets the wait_time">
+			<min value="0" />
+			<max value="3" />
+		</param>
+
+		<param type="text" name="log_text" default="log val: {}" label="log_text" hint="Sets the log_text" />
+
+		<param type="text" name="target_named_pose" default="wait" label="target_named_pose" hint="Sets the target_named_pose" />
+
+	</params>
+
+
+</behavior>

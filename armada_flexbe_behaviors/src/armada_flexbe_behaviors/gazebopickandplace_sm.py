@@ -39,9 +39,6 @@ class GazeboPickAndPlaceSM(Behavior):
 		self.add_parameter('robot_namespace', '')
 		self.add_parameter('reference_frame', '')
 		self.add_parameter('initial_location', 'unknown')
-		self.add_parameter('grasp_offset', 0)
-		self.add_parameter('pregrasp_dist', 0)
-		self.add_parameter('postgrasp_dist', 0)
 
 		# references to used behaviors
 
@@ -62,7 +59,6 @@ class GazeboPickAndPlaceSM(Behavior):
 		_state_machine.userdata.location = "unknown"
 		_state_machine.userdata.grasp_msg_list = []
 		_state_machine.userdata.grasp_poses_list = []
-		_state_machine.userdata.pointcloud = PointCloud2()
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]

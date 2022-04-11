@@ -39,7 +39,14 @@ add_service_files(
 ## Generate actions in the 'action' folder
 add_action_files(
   DIRECTORY action
-  FILES CartesianMove.action
+  FILES
+  CartesianMove.action
+)
+
+add_action_files(
+  DIRECTORY action
+  FILES
+  NamedPoseMove.action
 )
 
 ## Generate added messages and services with any dependencies listed here

@@ -2,6 +2,7 @@
 #include <geometry_msgs/Pose.h>
 #include <actionlib/server/simple_action_server.h>
 #include <armada_flexbe_utilities/CartesianMoveAction.h>
+#include <armada_flexbe_utilities/NamedPoseMoveAction.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 
 typedef boost::shared_ptr<moveit::planning_interface::MoveGroupInterface> MoveGroupPtr;
@@ -12,10 +13,13 @@ protected:
 
   ros::NodeHandle nh;
   actionlib::SimpleActionServer<armada_flexbe_utilities::CartesianMoveAction> CartesianMoveServer_;
+  actionlib::SimpleActionServer<armada_flexbe_utilities::NamedPoseMoveAction> MoveToNamedPoseServer_;
   std::string planning_group_;
   MoveGroupPtr MoveGroupPtr_;
-  armada_flexbe_utilities::CartesianMoveFeedback feedback_;
-  armada_flexbe_utilities::CartesianMoveResult result_;
+  armada_flexbe_utilities::CartesianMoveFeedback cartesian_move_feedback_;
+  armada_flexbe_utilities::CartesianMoveResult cartesian_move_result_;
+  armada_flexbe_utilities::NamedPoseMoveFeedback named_pose_move_feedback_;
+  armada_flexbe_utilities::NamedPoseMoveResult named_pose_move_result_;
   double jump_threshold_ = 0.5;               // 0.5 default (works well for me), one source uses 5.0 with good results, others use 0
   double eef_step_ = 0.01;                    // 0.01 default (1 cm)
 
@@ -31,16 +35,18 @@ public:
    */
   CartesianPlanningCPPAction(ros::NodeHandle nh, std::string planning_group) :
     CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&CartesianPlanningCPPAction::executeCartesianPlan, this, _1), false),
+    MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false),
     planning_group_(planning_group)
   {
     CartesianMoveServer_.start();
+    MoveToNamedPoseServer_.start();
     MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group));
   }
 
   /**
    * Class Destructor.
    *
-   * Destructor for AmadaManipulationAction class.
+   * Destructor for CartesianPlanningCPPAction class.
    */
   ~CartesianPlanningCPPAction(void)
   {
@@ -79,13 +85,30 @@ public:
 
     unsigned long n = waypoints.size();
     for (unsigned long i = 0; i < n; ++i) {
-      feedback_.plan_success = cartesianPlan(waypoints, plan);
-      CartesianMoveServer_.publishFeedback(feedback_);
-      if (feedback_.plan_success == 1.00) {
+      cartesian_move_feedback_.plan_success = cartesianPlan(waypoints, plan);
+      CartesianMoveServer_.publishFeedback(cartesian_move_feedback_);
+      if (cartesian_move_feedback_.plan_success == 1.00) {
         MoveGroupPtr_->execute(plan);
         ros::Duration(0.5).sleep();
+        cartesian_move_result_.execution_success = 1;
+        CartesianMoveServer_.setSucceeded(cartesian_move_result_);
       }
     }
+  }
+
+  /**
+   * Move to a pre-defined, named position.
+   *
+   * Plan and move to a pre-defined, named position using the MoveIt interface.
+   *
+   * @param[in] pose_name string named position as defined in robot's SRDF.
+   */
+  void moveToNamedPose(const armada_flexbe_utilities::NamedPoseMoveGoalConstPtr &goal)
+  {
+    MoveGroupPtr_->setNamedTarget(goal->pose_name);
+    MoveGroupPtr_->move();
+    named_pose_move_result_.execution_success = 1;
+    MoveToNamedPoseServer_.setSucceeded(named_pose_move_result_);
   }
 
 };
@@ -97,6 +120,8 @@ int main(int argc, char** argv)
 
   ros::AsyncSpinner spinner(2);
   spinner.start();
+
+  CartesianPlanningCPPAction cartesian_planning_cpp_server(nh, "manipulator");
 
   while(ros::ok())
   {

@@ -31,21 +31,6 @@
 
 		<param type="text" name="initial_location" default="unknown" label="initial_location" hint="Sets the initial_location" />
 
-		<param type="numeric" name="grasp_offset" default="0" label="grasp_offset" hint="Sets the grasp_offset">
-			<min value="0" />
-			<max value="1" />
-		</param>
-
-		<param type="numeric" name="pregrasp_dist" default="0" label="pregrasp_dist" hint="Sets the pregrasp_dist">
-			<min value="0" />
-			<max value="1" />
-		</param>
-
-		<param type="numeric" name="postgrasp_dist" default="0" label="postgrasp_dist" hint="Sets the postgrasp_dist">
-			<min value="0" />
-			<max value="1" />
-		</param>
-
 	</params>
 
 

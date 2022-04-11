@@ -1,0 +1,8 @@
+#goal definition
+string pose_name
+---
+# Define the result
+bool execution_success
+---
+# Define a feedback message
+float64 plan_success
