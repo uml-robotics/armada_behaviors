@@ -1,8 +1,8 @@
 #goal definition
-string[] pose_names
+sensor_msgs/PointCloud2 input_cloud
 ---
 # Define the result
-bool execution_success
+sensor_msgs/PointCloud2 output_cloud
 ---
 # Define a feedback message
 float64 plan_success

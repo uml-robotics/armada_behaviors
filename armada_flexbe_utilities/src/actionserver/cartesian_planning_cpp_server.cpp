@@ -97,16 +97,22 @@ public:
   }
 
   /**
-   * Move to a pre-defined, named position.
+   * Move to one or more pre-defined, named positions.
    *
-   * Plan and move to a pre-defined, named position using the MoveIt interface.
+   * Plan and move to one or more pre-defined, named positions using the MoveIt interface.
    *
-   * @param[in] pose_name string named position as defined in robot's SRDF.
+   * @param[in] pose_names string[] named positions as defined in robot's SRDF.
    */
   void moveToNamedPose(const armada_flexbe_utilities::NamedPoseMoveGoalConstPtr &goal)
   {
-    MoveGroupPtr_->setNamedTarget(goal->pose_name);
-    MoveGroupPtr_->move();
+    std::vector<std::string> poses;
+    poses.insert(poses.begin(), std::begin(goal->pose_names), std::end(goal->pose_names));
+
+    unsigned long n = poses.size();
+    for (unsigned long i = 0; i < n; i++) {
+      MoveGroupPtr_->setNamedTarget(poses[i]);
+      MoveGroupPtr_->move();
+    }
     named_pose_move_result_.execution_success = 1;
     MoveToNamedPoseServer_.setSucceeded(named_pose_move_result_);
   }

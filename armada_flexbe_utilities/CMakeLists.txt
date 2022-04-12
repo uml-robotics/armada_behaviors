@@ -21,6 +21,8 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning_interface
   gpd_ros
   tf
+  pcl_conversions
+  pcl_ros
 )
 
 ## Generate messages in the 'msg' folder
@@ -49,6 +51,12 @@ add_action_files(
   NamedPoseMove.action
 )
 
+add_action_files(
+  DIRECTORY action
+  FILES
+  PointcloudProcessing.action
+)
+
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
@@ -72,9 +80,11 @@ include_directories(
 )
 
 add_executable(cartesian_planning_cpp_server src/actionserver/cartesian_planning_cpp_server.cpp)
+add_executable(pointcloud_processing_cpp_server src/actionserver/pointcloud_processing_cpp_server.cpp)
 add_executable(gen_grasp_waypoints src/service/gen_grasp_waypoints.cpp)
 
 target_link_libraries(cartesian_planning_cpp_server ${catkin_LIBRARIES})
+target_link_libraries(pointcloud_processing_cpp_server ${catkin_LIBRARIES})
 target_link_libraries(gen_grasp_waypoints ${catkin_LIBRARIES})
 
 #add_dependencies(armada_manipulation_server ${armada_flexbe_utilities_EXPORTED_TARGETS})
