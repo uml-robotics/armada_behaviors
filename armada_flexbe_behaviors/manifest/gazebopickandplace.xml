@@ -5,9 +5,9 @@
 	<executable package_path="armada_flexbe_behaviors.gazebopickandplace_sm" class="GazeboPickAndPlaceSM" />
 	<tagstring></tagstring>
 	<author>Brian Flynn</author>
-	<date>Mon Feb 14 2022</date>
+	<date>Mon Apr 11 2022</date>
 	<description>
-		Spawn an object, perform grasp/pick and place, delete object, reset.
+		Perform a pick and place option with a robot arm and a simulated object, spawned in a semi-random location within the usable workspace, for testing and behavior/functionality proofing
 	</description>
 
 
@@ -16,20 +16,18 @@
 	<!-- Available Parameters -->
 	<params>
 
-		<param type="numeric" name="waiting_time" default="1" label="waiting_time" hint="Sets the waiting_time">
-			<min value="1" />
-			<max value="5" />
-		</param>
+		<param type="text" name="model_name" default="coke_can" label="model_name" hint="Sets the model_name" />
 
-		<param type="text" name="model_name" default="" label="model_name" hint="Sets the model_name" />
-
-		<param type="text" name="object_file_path" default="/home/brian/.gazebo/models/coke_can/model.sdf" label="object_file_path" hint="Sets the object_file_path" />
+		<param type="text" name="object_file_path" default="/home/.gazebo/models/coke_can/model.sdf" label="object_file_path" hint="Sets the object_file_path" />
 
 		<param type="text" name="robot_namespace" default="" label="robot_namespace" hint="Sets the robot_namespace" />
 
-		<param type="text" name="reference_frame" default="" label="reference_frame" hint="Sets the reference_frame" />
+		<param type="text" name="reference_frame" default="world" label="reference_frame" hint="Sets the reference_frame" />
 
-		<param type="text" name="initial_location" default="unknown" label="initial_location" hint="Sets the initial_location" />
+		<param type="numeric" name="wait_time" default="2" label="wait_time" hint="Sets the wait_time">
+			<min value="0" />
+			<max value="5" />
+		</param>
 
 	</params>
 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="UserdataParameterTest">
+
+	<executable package_path="armada_flexbe_behaviors.userdataparametertest_sm" class="UserdataParameterTestSM" />
+	<tagstring></tagstring>
+	<author>Brian Flynn</author>
+	<date>Mon Apr 11 2022</date>
+	<description>
+		Testing how states interact with parameters and userdata, and the conditions for which each can/must be used
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="starting_value" default="2" label="starting_value" hint="Sets the starting_value">
+			<min value="0" />
+			<max value="10" />
+		</param>
+
+		<param type="text" name="log_test" default="The number is now: {}" label="log_test" hint="Sets the log_test" />
+
+	</params>
+
+
+</behavior>
