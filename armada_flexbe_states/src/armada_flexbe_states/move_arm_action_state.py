@@ -2,38 +2,32 @@
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient
 
-# example import of required action
 from armada_flexbe_utilities.msg import NamedPoseMoveAction, NamedPoseMoveGoal
+from armada_flexbe_utilities.msg import CartesianMoveAction, CartesianMoveGoal
 
+from geometry_msgs.msg import Pose
 
-class CartesianPathActionState(EventState):
+class MoveArmActionState(EventState):
         '''
-        Actionlib actions are the most common basis for state implementations
-        since they provide a non-blocking, high-level interface for robot capabilities.
-        The example is based on the DoDishes-example of actionlib (see http://wiki.ros.org/actionlib).
-        This time we have input and output keys in order to specify the goal and possibly further evaluate the result in a later state.
 
-        -- pose_name            string      Name of action server topic
-
-        ># pose_name            string      Name of pre-defined pose (in SRDF) for robot to move to
+        ># target_pose_list                 List of poses, this can be names (pre-defined, named poses) or waypoints (
 
         <= finished                         Arm successfully moved to named position
         <= failed                           Motion planning/execution failed
 
         '''
 
-        def __init__(self, topic, pose_name):
+        def __init__(self):
                 # See example_state.py for basic explanations.
-                super(CartesianPathActionState, self).__init__(outcomes = ['finished', 'failed'])
+                super(MoveArmActionState, self).__init__(outcomes = ['finished', 'failed'],
+                                                               input_keys = ['target_pose_list'])
 
-                # Create the action client when building the behavior.
-                # This will cause the behavior to wait for the client before starting execution
-                # and will trigger a timeout error if it is not available.
-                # Using the proxy client provides asynchronous access to the result and status
-                # and makes sure only one client is used, no matter how often this state is used in a behavior.
-                self._topic = topic
-                self._pose_name = pose_name
-                self._client = ProxyActionClient({self._topic: NamedPoseMoveAction}) # pass required clients as dict (topic: type)
+                # Store the action server topics for convenience
+                self._cartesian_move_action_topic = 'execute_cartesian_plan'
+                self._named_pose_move_action_topic = 'move_to_named_pose'
+                self._topic = ''
+                self._client = ProxyActionClient({self._cartesian_move_action_topic: CartesianMoveAction}) # pass required clients as dict (topic: type)
+                self._client = ProxyActionClient({self._named_pose_move_action_topic: NamedPoseMoveAction}) # pass required clients as dict (topic: type)
 
                 # It may happen that the action client fails to send the action goal.
                 self._error = False
@@ -67,8 +61,15 @@ class CartesianPathActionState(EventState):
                 # This enables a previous state to make this decision during runtime and provide the ID as its own output key.
 
                 # Create the goal.
-                goal = NamedPoseMoveGoal()
-                goal.pose_name = self._pose_name
+                firstval = userdata.target_pose_list[0]
+                if isinstance(firstval, str):
+                  goal = NamedPoseMoveGoal()
+                  goal.pose_names = userdata.target_pose_list
+                  self._topic = self._named_pose_move_action_topic
+                elif isinstance(firstval, Pose):
+                  goal = CartesianMoveGoal()
+                  goal.grasp_waypoints = userdata.target_pose_list
+                  self._topic = self._cartesian_move_action_topic
 
                 # Send the goal.
                 self._error = False # make sure to reset the error state since a previous state execution might have failed
@@ -77,7 +78,7 @@ class CartesianPathActionState(EventState):
                 except Exception as e:
                         # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
                         # Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
-                        Logger.logwarn('Failed to send the DoDishes command:\n%s' % str(e))
+                        Logger.logwarn('Failed to send the command:\n%s' % str(e))
                         self._error = True
 
 
@@ -85,6 +86,9 @@ class CartesianPathActionState(EventState):
                 # Make sure that the action is not running when leaving this state.
                 # A situation where the action would still be active is for example when the operator manually triggers an outcome.
 
-                if not self._client.has_result(self._topic):
-                        self._client.cancel(self._topic)
+                if not self._client.has_result(self._cartesian_move_action_topic):
+                        self._client.cancel(self._cartesian_move_action_topic)
+                        Logger.loginfo('Cancelled active action goal.')
+                if not self._client.has_result(self._named_pose_move_action_topic):
+                        self._client.cancel(self._named_pose_move_action_topic)
                         Logger.loginfo('Cancelled active action goal.')
