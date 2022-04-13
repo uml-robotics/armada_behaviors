@@ -12,10 +12,10 @@ endif()
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  std_msgs
-  geometry_msgs
   genmsg
   actionlib_msgs
+  std_msgs
+  geometry_msgs
   moveit_core
   moveit_ros_planning
   moveit_ros_planning_interface
@@ -35,29 +35,22 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  GenGraspWaypoints.srv
+  CalculateGraspWaypoints.srv
+  GetPointCloud.srv
+  ConcatenatePointCloud.srv
+  PointCloudPassthroughFilter.srv
+  SacSegmentation.srv
+  SetGripperVal.srv
 )
 
 ## Generate actions in the 'action' folder
 add_action_files(
-  DIRECTORY action
   FILES
   CartesianMove.action
-)
-
-add_action_files(
-  DIRECTORY action
-  FILES
   NamedPoseMove.action
 )
 
-add_action_files(
-  DIRECTORY action
-  FILES
-  PointcloudProcessing.action
-)
-
-## Generate added messages and services with any dependencies listed here
+## Generate added msg and srv with any dependencies listed here
 generate_messages(
   DEPENDENCIES
   std_msgs
@@ -67,25 +60,20 @@ generate_messages(
 )
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES armada_flexbe_utilities
   CATKIN_DEPENDS
   actionlib_msgs
-#  DEPENDS system_lib
 )
 
 include_directories(
-# include
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(cartesian_planning_cpp_server src/actionserver/cartesian_planning_cpp_server.cpp)
-add_executable(pointcloud_processing_cpp_server src/actionserver/pointcloud_processing_cpp_server.cpp)
-add_executable(gen_grasp_waypoints src/service/gen_grasp_waypoints.cpp)
+add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
+add_executable(grasp_waypoint_service src/service/grasp_waypoint_service.cpp)
+add_executable(pointcloud_snapshot_service src/service/pointcloud_snapshot_service.cpp)
+#add_executable(set_gripper_service src/actionserver/set_gripper_service.cpp)
 
-target_link_libraries(cartesian_planning_cpp_server ${catkin_LIBRARIES})
-target_link_libraries(pointcloud_processing_cpp_server ${catkin_LIBRARIES})
-target_link_libraries(gen_grasp_waypoints ${catkin_LIBRARIES})
-
-#add_dependencies(armada_manipulation_server ${armada_flexbe_utilities_EXPORTED_TARGETS})
-#add_dependencies(gen_grasp_waypoints ${armada_flexbe_utilities_EXPORTED_TARGETS})
+target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
+target_link_libraries(grasp_waypoint_service ${catkin_LIBRARIES})
+target_link_libraries(pointcloud_snapshot_service ${catkin_LIBRARIES})
+#target_link_libraries(set_gripper_service ${catkin_LIBRARIES})

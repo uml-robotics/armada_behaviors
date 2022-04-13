@@ -1,0 +1,9 @@
+sensor_msgs/PointCloud2 cloud_in
+int8 x_min
+int8 x_max
+int8 y_min
+int8 y_max
+int8 z_min
+int8 z_max
+---
+sensor_msgs/PointCloud2 cloud_out

@@ -1,0 +1,4 @@
+string camera_topic
+sensor_msgs/PointCloud2[] cloud_list_in
+---
+sensor_msgs/PointCloud2[] cloud_list_out

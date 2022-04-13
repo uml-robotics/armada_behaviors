@@ -1,0 +1,5 @@
+string gripper_namespace
+string gripper_name
+float64 target_pose
+---
+bool success
