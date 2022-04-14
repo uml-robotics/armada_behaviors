@@ -35,12 +35,12 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  CalculateGraspWaypoints.srv
   GetPointCloud.srv
   ConcatenatePointCloud.srv
   PointCloudPassthroughFilter.srv
   SacSegmentation.srv
   SetGripperVal.srv
+  CalculateGraspWaypoints.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -71,9 +71,9 @@ include_directories(
 add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
 add_executable(grasp_waypoint_service src/service/grasp_waypoint_service.cpp)
 add_executable(pointcloud_snapshot_service src/service/pointcloud_snapshot_service.cpp)
-#add_executable(set_gripper_service src/actionserver/set_gripper_service.cpp)
+add_executable(set_gripper_service src/service/set_gripper_service.cpp)
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
 target_link_libraries(grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(pointcloud_snapshot_service ${catkin_LIBRARIES})
-#target_link_libraries(set_gripper_service ${catkin_LIBRARIES})
+target_link_libraries(set_gripper_service ${catkin_LIBRARIES})

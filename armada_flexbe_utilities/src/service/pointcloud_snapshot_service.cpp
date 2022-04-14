@@ -42,6 +42,15 @@ public:
   }
 
   /**
+   * Class Destructor.
+   *
+   * Destructor for PointCloudSnapshotService class.
+   */
+  ~PointCloudSnapshotService(void)
+  {
+  }
+
+  /**
    * Add current camera pointcloud msg to array of pointcloud messages.
    *
    * Given a topic and existing array of PointCloud2 messages, add another PointCloud2 message from the given topic to the array of messages.
@@ -151,7 +160,7 @@ public:
    * @return Bool Service completion result.
    */
   bool passthroughFilter(armada_flexbe_utilities::PointCloudPassthroughFilter::Request &req,
-                       armada_flexbe_utilities::PointCloudPassthroughFilter::Response &res)
+                         armada_flexbe_utilities::PointCloudPassthroughFilter::Response &res)
   {
     PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
     *temp_cloud = transformCloud(req.cloud_in, "world");
