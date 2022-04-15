@@ -29,6 +29,12 @@
 			<max value="5" />
 		</param>
 
+		<param type="text" name="snapshot_pose_list" default="wait" label="snapshot_pose_list" hint="Sets the snapshot_pose_list" />
+
+		<param type="text" name="initial_pose" default="['wait']" label="initial_pose" hint="Sets the initial_pose" />
+
+		<param type="text" name="camera_topic" default="" label="camera_topic" hint="Sets the camera_topic" />
+
 	</params>
 
 

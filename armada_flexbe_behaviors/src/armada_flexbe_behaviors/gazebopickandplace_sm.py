@@ -8,8 +8,11 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
+from armada_flexbe_states.concatenate_pointcloud_service_state import concatenatePointCloudState
 from armada_flexbe_states.delete_model_state import deleteObjectState
+from armada_flexbe_states.get_pointcloud_service_state import getPointCloudState
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
+from armada_flexbe_states.snapshot_commander_state import snapshotCommanderState
 from armada_flexbe_states.spawn_model_state import spawnObjectState
 from flexbe_states.wait_state import WaitState
 # Additional imports can be added inside the following tags
@@ -38,6 +41,9 @@ class GazeboPickAndPlaceSM(Behavior):
 		self.add_parameter('robot_namespace', '')
 		self.add_parameter('reference_frame', 'world')
 		self.add_parameter('wait_time', 2)
+		self.add_parameter('snapshot_pose_list', 'wait')
+		self.add_parameter('initial_pose', '['wait']')
+		self.add_parameter('camera_topic', '')
 
 		# references to used behaviors
 
@@ -51,9 +57,15 @@ class GazeboPickAndPlaceSM(Behavior):
 
 
 	def create(self):
-		# x:531 y:317, x:208 y:313
+		# x:836 y:656, x:309 y:602
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
-		_state_machine.userdata.target_pose_list = ['retract','wait','above','robot_left','robot_right']
+		_state_machine.userdata.initial_pose = ['wait']
+		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
+		_state_machine.userdata.target_pose = ['']
+		_state_machine.userdata.current_snapshot_step = 0
+		_state_machine.userdata.target_pose_list = []
+		_state_machine.userdata.pointcloud_list_in = []
+		_state_machine.userdata.pointcloud_list_out = []
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -68,24 +80,52 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'continue': 'wait', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low})
 
-			# x:443 y:57
+			# x:40 y:652
+			OperatableStateMachine.add('DeleteObject',
+										deleteObjectState(model_name=self.model_name),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low})
+
+			# x:239 y:61
 			OperatableStateMachine.add('MoveArm',
 										MoveArmActionState(),
-										transitions={'finished': 'DeleteObject', 'failed': 'failed'},
+										transitions={'finished': 'SnapshotCommander', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'target_pose_list': 'initial_pose'})
+
+			# x:370 y:193
+			OperatableStateMachine.add('MoveToSnapshotPose',
+										MoveArmActionState(),
+										transitions={'finished': 'getPointCloud', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'target_pose_list': 'target_pose_list'})
 
-			# x:266 y:62
+			# x:437 y:61
+			OperatableStateMachine.add('SnapshotCommander',
+										snapshotCommanderState(snapshot_pose_list=self.snapshot_pose_list),
+										transitions={'continue': 'ConcatenatePointCloud', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'take_snapshot': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
+
+			# x:585 y:190
+			OperatableStateMachine.add('getPointCloud',
+										getPointCloudState(camera_topic=self.camera_topic),
+										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'pointcloud_list_in': 'pointcloud_list_in', 'pointcloud_list_out': 'pointcloud_list_out'})
+
+			# x:75 y:192
 			OperatableStateMachine.add('wait',
 										WaitState(wait_time=self.wait_time),
 										transitions={'done': 'MoveArm'},
 										autonomy={'done': Autonomy.Low})
 
-			# x:713 y:57
-			OperatableStateMachine.add('DeleteObject',
-										deleteObjectState(model_name=self.model_name),
+			# x:741 y:50
+			OperatableStateMachine.add('ConcatenatePointCloud',
+										concatenatePointCloudState(x_min=0, x_max=0, y_min=0, y_max=0, z_min=0, z_max=0),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low})
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'pointcloud_list_in': 'pointcloud_list_in', 'pointcloud_out': 'pointcloud_out'})
 
 
 		return _state_machine
