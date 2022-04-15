@@ -20,14 +20,14 @@ class MoveArmActionState(EventState):
         def __init__(self):
                 # See example_state.py for basic explanations.
                 super(MoveArmActionState, self).__init__(outcomes = ['finished', 'failed'],
-                                                               input_keys = ['target_pose_list'])
+                                                         input_keys = ['target_pose_list'])
 
                 # Store the action server topics for convenience
                 self._cartesian_move_action_topic = 'execute_cartesian_plan'
                 self._named_pose_move_action_topic = 'move_to_named_pose'
                 self._topic = ''
-                self._client = ProxyActionClient({self._cartesian_move_action_topic: CartesianMoveAction}) # pass required clients as dict (topic: type)
-                self._client = ProxyActionClient({self._named_pose_move_action_topic: NamedPoseMoveAction}) # pass required clients as dict (topic: type)
+                self._client = ProxyActionClient({self._cartesian_move_action_topic: CartesianMoveAction})
+                self._client = ProxyActionClient({self._named_pose_move_action_topic: NamedPoseMoveAction})
 
                 # It may happen that the action client fails to send the action goal.
                 self._error = False
