@@ -7,6 +7,8 @@ from gazebo_msgs.srv import SpawnModel
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import PointCloud2
 
+from armada_flexbe_utilities.srv import *
+
 
 class concatenatePointCloudState(EventState):
         '''
@@ -55,19 +57,19 @@ class concatenatePointCloudState(EventState):
                 filtered_pointcloud = PointCloud2()
 
                 try:
-                    filtered_pointcloud = self._concatenate_pointcloud_srv(userdata.pointcloud_list_in)
+                  filtered_pointcloud = self._concatenate_pointcloud_srv(userdata.pointcloud_list_in)
                   return 'continue'
                 except:
                   return 'failed'
 
                 try:
-                    filtered_pointcloud = self._passthrough_filter_srv(filtered_pointcloud, self._x_min, self._x_max, self._y_min, self._y_max, self._z_min, self._z_max)
+                  filtered_pointcloud = self._passthrough_filter_srv(filtered_pointcloud, self._x_min, self._x_max, self._y_min, self._y_max, self._z_min, self._z_max)
                   return 'continue'
                 except:
                   return 'failed'
 
                 try:
-                    filtered_pointcloud = self._sac_segmentation_srv(filtered_pointcloud)
+                  filtered_pointcloud = self._sac_segmentation_srv(filtered_pointcloud)
                   return 'continue'
                 except:
                   return 'failed'

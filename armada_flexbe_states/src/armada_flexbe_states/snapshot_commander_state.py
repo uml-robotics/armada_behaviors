@@ -11,8 +11,7 @@ class snapshotCommanderState(EventState):
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-        -- snapshot_pose_list               string          List of snapshot poses.
-
+        #> snapshot_pose_list               string          List of pre-defined (SRDF) poses for camera snapshot(s).
         #> current_snapshot_step            int             Position in snapshot list.
         ># target_pose                      string          Target move_to pose.
 
@@ -22,22 +21,21 @@ class snapshotCommanderState(EventState):
 
         '''
 
-        def __init__(self, snapshot_pose_list):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(snapshotCommanderState, self).__init__(outcomes = ['continue', 'take_snapshot', 'failed'],
-                                                             input_keys = ['current_snapshot_step'],
+                                                             input_keys = ['snapshot_pose_list', 'current_snapshot_step'],
                                                              output_keys = ['target_pose'])
-
-                self._snapshot_pose_list = snapshot_pose_list
-                self._pose_list_size = len(snapshot_pose_list)
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                if userdata.current_snapshot_step < self._pose_list_size:
-                    userdata.target_pose = self.snapshot_pose_list[userdata.current_snapshot_step]
+                pose_list_size = len(userdata.snapshot_pose_list)
+                if userdata.current_snapshot_step < pose_list_size:
+                    next_pose = [userdata.snapshot_pose_list[userdata.current_snapshot_step]]
+                    userdata.target_pose = next_pose
                     return 'take_snapshot'
                 else:
                     return 'continue'

@@ -14,6 +14,8 @@ from armada_flexbe_states.get_pointcloud_service_state import getPointCloudState
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
 from armada_flexbe_states.snapshot_commander_state import snapshotCommanderState
 from armada_flexbe_states.spawn_model_state import spawnObjectState
+from armada_flexbe_states.step_iterator_state import stepIteratorState
+from flexbe_states.log_key_state import LogKeyState
 from flexbe_states.wait_state import WaitState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
@@ -41,9 +43,8 @@ class GazeboPickAndPlaceSM(Behavior):
 		self.add_parameter('robot_namespace', '')
 		self.add_parameter('reference_frame', 'world')
 		self.add_parameter('wait_time', 2)
-		self.add_parameter('snapshot_pose_list', 'wait')
-		self.add_parameter('initial_pose', '['wait']')
-		self.add_parameter('camera_topic', '')
+		self.add_parameter('camera_topic', '/camera_wrist/depth/points')
+		self.add_parameter('concatenated_cloud_topic', '/combined_cloud')
 
 		# references to used behaviors
 
@@ -63,9 +64,8 @@ class GazeboPickAndPlaceSM(Behavior):
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
 		_state_machine.userdata.target_pose = ['']
 		_state_machine.userdata.current_snapshot_step = 0
-		_state_machine.userdata.target_pose_list = []
-		_state_machine.userdata.pointcloud_list_in = []
-		_state_machine.userdata.pointcloud_list_out = []
+		_state_machine.userdata.pointcloud_list = []
+		_state_machine.userdata.pointcloud_out = []
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -86,6 +86,13 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low})
 
+			# x:547 y:243
+			OperatableStateMachine.add('DisplayIterator',
+										LogKeyState(text='iterator is at: {}', severity=Logger.REPORT_HINT),
+										transitions={'done': 'SnapshotCommander'},
+										autonomy={'done': Autonomy.Low},
+										remapping={'data': 'current_snapshot_step'})
+
 			# x:239 y:61
 			OperatableStateMachine.add('MoveArm',
 										MoveArmActionState(),
@@ -93,26 +100,33 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'finished': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'target_pose_list': 'initial_pose'})
 
-			# x:370 y:193
+			# x:406 y:159
 			OperatableStateMachine.add('MoveToSnapshotPose',
 										MoveArmActionState(),
 										transitions={'finished': 'getPointCloud', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'target_pose_list': 'target_pose_list'})
+										remapping={'target_pose_list': 'target_pose'})
 
 			# x:437 y:61
 			OperatableStateMachine.add('SnapshotCommander',
-										snapshotCommanderState(snapshot_pose_list=self.snapshot_pose_list),
+										snapshotCommanderState(),
 										transitions={'continue': 'ConcatenatePointCloud', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'take_snapshot': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
+										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
-			# x:585 y:190
+			# x:426 y:324
+			OperatableStateMachine.add('SnapshotStepIterator',
+										stepIteratorState(),
+										transitions={'continue': 'DisplayIterator', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'iterator_in': 'current_snapshot_step', 'iterator_out': 'current_snapshot_step'})
+
+			# x:400 y:250
 			OperatableStateMachine.add('getPointCloud',
 										getPointCloudState(camera_topic=self.camera_topic),
-										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
+										transitions={'continue': 'SnapshotStepIterator', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'pointcloud_list_in': 'pointcloud_list_in', 'pointcloud_list_out': 'pointcloud_list_out'})
+										remapping={'pointcloud_list_in': 'pointcloud_list', 'pointcloud_list_out': 'pointcloud_list'})
 
 			# x:75 y:192
 			OperatableStateMachine.add('wait',
@@ -120,12 +134,12 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'done': 'MoveArm'},
 										autonomy={'done': Autonomy.Low})
 
-			# x:741 y:50
+			# x:894 y:63
 			OperatableStateMachine.add('ConcatenatePointCloud',
 										concatenatePointCloudState(x_min=0, x_max=0, y_min=0, y_max=0, z_min=0, z_max=0),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'pointcloud_list_in': 'pointcloud_list_in', 'pointcloud_out': 'pointcloud_out'})
+										remapping={'pointcloud_list_in': 'pointcloud_list', 'pointcloud_out': 'pointcloud_out'})
 
 
 		return _state_machine
