@@ -19,5 +19,5 @@ jobs:
          GITHUB_REPO: ${{ secrets.GITLAB_REPO }}
          GITLAB_HOSTNAME: ${{secrets.GITLAB_HOSTNAME }}
          GITLAB_USERNAME: ${{ secrets.GIT_USERNAME }}
-         GITLAB_PASSWORD: ${{ secretsGIT_PASSWORD }}
+         GITLAB_PASSWORD: ${{ secrets.GIT_PASSWORD }}
 
