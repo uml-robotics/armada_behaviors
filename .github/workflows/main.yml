@@ -10,16 +10,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with: 
-        fetch-depth: 0
-    - name: Push To Gitlab
+    - name: Mirror + Trigger CI
+      uses: uml-robotics/armada_behaviors@master
+      with:
+        args: "${repo}"
       env:
-       token: ${{ secrets.GITLAB_ACCESS_TOKEN }} 
-       repo: ${{ secrets.GITLAB_REPO}}
-      run: |
-        echo Starting to push repo to gitlab
-        git config user.name "bflynn"
-        git config user.email "github@no-reply.com"
-        git remote set-url origin "http://oauth2:${token}@${repo}"
-        git push origin master
+         GITHUB_TOKEN: ${{ secrets.GITLAB_ACCESS_TOKEN }} 
+         GITHUB_REPO: ${{ secrets.GITLAB_REPO }}
+         GITLAB_HOSTNAME: ${{secrets.GITLAB_HOSTNAME }}
+         GITLAB_USERNAME: ${{ secrets.GIT_USERNAME }}
+         GITLAB_PASSWORD: ${{ secretsGIT_PASSWORD }}
 
