@@ -1,15 +1,12 @@
 name: PushGitlab
 
-on:
-  push:
-    branches: [ master ]
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v1
     - name: Mirror to GitLab and run GitLab CI
       uses: SvanBoxel/gitlab-mirror-and-ci-action@0.2
       with:
