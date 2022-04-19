@@ -10,8 +10,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Mirror + Trigger CI
-      uses: uml-robotics/armada_behaviors@master
+    - name: Mirror to GitLab and run GitLab CI
+      uses: SvanBoxel/gitlab-mirror-and-ci-action@0.2
       with:
         args: "${repo}"
       env:
