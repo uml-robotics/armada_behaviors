@@ -17,10 +17,5 @@ jobs:
         echo Starting to push repo to gitlab
         git config user.name "Github-Actions-Bot"
         git config user.email "github@no-reply.com"
-        git remote set-url origin "http://oauth2:${{token}}@{{url}}/${{repo}}"
+        git remote set-url origin "http://oauth2:${{ secrets.GITLAB_ACCESS_TOKEN }}@${{ secrets.GITLAB_PUSH_REPO_NO_AUTH }}/${{ secrets.GITLAB_REPO}}"
         git push origin master
-      env:
-       token: ${{ secrets.GITLAB_ACCESS_TOKEN }}
-       url: ${{ secrets.GITLAB_PUSH_REPO_NO_AUTH }}
-       repo: ${{ secrets.GITLAB_REPO}}
-       
