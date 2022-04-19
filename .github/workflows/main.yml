@@ -20,6 +20,6 @@ jobs:
         echo Starting to push repo to gitlab
         git config user.name "bflynn"
         git config user.email "github@no-reply.com"
-        git remote set-url origin "http://oauth2:${token}@${url}"
+        git remote set-url origin "http://oauth2:${token}@${repo}"
         git push origin master
 
