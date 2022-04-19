@@ -20,7 +20,7 @@ jobs:
         git remote set-url origin "http://oauth2:${{token}}@{{url}}/${{repo}}"
         git push origin master
       env:
-	     token: ${{ secrets.GITLAB_ACCESS_TOKEN }}
+       token: ${{ secrets.GITLAB_ACCESS_TOKEN }}
        url: ${{ secrets.GITLAB_PUSH_REPO_NO_AUTH }}
        repo: ${{ secrets.GITLAB_REPO}}
        
