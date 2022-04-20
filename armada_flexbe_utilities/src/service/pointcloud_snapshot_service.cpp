@@ -55,26 +55,19 @@ public:
    *
    * Given a topic and existing array of PointCloud2 messages, add another PointCloud2 message from the given topic to the array of messages.
    *
-   * @param[in] req sensor_msgs/PointCloud2[] Container of PointCloud2 messages.
    * @param[in] req string String containing desired camera message topic.
-   * @param[out] res sensor_msgs/PointCloud2[] Container of PointCloud2 messages.
+   * @param[out] res sensor_msgs/PointCloud2 PointCloud2 message.
    * @return Bool Service completion result.
    */
   bool getPointCloud(armada_flexbe_utilities::GetPointCloud::Request &req,
                      armada_flexbe_utilities::GetPointCloud::Response &res)
   {
-    std::vector<sensor_msgs::PointCloud2> cloud_list;
-    cloud_list.insert(cloud_list.begin(), std::begin(req.cloud_list_in), std::end(req.cloud_list_in));
-
-    ros::Duration timeout(5);
+    ROS_WARN("Executing GetPointCloud Service");
+    ros::Duration timeout(10);
     sensor_msgs::PointCloud2ConstPtr pointcloud2_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>(req.camera_topic, timeout);
-    cloud_list.push_back(*pointcloud2_msg);
 
-    unsigned long list_length = cloud_list.size();
-    for (unsigned int i = 0; i < list_length; ++i) {
-      res.cloud_list_out[i] = cloud_list[0];
-    }
-
+    res.cloud_out = *pointcloud2_msg;
+    ROS_WARN("Finished GetPointCloud Service");
     return true;
   }
 
@@ -90,7 +83,9 @@ public:
   bool concatenatePointCloud(armada_flexbe_utilities::ConcatenatePointCloud::Request &req,
                              armada_flexbe_utilities::ConcatenatePointCloud::Response &res)
   {
-    unsigned long cloud_list_size = req.cloud_list_in.size();
+    ROS_WARN("Executing ConcatenatePointCloud Service");
+    unsigned int cloud_list_size = req.cloud_list_in.size();
+    ROS_WARN("PointCloud2 List Size: %d ...", cloud_list_size);
     PointCloud<PointXYZRGB> cloud_array[cloud_list_size];
     PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
 
@@ -101,11 +96,12 @@ public:
     *temp_cloud = cloud_array[0];
 
     if (cloud_list_size > 1) {
-      for (int i = 1; i < cloud_list_size; i++) {
-          *temp_cloud+= cloud_array[i];
+      for (unsigned int i = 1; i < cloud_list_size; i++) {
+        *temp_cloud+= cloud_array[i];
+        ROS_WARN("Concatenating cloud number: %d ...", i);
       }
     }
-
+    ROS_WARN("Finishing ConcatenatePointCloud Service");
     toROSMsg(*temp_cloud, res.cloud_out);
 
     return true;
@@ -124,6 +120,7 @@ public:
   bool sacSegmentation(armada_flexbe_utilities::SacSegmentation::Request &req,
                        armada_flexbe_utilities::SacSegmentation::Response &res)
   {
+    ROS_WARN("Executing SacSegmentation Service");
     PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
     *temp_cloud = transformCloud(req.cloud_in, "world");
 
@@ -145,7 +142,7 @@ public:
     extract_indices.filter(*temp_cloud);
 
     toROSMsg(*temp_cloud, res.cloud_out);
-
+    ROS_WARN("Finishing SacSegmentation Service");
     return true;
   }
 
@@ -162,6 +159,7 @@ public:
   bool passthroughFilter(armada_flexbe_utilities::PointCloudPassthroughFilter::Request &req,
                          armada_flexbe_utilities::PointCloudPassthroughFilter::Response &res)
   {
+    ROS_WARN("Executing PassthroughFilter Service");
     PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
     *temp_cloud = transformCloud(req.cloud_in, "world");
 
@@ -185,7 +183,7 @@ public:
     pass_z.filter(*temp_cloud);
 
     toROSMsg(*temp_cloud, res.cloud_out);
-
+    ROS_WARN("Finishing PassthroughFilter Service");
     return true;
   }
 
@@ -230,7 +228,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "pointcloud_processing_service");
   ros::NodeHandle nh;
 
-  ros::AsyncSpinner spinner(3);
+  ros::AsyncSpinner spinner(4);
   spinner.start();
 
   PointCloudSnapshotService pointCloudSnapShotService = PointCloudSnapshotService(nh);

@@ -65,7 +65,7 @@ class GazeboPickAndPlaceSM(Behavior):
 		_state_machine.userdata.target_pose = ['']
 		_state_machine.userdata.current_snapshot_step = 0
 		_state_machine.userdata.pointcloud_list = []
-		_state_machine.userdata.pointcloud_out = []
+		_state_machine.userdata.combined_pointcloud = 0
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -110,7 +110,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:437 y:61
 			OperatableStateMachine.add('SnapshotCommander',
 										snapshotCommanderState(),
-										transitions={'continue': 'ConcatenatePointCloud', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
+										transitions={'continue': 'wait_2', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'take_snapshot': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
@@ -126,7 +126,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										getPointCloudState(camera_topic=self.camera_topic),
 										transitions={'continue': 'SnapshotStepIterator', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'pointcloud_list_in': 'pointcloud_list', 'pointcloud_list_out': 'pointcloud_list'})
+										remapping={'pointcloud_list': 'pointcloud_list'})
 
 			# x:75 y:192
 			OperatableStateMachine.add('wait',
@@ -134,12 +134,18 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'done': 'MoveArm'},
 										autonomy={'done': Autonomy.Low})
 
+			# x:696 y:64
+			OperatableStateMachine.add('wait_2',
+										WaitState(wait_time=2),
+										transitions={'done': 'ConcatenatePointCloud'},
+										autonomy={'done': Autonomy.Low})
+
 			# x:894 y:63
 			OperatableStateMachine.add('ConcatenatePointCloud',
-										concatenatePointCloudState(x_min=0, x_max=0, y_min=0, y_max=0, z_min=0, z_max=0),
+										concatenatePointCloudState(x_min=-1, x_max=1, y_min=-1, y_max=1, z_min=-1, z_max=1),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'pointcloud_list_in': 'pointcloud_list', 'pointcloud_out': 'pointcloud_out'})
+										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
 
 
 		return _state_machine
