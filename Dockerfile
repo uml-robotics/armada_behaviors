@@ -52,4 +52,5 @@ COPY . .
 # Rebuild Workspace
 RUN source /opt/ros/melodic/setup.bash \
  &&  cd /home/catkin_ws/ \
+ && rosdep update \
  && catkin build
