@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Build and Push to Gitlab
 
 on:
   push:
@@ -16,3 +16,19 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      
+  push-mirror:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Mirror to GitLab and run GitLab CI
+      uses: SvanBoxel/gitlab-mirror-and-ci-action@0.2
+      with:
+        args: "${GIT_REPO}"
+      env:
+         GITHUB_TOKEN: ${{ secrets.GITLAB_ACCESS_TOKEN }} 
+         GIT_REPO: ${{ secrets.GITLAB_REPO }}
+         GITLAB_PROJECT_ID: "9"
+         GITLAB_HOSTNAME: ${{secrets.GITLAB_HOSTNAME }}
+         GITLAB_USERNAME: ${{ secrets.GIT_USERNAME }}
+         GITLAB_PASSWORD: ${{ secrets.GIT_PASSWORD }}
