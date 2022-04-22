@@ -9,9 +9,7 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
@@ -19,6 +17,7 @@ jobs:
       
   push-mirror:
     runs-on: ubuntu-latest
+    needs: build
     steps:
     - uses: actions/checkout@v1
     - name: Mirror to GitLab and run GitLab CI
