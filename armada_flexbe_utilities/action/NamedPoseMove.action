@@ -1,8 +1,8 @@
 #goal definition
-armada_flexbe_utilities/GraspPosesList pose_list
+string[] pose_names
 ---
 # Define the result
 bool execution_success
 ---
 # Define a feedback message
-float32 plan_success
+float64 plan_success

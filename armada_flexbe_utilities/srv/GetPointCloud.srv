@@ -1,0 +1,3 @@
+string camera_topic
+---
+sensor_msgs/PointCloud2 cloud_out
