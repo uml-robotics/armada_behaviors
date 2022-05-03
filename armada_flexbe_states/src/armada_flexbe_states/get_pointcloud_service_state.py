@@ -5,8 +5,7 @@ from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 from sensor_msgs.msg import PointCloud2
 
-from std_msgs.msg import String
-from armada_flexbe_utilities.srv import *
+from armada_flexbe_utilities.srv import GetPointCloud, GetPointCloudResponse, GetPointCloudRequest
 
 
 class getPointCloudState(EventState):
@@ -19,7 +18,7 @@ class getPointCloudState(EventState):
         ># pointcloud_list                              List of PointCloud2 messages
         #> pointcloud_list                              List of PointCloud2 messages
 
-        <= continue                                     spawned/deleted an object successfully
+        <= continue                                     retrieved the pointcloud successfully
         <= failed                                       something went wrong
 
         '''
@@ -30,10 +29,6 @@ class getPointCloudState(EventState):
                                                        input_keys = ['pointcloud_list'],
                                                        output_keys = ['pointcloud_list'])
 
-                rospy.wait_for_service('/get_pointcloud')
-                self._get_pointcloud_srv_topic = '/get_pointcloud'
-                self._get_pointcloud_srv = ProxyServiceCaller({self._get_pointcloud_srv_topic: GetPointCloud})
-
                 self._camera_topic = camera_topic
 
         def execute(self, userdata):
@@ -41,15 +36,23 @@ class getPointCloudState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                return "continue"
-                Logger.loginfo("Continue")
+                rospy.wait_for_service('/get_pointcloud')
+                self._service_topic = '/get_pointcloud'
+                self._service = ProxyServiceCaller({self._service_topic: GetPointCloud})
+                response = GetPointCloudResponse()
+
+                try:
+                    response = self._service.call(self._service_topic, self._camera_topic)
+                    userdata.pointcloud_list.append(response.cloud_out)
+                    return "continue"
+                except:
+                    return "failed"
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                userdata.pointcloud_list.append(self._get_pointcloud_srv.call(self._get_pointcloud_srv_topic, self._camera_topic))
-                Logger.loginfo("Got Pointcloud")
+                Logger.loginfo('getting pointcloud snapshot...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.

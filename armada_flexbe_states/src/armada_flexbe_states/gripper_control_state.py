@@ -42,30 +42,17 @@ class gripperControlState(EventState):
                 gripper_cmd.goal.command.position = closeVal
 
                 # log closeval for troubleshooting
-                Logger.log(self._text.format(closeVal), self._severity)
+                # Logger.log(self._text.format(closeVal), self._severity)
 
                 self._pub.publish(self._gripper_topic, gripper_cmd)
                 time.sleep(1)
                 return 'continue'
 
-                """
-                try:
-                  gripper_cmd = GripperCommand()
-                  closeVal = Int64()
-                  closeVal = userdata.target_pose_val * 255
-                  gripper_cmd.goal.position = closeVal
-                  self._pub.publish(self.gripper_topic, gripper_cmd)
-                  time.sleep(1)
-                  return 'continue'
-                except:
-                  return 'failed'
-                """
-
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                pass
+                pass # Nothing to do in this state.
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
