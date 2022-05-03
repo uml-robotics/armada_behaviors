@@ -37,9 +37,8 @@ add_service_files(
   FILES
   GetPointCloud.srv
   ConcatenatePointCloud.srv
-  PointCloudPassthroughFilter.srv
-  SacSegmentation.srv
-  SetGripperVal.srv
+  #PointCloudPassthroughFilter.srv
+  #SacSegmentation.srv
   CalculateGraspWaypoints.srv
 )
 
@@ -70,10 +69,17 @@ include_directories(
 
 add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
 add_executable(grasp_waypoint_service src/service/grasp_waypoint_service.cpp)
-add_executable(pointcloud_snapshot_service src/service/pointcloud_snapshot_service.cpp)
-add_executable(set_gripper_service src/service/set_gripper_service.cpp)
+add_executable(concatenate_pointcloud_service src/service/concatenate_pointcloud_service.cpp)
+add_executable(get_pointcloud_service src/service/get_pointcloud_service.cpp)
+#add_executable(pointcloud_passthrough_filter_service src/service/pointcloud_passthrough_filter_service.cpp)
+#add_executable(sac_segmentation_service src/service/sac_segmentation_service.cpp)
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
 target_link_libraries(grasp_waypoint_service ${catkin_LIBRARIES})
-target_link_libraries(pointcloud_snapshot_service ${catkin_LIBRARIES})
-target_link_libraries(set_gripper_service ${catkin_LIBRARIES})
+target_link_libraries(concatenate_pointcloud_service ${catkin_LIBRARIES})
+target_link_libraries(get_pointcloud_service ${catkin_LIBRARIES})
+#target_link_libraries(pointcloud_passthrough_filter_service ${catkin_LIBRARIES})
+#target_link_libraries(sac_segmentation_service ${catkin_LIBRARIES})
+
+add_dependencies(concatenate_pointcloud_service armada_flexbe_utilities_gencpp)
+add_dependencies(get_pointcloud_service armada_flexbe_utilities_gencpp)

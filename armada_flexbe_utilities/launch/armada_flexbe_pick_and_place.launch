@@ -56,11 +56,15 @@
       <arg name="gripper_model" value="r2f85" />
       <arg name="wrist_cam" value="d435_millibar"/>  <!-- d435_millibar -->
     </include>
-
-    <node name="spawn_object" pkg="uml_hri_nerve_pick_and_place" type="spawn_object.py" output="screen" />
   </group>
 
   <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
-  <node name="pointcloud_snapshot_service" pkg="armada_flexbe_utilities" type="pointcloud_snapshot_service" output="screen" />
+  <node name="concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="concatenate_pointcloud_service" output="screen" />
+  <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" />
+
+  <!--
+  <node name="pointcloud_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pointcloud_passthrough_filter_service" output="screen" />
+  <node name="sac_segmentation_service" pkg="armada_flexbe_utilities" type="sac_segmentation_service" output="screen" />
+  -->
 
 </launch>
