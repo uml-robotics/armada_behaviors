@@ -11,12 +11,12 @@ from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyC
 from armada_flexbe_states.concatenate_pointcloud_service_state import concatenatePointCloudState
 from armada_flexbe_states.delete_model_state import deleteObjectState
 from armada_flexbe_states.get_pointcloud_service_state import getPointCloudState
+from armada_flexbe_states.gripper_control_state import gripperControlState
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
 from armada_flexbe_states.snapshot_commander_state import snapshotCommanderState
 from armada_flexbe_states.spawn_model_state import spawnObjectState
-from armada_flexbe_states.step_iterator_state import stepIteratorState
-from flexbe_states.log_key_state import LogKeyState
 from flexbe_states.wait_state import WaitState
+from sandbox_flexbe_states.step_iterator_state import stepIteratorState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -45,6 +45,7 @@ class GazeboPickAndPlaceSM(Behavior):
 		self.add_parameter('wait_time', 2)
 		self.add_parameter('camera_topic', '/camera_wrist/depth/points')
 		self.add_parameter('concatenated_cloud_topic', '/combined_cloud')
+		self.add_parameter('gripper_topic', '/r2f85_gripper_controller/gripper_cmd/goal')
 
 		# references to used behaviors
 
@@ -66,6 +67,8 @@ class GazeboPickAndPlaceSM(Behavior):
 		_state_machine.userdata.current_snapshot_step = 0
 		_state_machine.userdata.pointcloud_list = []
 		_state_machine.userdata.combined_pointcloud = 0
+		_state_machine.userdata.gripper_open = 0.0
+		_state_machine.userdata.gripper_closed = 0.8
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -80,23 +83,23 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'continue': 'wait', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low})
 
-			# x:40 y:652
+			# x:894 y:63
+			OperatableStateMachine.add('ConcatenatePointCloud',
+										concatenatePointCloudState(),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
+
+			# x:674 y:35
 			OperatableStateMachine.add('DeleteObject',
 										deleteObjectState(model_name=self.model_name),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+										transitions={'continue': 'ConcatenatePointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low})
-
-			# x:547 y:243
-			OperatableStateMachine.add('DisplayIterator',
-										LogKeyState(text='iterator is at: {}', severity=Logger.REPORT_HINT),
-										transitions={'done': 'SnapshotCommander'},
-										autonomy={'done': Autonomy.Low},
-										remapping={'data': 'current_snapshot_step'})
 
 			# x:239 y:61
 			OperatableStateMachine.add('MoveArm',
 										MoveArmActionState(),
-										transitions={'finished': 'SnapshotCommander', 'failed': 'failed'},
+										transitions={'finished': 'OpenGripper', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'target_pose_list': 'initial_pose'})
 
@@ -107,17 +110,24 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'finished': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'target_pose_list': 'target_pose'})
 
-			# x:437 y:61
+			# x:711 y:375
+			OperatableStateMachine.add('OpenGripper',
+										gripperControlState(gripper_topic=self.gripper_topic, text='Target gripper value: {}', severity=Logger.REPORT_HINT),
+										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
+										remapping={'target_pose_val': 'gripper_open'})
+
+			# x:453 y:33
 			OperatableStateMachine.add('SnapshotCommander',
 										snapshotCommanderState(),
-										transitions={'continue': 'wait_2', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
+										transitions={'continue': 'DeleteObject', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'take_snapshot': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
-			# x:426 y:324
+			# x:459 y:339
 			OperatableStateMachine.add('SnapshotStepIterator',
 										stepIteratorState(),
-										transitions={'continue': 'DisplayIterator', 'failed': 'failed'},
+										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'iterator_in': 'current_snapshot_step', 'iterator_out': 'current_snapshot_step'})
 
@@ -131,21 +141,15 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:75 y:192
 			OperatableStateMachine.add('wait',
 										WaitState(wait_time=self.wait_time),
-										transitions={'done': 'MoveArm'},
+										transitions={'done': 'CloseGripper'},
 										autonomy={'done': Autonomy.Low})
 
-			# x:696 y:64
-			OperatableStateMachine.add('wait_2',
-										WaitState(wait_time=2),
-										transitions={'done': 'ConcatenatePointCloud'},
-										autonomy={'done': Autonomy.Low})
-
-			# x:894 y:63
-			OperatableStateMachine.add('ConcatenatePointCloud',
-										concatenatePointCloudState(x_min=-1, x_max=1, y_min=-1, y_max=1, z_min=-1, z_max=1),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+			# x:57 y:316
+			OperatableStateMachine.add('CloseGripper',
+										gripperControlState(gripper_topic=self.gripper_topic, text='Target gripper value: {}', severity=Logger.REPORT_HINT),
+										transitions={'continue': 'MoveArm', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
+										remapping={'target_pose_val': 'gripper_closed'})
 
 
 		return _state_machine
