@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python-rosinstall-generator \
     python-wstool \
     python-catkin-tools \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -43,6 +44,16 @@ RUN source /opt/ros/melodic/setup.bash \
  && cd /home/catkin_ws \
  && catkin build
 
+# Install GPD as library 
+WORKDIR /home/catkin_ws/src
+RUN git clone https://github.com/atenpas/gpd \
+&& sed -i -e 's/PCL 1.9 REQUIRED/PCL REQUIRED/g' ~/home/catkin_ws/src/gpd/CMakeLists.txt
+WORKDIR /home/catkin_ws/src/gpd
+RUN mkdir build \
+&& cd build \
+&& cmake ..  \
+&& make -j  \ 
+sudo make install 
 
 #### TEST APPLICATION ##########################
 # Copy Code into src workspace 
