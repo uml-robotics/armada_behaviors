@@ -49,7 +49,7 @@ RUN mkdir build \
 && cd build \
 && cmake ..  \
 && make -j  \ 
- make install 
+&& make install 
 
 WORKDIR /home/catkin_ws/src
 RUN git clone -b master https://github.com/atenpas/gpd_ros \
