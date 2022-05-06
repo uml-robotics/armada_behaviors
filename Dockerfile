@@ -26,7 +26,7 @@ RUN rosdep init \
 
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-melodic-ros-desktop-full \
+    ros-melodic-desktop-full \
     && rm -rf /var/lib/apt/lists/*
 
 #Intial Workpsace Setup
