@@ -25,13 +25,13 @@ RUN rosdep init \
 
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-melodic-ros-base=1.4.1-0* \
+    ros-melodic-ros-desktop-full=1.4.1-0* \
     && rm -rf /var/lib/apt/lists/*
 
 
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-melodic-ros-base=1.4.1-0* \
+    ros-melodic-ros-desktop-full=1.4.1-0* \
     && rm -rf /var/lib/apt/lists/*
 
 #Intial Workpsace Setup
