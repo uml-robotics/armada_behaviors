@@ -1,6 +1,5 @@
 # Use Melodic version 
-FROM osrf/ros:melodic-desktop-bionic
-
+FROM ros:melodic-ros-core-bionic
 SHELL [ "/bin/bash" , "-c" ]
 
 # Install all basic deps
