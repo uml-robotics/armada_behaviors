@@ -47,13 +47,24 @@ RUN source /opt/ros/melodic/setup.bash \
 # Install GPD as library 
 WORKDIR /home/catkin_ws/src
 RUN git clone https://github.com/atenpas/gpd \
-&& sed -i -e 's/PCL 1.9 REQUIRED/PCL REQUIRED/g' ~/home/catkin_ws/src/gpd/CMakeLists.txt
+&& sed -i -e 's/PCL 1.9 REQUIRED/PCL REQUIRED/g' /home/catkin_ws/src/gpd/CMakeLists.txt
 WORKDIR /home/catkin_ws/src/gpd
 RUN mkdir build \
 && cd build \
 && cmake ..  \
 && make -j  \ 
 sudo make install 
+
+WORKDIR /home/catkin_ws/src
+RUN git clone -b master https://github.com/atenpas/gpd_ros \
+&& sed -i -e 's/PCL 1.9 REQUIRED/PCL REQUIRED/g' /home/catkin_ws/src/gpd_ros/CMakeLists.txt 
+
+WORKDIR /home/catkin_ws/
+RUN  source /opt/ros/melodic/setup.bash \
+&& rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y \
+&& catkin build \
+&& source devel/setup.bash 
+
 
 #### TEST APPLICATION ##########################
 # Copy Code into src workspace 
