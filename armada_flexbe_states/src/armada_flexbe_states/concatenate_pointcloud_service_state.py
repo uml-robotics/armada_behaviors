@@ -16,8 +16,8 @@ class concatenatePointCloudState(EventState):
         ># pointcloud_list                              List of PointCloud2 messages
         #> combined_pointcloud                          Concatenated PointCloud2 message
 
-        <= continue                                     concatenated pointclouds successfully
-        <= failed                                       something went wrong
+        <= continue                                     Concatenated pointclouds successfully
+        <= failed                                       Something went wrong
 
         '''
 

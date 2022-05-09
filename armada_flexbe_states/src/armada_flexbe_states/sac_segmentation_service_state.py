@@ -4,61 +4,38 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import ConcatenatePointCloud, ConcatenatePointCloudResponse, ConcatenatePointCloudRequest
-from armada_flexbe_utilities.srv import PointCloudPassthroughFilter, PointCloudPassthroughFilterResponse, PointCloudPassthroughFilterRequest
 from armada_flexbe_utilities.srv import SacSegmentation, SacSegmentationResponse, SacSegmentationRequest
 
 
-class sacSegmentationState(EventState):
+class pointCloudSacSegmentationState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-        -- x_min                   float64              Desired X lower limit for pointcloud filtering
-        -- x_max                   float64              Desired X upper limit for pointcloud filtering
-        -- y_min                   float64              Desired Y lower limit for pointcloud filtering
-        -- y_max                   float64              Desired Y upper limit for pointcloud filtering
-        -- z_min                   float64              Desired Z lower limit for pointcloud filtering
-        -- z_max                   float64              Desired Z upper limit for pointcloud filtering
+        ># pointcloud_in                                Unfiltered PointCloud2 message
+        #> pointcloud_out                               Filtered PointCloud2 message
 
-        ># pointcloud_list                              List of PointCloud2 messages
-        #> combined_pointcloud                          Filtered & concatenated PointCloud2 message
-
-        <= continue                                     spawned/deleted an object successfully
-        <= failed                                       something went wrong
+        <= continue                                     Filtered pointcloud successfully
+        <= failed                                       Something went wrong
 
         '''
 
-        def __init__(self, x_min, x_max, y_min, y_max, z_min, z_max):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(sacSegmentationState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = ['pointcloud_list'],
-                                                       output_keys = ['combined_pointcloud'])
-
-                rospy.wait_for_service('/concatenate_pointcloud')
-                rospy.wait_for_service('/passthrough_filter')
-                rospy.wait_for_service('/sac_segmentation')
-
-                self._concatenate_pointcloud_srv_topic = '/concatenate_pointcloud'
-                self._concatenate_pointcloud_srv = ProxyServiceCaller({self._concatenate_pointcloud_srv_topic: ConcatenatePointCloud})
-
-                self._passthrough_filter_srv_topic = '/passthrough_filter'
-                self._passthrough_filter_srv = ProxyServiceCaller({self._passthrough_filter_srv_topic: PointCloudPassthroughFilter})
-
-                self._sac_segmentation_srv_topic = '/sac_segmentation'
-                self._sac_segmentation_srv = ProxyServiceCaller({self._sac_segmentation_srv_topic: SacSegmentation})
-
-                self._x_min = x_min
-                self._x_max = x_max
-                self._y_min = y_min
-                self._y_max = y_max
-                self._z_min = z_min
-                self._z_max = z_max
+                super(pointCloudSacSegmentationState, self).__init__(outcomes = ['continue', 'failed'],
+                                                       input_keys = ['pointcloud_in'],
+                                                       output_keys = ['pointcloud_out'])
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
+
+                rospy.wait_for_service('/sac_segmentation')
+                self._service_topic = '/sac_segmentation'
+                self._service = ProxyServiceCaller({self._service_topic: SacSegmentation})
+                service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
+                userdata.pointcloud_out = service_response.cloud_out
 
                 return "continue"
 
@@ -66,17 +43,7 @@ class sacSegmentationState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                #Logger.loginfo("Number of pointclouds in list: {}".format(len(userdata.pointcloud_list)))
-                concatenated_pointcloud = ConcatenatePointCloudResponse()
-                concatenated_pointcloud = self._concatenate_pointcloud_srv.call(self._concatenate_pointcloud_srv_topic, userdata.pointcloud_list)
-
-                filtered_pointcloud = PointCloudPassthroughFilterResponse()
-                filtered_pointcloud = self._passthrough_filter_srv.call(self._passthrough_filter_srv_topic, concatenated_pointcloud, self._x_min, self._x_max, self._y_min, self._y_max, self._z_min, self._z_max)
-
-                segmented_pointcloud = SacSegmentationResponse()
-                segmented_pointcloud = self._sac_segmentation_srv.call(self._sac_segmentation_srv_topic, filtered_pointcloud)
-
-                userdata.combined_pointcloud = segmented_pointcloud
+                Logger.loginfo('attempting to segment planes from pointcloud...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
