@@ -25,14 +25,36 @@ bool getPointCloud(armada_flexbe_utilities::GetPointCloud::Request &req,
                    armada_flexbe_utilities::GetPointCloud::Response &res)
 {
   ROS_WARN("Executing GetPointCloud Service");
-  ros::Duration timeout(10);
+  ros::Duration timeout(5);
   sensor_msgs::PointCloud2ConstPtr pointcloud2_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>(req.camera_topic, timeout);
 
-  res.cloud_out = *pointcloud2_msg;
+  PointCloud<PointXYZRGB> temp_transform_cloud;
+  fromROSMsg(*pointcloud2_msg, temp_transform_cloud);
+
+  ros::Time stamp = ros::Time(0);
+  tf::StampedTransform transform;
+  tf::TransformListener listener;
+
+  pcl_conversions::toPCL(stamp, temp_transform_cloud.header.stamp);
+
+  try
+  {
+    listener.waitForTransform("base_link", temp_transform_cloud.header.frame_id, stamp, ros::Duration(5.0));
+    listener.lookupTransform("base_link", temp_transform_cloud.header.frame_id, stamp, transform);
+  } catch (tf::TransformException err)
+  {
+    ROS_ERROR("%s", err.what());
+  }
+
+  pcl_ros::transformPointCloud("base_link", temp_transform_cloud, temp_transform_cloud, listener);
+
+  sensor_msgs::PointCloud2 transformed_pointcloud_msg;
+  toROSMsg(temp_transform_cloud, transformed_pointcloud_msg);
+
+  res.cloud_out = transformed_pointcloud_msg;
   ROS_WARN("Finished GetPointCloud Service");
   return true;
 }
-
 
 int main(int argc, char **argv)
 {

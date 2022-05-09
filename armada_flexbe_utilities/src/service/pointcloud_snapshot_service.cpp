@@ -66,7 +66,13 @@ public:
     ros::Duration timeout(10);
     sensor_msgs::PointCloud2ConstPtr pointcloud2_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>(req.camera_topic, timeout);
 
-    res.cloud_out = *pointcloud2_msg;
+    PointCloud<PointXYZRGB> transformed_cloud;
+    transformed_cloud = transformCloud(*pointcloud2_msg, "world");
+
+    sensor_msgs::PointCloud2 transformed_cloud_msg;
+    toROSMsg(transformed_cloud, transformed_cloud_msg);
+
+    res.cloud_out = transformed_cloud_msg;
     ROS_WARN("Finished GetPointCloud Service");
     return true;
   }
@@ -89,10 +95,6 @@ public:
     PointCloud<PointXYZRGB> cloud_array[cloud_list_size];
     PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
 
-    for (unsigned int i = 0; i < cloud_list_size; ++i) {
-      cloud_array[i] = transformCloud(req.cloud_list_in[i], "world");
-    }
-
     *temp_cloud = cloud_array[0];
 
     if (cloud_list_size > 1) {
@@ -101,6 +103,7 @@ public:
         ROS_WARN("Concatenating cloud number: %d ...", i);
       }
     }
+
     ROS_WARN("Finishing ConcatenatePointCloud Service");
     toROSMsg(*temp_cloud, res.cloud_out);
 

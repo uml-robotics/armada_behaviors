@@ -26,30 +26,12 @@ bool concatenatePointCloud(armada_flexbe_utilities::ConcatenatePointCloud::Reque
 {
   ROS_WARN("Executing ConcatenatePointCloud Service");
   unsigned int cloud_list_size = req.cloud_list_in.size();
-  ROS_WARN("PointCloud2 List Size: %d ...", cloud_list_size);
   PointCloud<PointXYZRGB> cloud_array[cloud_list_size];
-  PointCloud<PointXYZRGB>::Ptr concatenated_cloud(new PointCloud<PointXYZRGB>);
-
-  // stuff for cloud transform
   PointCloud<PointXYZRGB> temp_transform_cloud;
-  tf::TransformListener listener;
-  ros::Time stamp = ros::Time(0);
-  tf::StampedTransform transform;
+  PointCloud<PointXYZRGB>::Ptr concatenated_cloud(new PointCloud<PointXYZRGB>);
 
   for (unsigned int i = 0; i < cloud_list_size; ++i) {
     fromROSMsg(req.cloud_list_in[i], temp_transform_cloud);
-    pcl_conversions::toPCL(stamp, temp_transform_cloud.header.stamp);
-
-    try
-    {
-      listener.waitForTransform("world", temp_transform_cloud.header.frame_id, stamp, ros::Duration(10.0));
-      listener.lookupTransform("world", temp_transform_cloud.header.frame_id, stamp, transform);
-    } catch (tf::TransformException err)
-    {
-      ROS_ERROR("%s", err.what());
-    }
-
-    pcl_ros::transformPointCloud("world", temp_transform_cloud, temp_transform_cloud, listener);
     cloud_array[i] = temp_transform_cloud;
   }
 
@@ -58,7 +40,6 @@ bool concatenatePointCloud(armada_flexbe_utilities::ConcatenatePointCloud::Reque
   if (cloud_list_size > 1) {
     for (unsigned int i = 1; i < cloud_list_size; i++) {
       *concatenated_cloud+= cloud_array[i];
-      ROS_WARN("Concatenating cloud number: %d ...", i);
     }
   }
   ROS_WARN("Finishing ConcatenatePointCloud Service");
