@@ -9,13 +9,11 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from armada_flexbe_states.concatenate_pointcloud_service_state import concatenatePointCloudState
-from armada_flexbe_states.delete_model_state import deleteObjectState
 from armada_flexbe_states.get_pointcloud_service_state import getPointCloudState
-from armada_flexbe_states.gripper_control_state import gripperControlState
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
+from armada_flexbe_states.publish_pointcloud_service import publishPointCloudState
 from armada_flexbe_states.snapshot_commander_state import snapshotCommanderState
 from armada_flexbe_states.spawn_model_state import spawnObjectState
-from flexbe_states.wait_state import WaitState
 from sandbox_flexbe_states.step_iterator_state import stepIteratorState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
@@ -59,7 +57,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 
 	def create(self):
-		# x:836 y:656, x:309 y:602
+		# x:856 y:591, x:309 y:602
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.initial_pose = ['wait']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
@@ -80,76 +78,57 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:55 y:63
 			OperatableStateMachine.add('SpawnObject',
 										spawnObjectState(model_name=self.model_name, object_file_path=self.object_file_path, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
-										transitions={'continue': 'wait', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low})
-
-			# x:894 y:63
-			OperatableStateMachine.add('ConcatenatePointCloud',
-										concatenatePointCloudState(),
-										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
-
-			# x:674 y:35
-			OperatableStateMachine.add('DeleteObject',
-										deleteObjectState(model_name=self.model_name),
-										transitions={'continue': 'ConcatenatePointCloud', 'failed': 'failed'},
+										transitions={'continue': 'MoveArm', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low})
 
 			# x:239 y:61
 			OperatableStateMachine.add('MoveArm',
 										MoveArmActionState(),
-										transitions={'finished': 'OpenGripper', 'failed': 'failed'},
+										transitions={'finished': 'SnapshotCommander', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'target_pose_list': 'initial_pose'})
 
-			# x:406 y:159
+			# x:435 y:161
 			OperatableStateMachine.add('MoveToSnapshotPose',
 										MoveArmActionState(),
 										transitions={'finished': 'getPointCloud', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'target_pose_list': 'target_pose'})
 
-			# x:711 y:375
-			OperatableStateMachine.add('OpenGripper',
-										gripperControlState(gripper_topic=self.gripper_topic, text='Target gripper value: {}', severity=Logger.REPORT_HINT),
-										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
+			# x:1154 y:341
+			OperatableStateMachine.add('PublishPointCloud',
+										publishPointCloudState(topic=self.concatenated_cloud_topic),
+										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'target_pose_val': 'gripper_open'})
+										remapping={'pointcloud': 'combined_pointcloud'})
 
-			# x:453 y:33
+			# x:422 y:62
 			OperatableStateMachine.add('SnapshotCommander',
 										snapshotCommanderState(),
-										transitions={'continue': 'DeleteObject', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
+										transitions={'continue': 'ConcatenatePointCloud', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'take_snapshot': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
-			# x:459 y:339
+			# x:809 y:150
 			OperatableStateMachine.add('SnapshotStepIterator',
 										stepIteratorState(),
 										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'iterator_in': 'current_snapshot_step', 'iterator_out': 'current_snapshot_step'})
 
-			# x:400 y:250
+			# x:435 y:250
 			OperatableStateMachine.add('getPointCloud',
 										getPointCloudState(camera_topic=self.camera_topic),
 										transitions={'continue': 'SnapshotStepIterator', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'pointcloud_list': 'pointcloud_list'})
 
-			# x:75 y:192
-			OperatableStateMachine.add('wait',
-										WaitState(wait_time=self.wait_time),
-										transitions={'done': 'CloseGripper'},
-										autonomy={'done': Autonomy.Low})
-
-			# x:57 y:316
-			OperatableStateMachine.add('CloseGripper',
-										gripperControlState(gripper_topic=self.gripper_topic, text='Target gripper value: {}', severity=Logger.REPORT_HINT),
-										transitions={'continue': 'MoveArm', 'failed': 'failed'},
+			# x:913 y:340
+			OperatableStateMachine.add('ConcatenatePointCloud',
+										concatenatePointCloudState(),
+										transitions={'continue': 'PublishPointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
-										remapping={'target_pose_val': 'gripper_closed'})
+										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
 
 
 		return _state_machine
