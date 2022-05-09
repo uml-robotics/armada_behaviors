@@ -37,8 +37,8 @@ add_service_files(
   FILES
   GetPointCloud.srv
   ConcatenatePointCloud.srv
-  #PointCloudPassthroughFilter.srv
-  #SacSegmentation.srv
+  PointCloudPassthroughFilter.srv
+  SacSegmentation.srv
   CalculateGraspWaypoints.srv
 )
 

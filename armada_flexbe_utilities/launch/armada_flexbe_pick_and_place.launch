@@ -61,10 +61,7 @@
   <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
   <node name="concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="concatenate_pointcloud_service" output="screen" />
   <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" />
-
-  <!--
   <node name="pointcloud_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pointcloud_passthrough_filter_service" output="screen" />
   <node name="sac_segmentation_service" pkg="armada_flexbe_utilities" type="sac_segmentation_service" output="screen" />
-  -->
 
 </launch>
