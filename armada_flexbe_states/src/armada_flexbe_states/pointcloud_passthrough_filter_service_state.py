@@ -33,6 +33,13 @@ class pointCloudPassthroughFilterState(EventState):
                                                        input_keys = ['pointcloud_in'],
                                                        output_keys = ['pointcloud_out'])
 
+                #self._x_min = -1.125
+                #self._x_max = -0.225
+                #self._y_min = -0.6
+                #self._y_max = 0.6
+                #self._z_min = -0.1
+                #self._z_max = 0.15
+
                 self._x_min = x_min
                 self._x_max = x_max
                 self._y_min = y_min
