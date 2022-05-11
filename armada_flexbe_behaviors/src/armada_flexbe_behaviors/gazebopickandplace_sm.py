@@ -106,12 +106,12 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:778 y:151
 			OperatableStateMachine.add('PointCloudPassthroughFilter',
-										pointCloudPassthroughFilterState(x_min=-1, x_max=0, y_min=-0.45, y_max=0.45, z_min=0.8, z_max=1.1),
-										transitions={'continue': 'PublishPointCloud', 'failed': 'failed'},
+										pointCloudPassthroughFilterState(x_min=-1.125, x_max=-0.225, y_min=-0.6, y_max=0.6, z_min=-0.1, z_max=0.15),
+										transitions={'continue': 'PointCloudSacSegmentation', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
-			# x:499 y:613
+			# x:781 y:245
 			OperatableStateMachine.add('PointCloudSacSegmentation',
 										pointCloudSacSegmentationState(),
 										transitions={'continue': 'PublishPointCloud', 'failed': 'failed'},
@@ -132,7 +132,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Low, 'take_snapshot': Autonomy.Low, 'failed': Autonomy.Low},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
-			# x:634 y:276
+			# x:633 y:315
 			OperatableStateMachine.add('SnapshotStepIterator',
 										stepIteratorState(),
 										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
