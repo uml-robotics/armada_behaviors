@@ -2,57 +2,64 @@
 import rospy
 
 from flexbe_core import EventState, Logger
-from armada_flexbe_utilities.srv import GenGraspWaypoints
-from geometry_msgs.msg import Pose
+from flexbe_core.proxy import ProxyServiceCaller
+from sensor_msgs.msg import PointCloud2
+
+from armada_flexbe_utilities.srv import GetGraspCandidates, GetGraspCandidatesResponse, GetGraspCandidatesRequest
 
 
-class graspWaypointsServiceState(EventState):
+class getGraspCandidateState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-        -- target_time 	float 	Time which needs to have passed since the behavior started.
+        -- combined_cloud_topic                         Topic to publish pointcloud message
+        -- grasp_candidates_topic                       Topic to subscribe for grasp candidate messages
 
-        #> x            int             random x position.
-        #> y            int             random y position.
+        ># combined_pointcloud                          List of PointCloud2 message
+        #> grasp_candidates                             List of grasp candidates message
 
-        <= continue 			generated x,y position.
-        <= failed 			something went wrong.
+        <= continue                                     Retrieved grasp candidates
+        <= failed                                       Something went wrong
 
         '''
 
-        def __init__(self, grasp_offset, pregrasp_dist, postgrasp_dist):
+        def __init__(self, combined_cloud_topic, grasp_candidates_topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(graspWaypointsServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                        input_keys = ['grasp_msg_list'],
-                                                        output_keys = ['grasp_poses_list'])
+                super(getGraspCandidateState, self).__init__(outcomes = ['continue', 'failed'],
+                                                       input_keys = ['combined_pointcloud'],
+                                                       output_keys = ['grasp_candidates'])
 
-                # store object spawn pose info from previous state
-                self._grasp_offset = grasp_offset
-                self._pregrasp_dist = pregrasp_dist
-                self._postgrasp_dist = postgrasp_dist
+                self._combined_cloud_topic = combined_cloud_topic
+                self._grasp_candidates_topic = grasp_candidates_topic
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                # check/wait for spawn model service to spin up
-                rospy.wait_for_service('gen_grasp_waypoints')
-                grasp_waypoints_srv = rospy.ServiceProxy('gen_grasp_waypoints', GenWaypoints)
+                self._service_topic = '/get_grasp_candidates'
+                rospy.wait_for_service(self._service_topic)
+                self._service = ProxyServiceCaller({self._service_topic: GetGraspCandidates})
+
+                request = GetGraspCandidatesRequest()
+                request.grasp_candidates_topic = self._grasp_candidates_topic
+                request.combined_cloud = userdata.combined_pointcloud
 
                 try:
-                  grasp_waypoints_srv(userdata.grasp_msg_list, self._grasp_offset, self._pregrasp_dist, self._postgrasp_dist)
-                  userdata.grasp_poses_list = grasp_waypoints_srv.grasp_poses_list
+                  service_response = self._service.call(self._service_topic, request)
+                  userdata.grasp_candidates = service_response.grasp_msg_list
                   return 'continue'
                 except:
                   return 'failed'
+
+                return 'continue'
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('attempting to generate a list of possible grasp waypoints...' )
+                Logger.loginfo('attempting to get grasp candidates...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.

@@ -40,6 +40,7 @@ add_service_files(
   PointCloudPassthroughFilter.srv
   SacSegmentation.srv
   CalculateGraspWaypoints.srv
+  GetGraspCandidates.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -68,6 +69,7 @@ include_directories(
 )
 
 add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
+add_executable(get_grasp_candidates_service src/service/get_grasp_candidates_service.cpp)
 add_executable(grasp_waypoint_service src/service/grasp_waypoint_service.cpp)
 add_executable(pointcloud_snapshot_service src/service/pointcloud_snapshot_service.cpp)
 add_executable(concatenate_pointcloud_service src/service/concatenate_pointcloud_service.cpp)
@@ -76,6 +78,7 @@ add_executable(pointcloud_passthrough_filter_service src/service/pointcloud_pass
 add_executable(sac_segmentation_service src/service/sac_segmentation_service.cpp)
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
+target_link_libraries(get_grasp_candidates_service ${catkin_LIBRARIES})
 target_link_libraries(grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(pointcloud_snapshot_service ${catkin_LIBRARIES})
 target_link_libraries(concatenate_pointcloud_service ${catkin_LIBRARIES})

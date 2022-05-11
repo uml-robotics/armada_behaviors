@@ -33,13 +33,6 @@ class pointCloudPassthroughFilterState(EventState):
                                                        input_keys = ['pointcloud_in'],
                                                        output_keys = ['pointcloud_out'])
 
-                #self._x_min = -1.125
-                #self._x_max = -0.225
-                #self._y_min = -0.6
-                #self._y_max = 0.6
-                #self._z_min = -0.1
-                #self._z_max = 0.15
-
                 self._x_min = x_min
                 self._x_max = x_max
                 self._y_min = y_min
@@ -52,8 +45,8 @@ class pointCloudPassthroughFilterState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                rospy.wait_for_service('/passthrough_filter')
                 self._service_topic = '/passthrough_filter'
+                rospy.wait_for_service(self._service_topic)
                 self._service = ProxyServiceCaller({self._service_topic: PointCloudPassthroughFilter})
 
                 request = PointCloudPassthroughFilterRequest()
@@ -65,10 +58,12 @@ class pointCloudPassthroughFilterState(EventState):
                 request.z_min = self._z_min
                 request.z_max = self._z_max
 
-                service_response = self._service.call(self._service_topic, request)
-                userdata.pointcloud_out = service_response.cloud_out
-
-                return "continue"
+                try:
+                  service_response = self._service.call(self._service_topic, request)
+                  userdata.pointcloud_out = service_response.cloud_out
+                  return 'continue'
+                except:
+                  return 'failed'
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.

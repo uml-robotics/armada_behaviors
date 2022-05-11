@@ -1,0 +1,4 @@
+string grasp_candidates_topic
+sensor_msgs/PointCloud2 combined_cloud
+---
+gpd_ros/GraspConfigList grasp_msg_list

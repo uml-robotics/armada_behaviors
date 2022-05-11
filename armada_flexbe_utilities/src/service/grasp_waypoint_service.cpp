@@ -125,15 +125,9 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "gen_grasp_waypoints_service");
   ros::NodeHandle nh;
 
-  ros::AsyncSpinner spinner(3);
-  spinner.start();
-
   GraspWaypointservice graspWaypointService = GraspWaypointservice(nh);
-
-  while(ros::ok())
-  {
-    // spin until shutdown
-  }
+  ROS_WARN("gen_grasp_waypoints_service Ready.");
+  ros::spin();
 
   return 0;
 }

@@ -32,14 +32,16 @@ class concatenatePointCloudState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                rospy.wait_for_service('/concatenate_pointcloud')
                 self._service_topic = '/concatenate_pointcloud'
+                rospy.wait_for_service(self._service_topic)
                 self._service = ProxyServiceCaller({self._service_topic: ConcatenatePointCloud})
-                service_response = self._service.call(self._service_topic, userdata.pointcloud_list)
-                userdata.combined_pointcloud = service_response.cloud_out
 
-                return 'continue'
-
+                try:
+                  service_response = self._service.call(self._service_topic, userdata.pointcloud_list)
+                  userdata.combined_pointcloud = service_response.cloud_out
+                  return 'continue'
+                except:
+                  return 'failed'
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
