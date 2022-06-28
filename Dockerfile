@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python-catkin-tools \
     ros-melodic-pcl-ros \
     ros-melodic-flexbe-behavior-engine \
+    ros-melodic-moveit \
     git \
     && rm -rf /var/lib/apt/lists/*
 
