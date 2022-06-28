@@ -55,7 +55,7 @@ RUN git clone -b master https://github.com/atenpas/gpd_ros \
 && sed -i -e 's/PCL 1.9 REQUIRED/PCL REQUIRED/g' /home/catkin_ws/src/gpd_ros/CMakeLists.txt 
 
 WORKDIR /home/catkin_ws 
-RUN catkin make
+RUN catkin build
 
 
 WORKDIR /home/catkin_ws/
