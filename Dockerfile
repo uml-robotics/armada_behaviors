@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python-wstool \
     python-catkin-tools \
     ros-melodic-pcl-ros \
+    ros-melodic-flexbe-behavior-engine \
     git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -56,7 +57,6 @@ RUN git clone -b master https://github.com/atenpas/gpd_ros \
 
 WORKDIR /home/catkin_ws 
 RUN catkin build --make-args gpd_ros_generate_messages
-RUN catkin build
 
 
 WORKDIR /home/catkin_ws/
