@@ -40,16 +40,15 @@ RUN source /opt/ros/melodic/setup.bash \
  && catkin build
 
 # Install GPD as library 
-# # Install GPD as library 
-# WORKDIR /home/catkin_ws/src
-# RUN git clone https://github.com/atenpas/gpd \
-# && sed -i -e 's/PCL 1.9 REQUIRED/PCL REQUIRED/g' /home/catkin_ws/src/gpd/CMakeLists.txt
-# WORKDIR /home/catkin_ws/src/gpd
-# RUN mkdir build \
-# && cd build \
-# && cmake ..  \
-# && make -j  \ 
-# && make install 
+ WORKDIR /home/catkin_ws/src
+ RUN git clone https://github.com/atenpas/gpd \
+ && sed -i -e 's/PCL 1.9 REQUIRED/PCL REQUIRED/g' /home/catkin_ws/src/gpd/CMakeLists.txt
+ WORKDIR /home/catkin_ws/src/gpd
+ RUN mkdir build \
+ && cd build \
+ && cmake ..  \
+ && make -j  \ 
+ && make install 
 
 # WORKDIR /home/catkin_ws/src
 # RUN git clone -b master https://github.com/atenpas/gpd_ros \
