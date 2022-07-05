@@ -14,10 +14,10 @@
   <arg name="sn2" default="" doc="Serial number of 2nd device" />
   <arg name="sn3" default="" doc="Serial number of 3rd device" />
   <arg name="sn4" default="" doc="Serial number of 4th device" />
-  <arg name="robot_make" default="" />
-  <arg name="robot_model" default="" />
-  <arg name="gripper_make" default="" />
-  <arg name="gripper_model" default="" />
+  <arg name="robot_make" default="universal_robot" />
+  <arg name="robot_model" default="ur5e" />
+  <arg name="gripper_make" default="robotiq" />
+  <arg name="gripper_model" default="r2f85" />
   <arg name="namespace" default="" />
 
   <!-- GPD (this should be separated after testing + add matching GQCNN launch files***)-->
@@ -63,18 +63,20 @@
       <arg name="kinematics_config" value="$(arg kinematics_config)"/>
       <arg name="robot_description_file" value="$(find armada_description)/$(arg robot_make)/urdf/$(arg robot_model)_robot_d435_millibar_robotiq_2f_85_workstation.urdf.xacro" unless="$(eval wrist_cam == '')"/>
       <arg name="limited" value="false"/>
-      <arg name="model" value="ur5"/>
       <arg name="sim_workstation" value="true"/>
-      <arg name="gripper_make" value="robotiq" />
-      <arg name="gripper_model" value="r2f85" />
+      <arg name="robot_make" value="$(arg robot_make)" />
+      <arg name="robot_model" value="$(arg robot_model)" />
+      <arg name="gripper_make" value="$(arg gripper_make)" />
+      <arg name="gripper_model" value="$(arg gripper_model)" />
       <arg name="wrist_cam" value="$(arg wrist_cam)"/>
     </include>
   </group>
 
   <group if="$(eval robot_ip == '')">
     <include file="$(find armada_gazebo)/universal_robot/launch/gazebo_universal_robot.launch" if="$(eval robot_ip == '')">
-      <arg name="robot_model" value="ur5e"/>
       <arg name="sim_workstation" value="true"/>
+      <arg name="robot_make" value="$(arg robot_make)" />
+      <arg name="robot_model" value="$(arg robot_model)" />
       <arg name="gripper_make" value="robotiq" />
       <arg name="gripper_model" value="r2f85" />
       <arg name="wrist_cam" value="d435_millibar"/>  <!-- d435_millibar -->
