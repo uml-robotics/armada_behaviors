@@ -57,16 +57,17 @@ public:
   bool calculateGraspWaypoints(armada_flexbe_utilities::CalculateGraspWaypoints::Request &req,
                                armada_flexbe_utilities::CalculateGraspWaypoints::Response &res)
   {
+    ROS_WARN("Executing CalculateGraspWaypoints Service");
+
     std::vector<armada_flexbe_utilities::GraspPoses> grasp_poses_vect;
+    armada_flexbe_utilities::GraspPosesList msg;
 
     unsigned long candidates_list_size = req.grasp_msg_list.grasps.size();
     for (unsigned long i = 0; i < candidates_list_size; ++i) {
-      grasp_poses_vect.push_back(calculateGraspPoses(req.grasp_msg_list.grasps[i], req.grasp_offset, req.pregrasp_dist, req.postgrasp_dist));
+      res.grasp_poses_list.poses.push_back(calculateGraspPoses(req.grasp_msg_list.grasps[i], req.grasp_offset, req.pregrasp_dist, req.postgrasp_dist));
     }
 
-    for (unsigned long i = 0; i < candidates_list_size; i++) {
-      res.grasp_poses_list.poses[i] = grasp_poses_vect[i];
-    }
+    ROS_WARN("Finished CalculateGraspWaypoints Service");
     return true;
   }
 
