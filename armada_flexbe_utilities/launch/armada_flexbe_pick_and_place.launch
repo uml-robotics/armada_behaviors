@@ -6,7 +6,6 @@
   <arg name="gripper_ip" default="10.10.10.42" />
   <arg name="robot_description_file" default="" />
   <arg name="limited" default="" />
-  <arg name="model" default="" />
   <arg name="sim_workstation" default="" />
   <arg name="wrist_cam" default="d435_millibar" />
   <arg name="max_dist" default="" />
