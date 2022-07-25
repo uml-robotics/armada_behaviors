@@ -3,42 +3,33 @@
 
   <arg name="kinematics_config" default="$(find armada_description)/universal_robot/cfg/ur5e_calibration.yaml" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
   <arg name="robot_ip" default="" />
-  <arg name="gripper_ip" default="10.10.10.42" />
-  <arg name="robot_description_file" default="" />
+  <arg name="gripper_ip" default="10.10.10.42" doc="If no roobot_ip is given, the robot will be brought up in Gazebo (simulation)" />
   <arg name="limited" default="" />
   <arg name="sim_workstation" default="" />
   <arg name="wrist_cam" default="d435_millibar" />
   <arg name="max_dist" default="" />
-  <arg name="sn1" default="843112074121" doc="Serial number of 1st device" />
-  <arg name="sn2" default="" doc="Serial number of 2nd device" />
-  <arg name="sn3" default="" doc="Serial number of 3rd device" />
-  <arg name="sn4" default="" doc="Serial number of 4th device" />
+  <arg name="serial_no" default="843112074121" doc="Serial number of 1st device" />
   <arg name="robot_make" default="universal_robot" />
   <arg name="robot_model" default="ur5e" />
   <arg name="gripper_make" default="robotiq" />
   <arg name="gripper_model" default="r2f85" />
+  <arg name="robot_description_file" default="$(find armada_description)/$(arg robot_make)/urdf/$(arg robot_model)_robot_$(arg wrist_cam)_$(arg gripper_model)_workstation.urdf.xacro" />
   <arg name="namespace" default="" />
 
   <!-- GPD (this should be separated after testing + add matching GQCNN launch files***)-->
   <node name="detect_grasps" pkg="gpd_ros" type="detect_grasps" respawn="true">
-
     <!-- If sequential importance sampling is used (default: false) -->
     <param name="use_importance_sampling" value="false" />
-
     <!-- What type of point cloud is used and what ROS topic it comes from -->
     <param name="cloud_type" value="0" /> <!-- 0: PointCloud2, 1: CloudIndexed, 2: CloudSamples -->
     <param name="cloud_topic" value="$(eval '/' + arg('namespace') + '/combined_cloud')" />
-
     <!-- (optional) The ROS topic that the samples come from (default: an empty string) -->
     <param name="samples_topic" value="" />
-
     <!-- Filepath to the configuration file for GPD -->
     <param name="config_file" value="$(find armada_flexbe_utilities)/cfg/ros_eigen_params.cfg" />
     <!-- <param name="config_file" value="$(find armada_flexbe_utilities)/cfg/ros_vino_params.cfg" />
     add this config file to the armada_flexbe_utilities package-->
-
     <param name="rviz_topic" value="grasps_rviz" />
-
   </node>
 
   <rosparam file="$(find armada_flexbe_utilities)/cfg/ur5e_wrist_d435.yaml" />
@@ -60,7 +51,7 @@
     <include file="$(find armada_bringup)/$(arg robot_make)/launch/$(arg robot_model)_bringup.launch" unless="$(eval robot_ip == '')">
       <arg name="robot_ip" value="10.10.10.152"/>
       <arg name="kinematics_config" value="$(arg kinematics_config)"/>
-      <arg name="robot_description_file" value="$(find armada_description)/$(arg robot_make)/urdf/$(arg robot_model)_robot_d435_millibar_robotiq_2f_85_workstation.urdf.xacro" unless="$(eval wrist_cam == '')"/>
+      <arg name="robot_description_file" value="$(arg robot_description_file)" unless="$(eval wrist_cam == '')"/>
       <arg name="limited" value="false"/>
       <arg name="sim_workstation" value="true"/>
       <arg name="robot_make" value="$(arg robot_make)" />
@@ -72,13 +63,13 @@
   </group>
 
   <group if="$(eval robot_ip == '')">
-    <include file="$(find armada_gazebo)/universal_robot/launch/gazebo_universal_robot.launch" if="$(eval robot_ip == '')">
+    <include file="$(find armada_gazebo)/$(arg robot_make)/launch/gazebo_$(arg robot_make).launch" if="$(eval robot_ip == '')">
       <arg name="sim_workstation" value="true"/>
       <arg name="robot_make" value="$(arg robot_make)" />
       <arg name="robot_model" value="$(arg robot_model)" />
-      <arg name="gripper_make" value="robotiq" />
-      <arg name="gripper_model" value="r2f85" />
-      <arg name="wrist_cam" value="d435_millibar"/>  <!-- d435_millibar -->
+      <arg name="gripper_make" value="$(arg gripper_make)" />
+      <arg name="gripper_model" value="$(arg gripper_model)" />
+      <arg name="wrist_cam" value="$(arg wrist_cam)"/>
     </include>
   </group>
 
