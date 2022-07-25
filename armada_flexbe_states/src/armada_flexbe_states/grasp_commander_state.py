@@ -1,82 +1,68 @@
 #!/usr/bin/env python
+
+import rospy
 from flexbe_core import EventState, Logger
-from flexbe_core.proxy import ProxyActionClient
-
-from armada_flexbe_utilities.msg import NamedPoseMoveAction, NamedPoseMoveGoal
-from armada_flexbe_utilities.msg import CartesianMoveAction, CartesianMoveGoal
-
-from geometry_msgs.msg import Pose
 
 class GraspCommanderState(EventState):
-        '''
+  '''
+  This state will iterate through a list of armada_flexbe_utilities/GraspPoses items and attempt to find a set of approach pose waypoints
+  that the robot can complete. Upon approaching the object successfully, the commander will initiate gripper closing to complete
+  a grasp. After a successful grasp, the current_list_position userdata will be used as input to execute the retreat motion.
 
-        ># target_pose_list                 List of poses, this can be names (pre-defined, named poses) or waypoints (
+  #> grasp_waypoints_list             string          List of GraspPoses.
+  #> current_list_position            int             Position in snapshot list.
+  ># target_pose_list                 Pose            List of grasp waypoint Poses.
 
-        <= finished                         Arm successfully moved to named position
-        <= failed                           Motion planning/execution failed
+  <= continue                                         Grasping operation is complete.
+  <= attempt_grasp                                    Send list of waypoint Poses to move_arm action state.
+  <= close_gripper                                    Go to close gripper service state.
+  <= failed                                           Something went wrong.
 
-        '''
+  '''
 
         def __init__(self):
                 # See example_state.py for basic explanations.
-                super(GraspCommanderState, self).__init__(outcomes = ['finished', 'failed'],
-                                                         input_keys = ['grasp_waypoints_list'])
+                super(GraspCommanderState, self).__init__(outcomes = ['continue', 'attempt_grasp', 'close_gripper', 'failed'],
+                                                         input_keys = ['grasp_waypoints_list', 'current_list_position'],
+                                                         output_keys = ['target_pose_list'])
 
-                # Store the action server topics for convenience
-                self._topic = 'execute_cartesian_plan'
-                self._client = ProxyActionClient({self._cartesian_move_action_topic: CartesianMoveAction})
+         def execute(self, userdata):
+                # This method is called periodically while the state is active.
+                # Main purpose is to check state conditions and trigger a corresponding outcome.
+                # If no outcome is returned, the state will stay active.
 
-                # It may happen that the action client fails to send the action goal.
-                self._error = False
-
-
-        def execute(self, userdata):
-                # While this state is active, check if the action has been finished and evaluate the result.
-
-                # Check if the client failed to send the goal.
-                if self._error:
-                        return 'failed'
-
-                # Check if the action has been finished
-                if self._client.has_result(self._topic):
-                        result = self._client.get_result(self._topic)
-                        execution_success = result.execution_success
-
-                        # Based on the result, decide which outcome to trigger.
-                        if execution_success == 1:
-                                return 'finished'
-                        else:
-                                return 'failed'
-
-                # If the action has not yet finished, no outcome will be returned and the state stays active.
+                pose_list_size = len(userdata.snapshot_pose_list)
+                if userdata.current_snapshot_step < pose_list_size:
+                    next_pose = [userdata.snapshot_pose_list[userdata.current_snapshot_step]]
+                    userdata.target_pose = next_pose
+                    return 'attempt_grasp'
+                else:
+                    return 'continue'
 
 
         def on_enter(self, userdata):
-                # When entering this state, we send the action goal once to let the robot start its work.
+                # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
+                # It is primarily used to start actions which are associated with this state.
 
-                # As documented above, we get the specification of which dishwasher to use as input key.
-                # This enables a previous state to make this decision during runtime and provide the ID as its own output key.
-
-                # Create the goal.
-                goal = CartesianMoveGoal()
-                goal.grasp_waypoints = userdata.grasp_poses_list[0]
-                self._topic = self._cartesian_move_action_topic
-
-                # Send the goal.
-                self._error = False # make sure to reset the error state since a previous state execution might have failed
-                try:
-                        self._client.send_goal(self._topic, goal)
-                except Exception as e:
-                        # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
-                        # Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
-                        Logger.logwarn('Failed to send the command:\n%s' % str(e))
-                        self._error = True
+                pass # Nothing to do in this state.
 
 
         def on_exit(self, userdata):
-                # Make sure that the action is not running when leaving this state.
-                # A situation where the action would still be active is for example when the operator manually triggers an outcome.
+                # This method is called when an outcome is returned and another state gets active.
+                # It can be used to stop possibly running processes started by on_enter.
 
-                if not self._client.has_result(self._cartesian_move_action_topic):
-                        self._client.cancel(self._cartesian_move_action_topic)
-                        Logger.loginfo('Cancelled active action goal.')
+                pass # Nothing to do in this state.
+
+
+        def on_start(self):
+                # This method is called when the behavior is started.
+                # If possible, it is generally better to initialize used resources in the constructor
+                # because if anything failed, the behavior would not even be started.
+
+                pass # Nothing to do in this state.
+
+        def on_stop(self):
+                # This method is called whenever the behavior stops execution, also if it is cancelled.
+                # Use this event to clean up things like claimed resources.
+
+                pass # Nothing to do in this state.

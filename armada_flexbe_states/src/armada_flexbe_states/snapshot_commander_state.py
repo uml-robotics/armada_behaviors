@@ -1,15 +1,13 @@
 #!/usr/bin/env python
+
 import rospy
-
 from flexbe_core import EventState, Logger
-from gazebo_msgs.srv import DeleteModel
-from geometry_msgs.msg import Pose
-
 
 class snapshotCommanderState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        This state will iterate through a list of snapshot poses that the robot needs to move to
+        and initiate either movement or capture of pointcloud data depending on the current step,
+        this state should be used in a loop to make decisions.
 
         #> snapshot_pose_list               string          List of pre-defined (SRDF) poses for camera snapshot(s).
         #> current_snapshot_step            int             Position in snapshot list.
