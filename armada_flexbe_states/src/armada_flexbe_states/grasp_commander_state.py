@@ -7,7 +7,7 @@ from armada_flexbe_utilities.msg import CartesianMoveAction, CartesianMoveGoal
 
 from geometry_msgs.msg import Pose
 
-class PerformGraspActionState(EventState):
+class GraspCommanderState(EventState):
         '''
 
         ># target_pose_list                 List of poses, this can be names (pre-defined, named poses) or waypoints (
@@ -19,7 +19,7 @@ class PerformGraspActionState(EventState):
 
         def __init__(self):
                 # See example_state.py for basic explanations.
-                super(PerformGraspActionState, self).__init__(outcomes = ['finished', 'failed'],
+                super(GraspCommanderState, self).__init__(outcomes = ['finished', 'failed'],
                                                          input_keys = ['grasp_waypoints_list'])
 
                 # Store the action server topics for convenience
