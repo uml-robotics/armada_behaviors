@@ -8,17 +8,17 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from armada_flexbe_states.calculate_grasp_waypoints_state import calculateGraspWaypointsServiceState
-from armada_flexbe_states.concatenate_pointcloud_service_state import concatenatePointCloudState
-from armada_flexbe_states.delete_model_state import deleteObjectState
-from armada_flexbe_states.get_grasp_candidates_service_state import getGraspCandidateState
-from armada_flexbe_states.get_pointcloud_service_state import getPointCloudState
+from armada_flexbe_states.calculate_grasp_waypoints_state import CalculateGraspWaypointsServiceState
+from armada_flexbe_states.concatenate_pointcloud_service_state import ConcatenatePointCloudServiceState
+from armada_flexbe_states.delete_model_state import DeleteModelServiceState
+from armada_flexbe_states.get_grasp_candidates_service_state import GetGraspCandidatesServiceState
+from armada_flexbe_states.get_pointcloud_service_state import GetPointCloudServiceState
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
-from armada_flexbe_states.pointcloud_passthrough_filter_service_state import pointCloudPassthroughFilterState
-from armada_flexbe_states.publish_pointcloud_state import publishPointCloudState
-from armada_flexbe_states.sac_segmentation_service_state import pointCloudSacSegmentationState
-from armada_flexbe_states.snapshot_commander_state import snapshotCommanderState
-from armada_flexbe_states.spawn_model_state import spawnObjectState
+from armada_flexbe_states.pointcloud_passthrough_filter_service_state import PointCloudPassthroughFilterServiceState
+from armada_flexbe_states.publish_pointcloud_state import PointCloudPublisherState
+from armada_flexbe_states.sac_segmentation_service_state import SacSegmentationServiceState
+from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
+from armada_flexbe_states.spawn_model_state import SpawnModelServiceState
 from sandbox_flexbe_states.step_iterator_state import stepIteratorState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
@@ -87,27 +87,27 @@ class GazeboPickAndPlaceSM(Behavior):
 
 		with _state_machine:
 			# x:60 y:31
-			OperatableStateMachine.add('DeleteObjectStart',
-										deleteObjectState(model_name=self.model_name),
+                        OperatableStateMachine.add('DeleteObjectStart',
+                                                                                DeleteModelServiceState(model_name=self.model_name),
 										transitions={'continue': 'SpawnObject', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:801 y:56
-			OperatableStateMachine.add('ConcatenatePointCloud',
-										concatenatePointCloudState(),
+                        OperatableStateMachine.add('ConcatenatePointCloud',
+                                                                                ConcatenatePointCloudServiceState(),
 										transitions={'continue': 'PointCloudPassthroughFilter', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
 
 			# x:825 y:495
 			OperatableStateMachine.add('DeleteObjectEnd',
-										deleteObjectState(model_name=self.model_name),
+                                                                                DeleteModelServiceState(model_name=self.model_name),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:813 y:412
 			OperatableStateMachine.add('GetGraspCandidates',
-										getGraspCandidateState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
+                                                                                GetGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
 										transitions={'continue': 'CalculateGraspWaypoints', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
@@ -135,28 +135,28 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:784 y:153
 			OperatableStateMachine.add('PointCloudPassthroughFilter',
-										pointCloudPassthroughFilterState(x_min=-1.125, x_max=-0.225, y_min=-0.6, y_max=0.6, z_min=-0.1, z_max=0.15),
+                                                                                PointCloudPassthroughFilterServiceState(x_min=-1.125, x_max=-0.225, y_min=-0.6, y_max=0.6, z_min=-0.1, z_max=0.15),
 										transitions={'continue': 'PointCloudSacSegmentation', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
 			# x:784 y:246
 			OperatableStateMachine.add('PointCloudSacSegmentation',
-										pointCloudSacSegmentationState(),
+                                                                                SacSegmentationServiceState(),
 										transitions={'continue': 'PublishPointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
 			# x:814 y:327
 			OperatableStateMachine.add('PublishPointCloud',
-										publishPointCloudState(topic=self.concatenated_cloud_topic),
+                                                                                PointCloudPublisherState(topic=self.concatenated_cloud_topic),
 										transitions={'continue': 'GetGraspCandidates', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud': 'combined_pointcloud'})
 
 			# x:422 y:62
 			OperatableStateMachine.add('SnapshotCommander',
-										snapshotCommanderState(),
+                                                                                SnapshotCommanderState(),
 										transitions={'continue': 'MoveArm2', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'take_snapshot': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
@@ -170,20 +170,20 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:60 y:100
 			OperatableStateMachine.add('SpawnObject',
-										spawnObjectState(model_name=self.model_name, object_file_path=self.object_file_path, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
+                                                                                SpawnModelServiceState(model_name=self.model_name, object_file_path=self.object_file_path, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
 										transitions={'continue': 'MoveArm', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:408 y:256
 			OperatableStateMachine.add('getPointCloud',
-										getPointCloudState(camera_topic=self.camera_topic),
+                                                                                GetPointCloudServiceState(camera_topic=self.camera_topic),
 										transitions={'continue': 'SnapshotStepIterator', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list': 'pointcloud_list'})
 
 			# x:1009 y:83
 			OperatableStateMachine.add('CalculateGraspWaypoints',
-										calculateGraspWaypointsServiceState(grasp_offset=self.grasp_offset, pregrasp_dist=self.pregrasp_dist, postgrasp_dist=self.postgrasp_dist),
+                                                                                CalculateGraspWaypointsServiceState(grasp_offset=self.grasp_offset, pregrasp_dist=self.pregrasp_dist, postgrasp_dist=self.postgrasp_dist),
 										transitions={'continue': 'DeleteObjectEnd', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
