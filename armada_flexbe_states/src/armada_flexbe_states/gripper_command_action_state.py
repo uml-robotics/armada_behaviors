@@ -7,7 +7,7 @@ from flexbe_core.proxy import ProxyPublisher
 from control_msgs.msg import GripperCommandAction, GripperCommandGoal, GripperCommand
 from std_msgs.msg import Int64
 
-class gripperControlState(EventState):
+class GripperCommandActionState(EventState):
         '''
         A state to control the position of a gripper using the GripperCommand action server
 
@@ -24,7 +24,7 @@ class gripperControlState(EventState):
 
         def __init__(self, gripper_topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(gripperControlState, self).__init__(outcomes = ['continue', 'failed'],
+                super(GripperCommandActionState, self).__init__(outcomes = ['continue', 'failed'],
                                                         input_keys = ['target_pose_val'],
                                                         output_keys = ['grasp_state'])
 
