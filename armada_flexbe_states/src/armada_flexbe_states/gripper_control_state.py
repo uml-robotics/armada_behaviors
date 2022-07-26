@@ -4,55 +4,70 @@ import time
 
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyPublisher
-from control_msgs.msg import GripperCommandActionGoal
+from control_msgs.msg import GripperCommandAction, GripperCommandGoal, GripperCommand
 from std_msgs.msg import Int64
 
 class gripperControlState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        A state to control the position of a gripper using the GripperCommand action server
 
         -- gripper_topic              string           The gripper command topic being used
         -- text  	              string 	       The message to be logged to the terminal Example:  'Counter value:  {}'
 
         ># target_pose_val                             Target gripper position value (between 0 and 1)
+        #> grasp_state                                 State of gripper after operation (open or closed)
 
         <= continue 			               Task completed successfully
         <= failed 			               Something went wrong.
 
         '''
 
-        def __init__(self, gripper_topic, text, severity=Logger.REPORT_HINT):
+        def __init__(self, gripper_topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(gripperControlState, self).__init__(outcomes = ['continue', 'failed'],
-                                                        input_keys = ['target_pose_val'])
+                                                        input_keys = ['target_pose_val'],
+                                                        output_keys = ['grasp_state'])
 
-                self._gripper_topic = gripper_topic
-                self._text = text
-                self._severity = severity
-                self._pub = ProxyPublisher({self._gripper_topic: GripperCommandActionGoal})
+                self._topic = gripper_topic
+                self._client = ProxyActionClient({self._topic: NamedPoseMoveAction})
 
         def execute(self, userdata):
-                # This method is called periodically while the state is active.
-                # Main purpose is to check state conditions and trigger a corresponding outcome.
-                # If no outcome is returned, the state will stay active.
+                # While this state is active, check if the action has been finished and evaluate the result.
 
-                gripper_cmd = GripperCommandActionGoal()
-                closeVal = userdata.target_pose_val
-                gripper_cmd.goal.command.position = closeVal
+                # Check if the client failed to send the goal.
+                if self._error:
+                        return 'failed'
 
-                # log closeval for troubleshooting
-                # Logger.log(self._text.format(closeVal), self._severity)
+                # Check if the action has been finished
+                if self._client.has_result(self._topic):
+                        result = self._client.get_result(self._topic)
+                        execution_success = result.execution_success
 
-                self._pub.publish(self._gripper_topic, gripper_cmd)
-                time.sleep(1)
-                return 'continue'
+                        # Based on the result, decide which outcome to trigger.
+                        if execution_success == 1:
+                                return 'finished'
+                        else:
+                                return 'failed'
+
+                # If the action has not yet finished, no outcome will be returned and the state stays active.
+
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                pass # Nothing to do in this state.
+                goal = GripperCommand()
+                goal.position = userdata.target_pose_val
+
+                # Send the goal.
+                self._error = False # make sure to reset the error state since a previous state execution might have failed
+                try:
+                        self._client.send_goal(self._topic, goal)
+                except Exception as e:
+                        # Since a state failure not necessarily causes a behavior failure, it is recommended to only print warnings, not errors.
+                        # Using a linebreak before appending the error log enables the operator to collapse details in the GUI.
+                        Logger.logwarn('Failed to send the command:\n%s' % str(e))
+                        self._error = True
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
