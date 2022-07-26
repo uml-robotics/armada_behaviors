@@ -14,7 +14,7 @@ Created on 11/19/2015
 @author: Spyros Maniatopoulos
 """
 
-class MoveBaseState(EventState):
+class MoveBaseActionState(EventState):
     """
     Navigates a robot to a desired **map** position and orientation using move_base.
 
@@ -27,7 +27,7 @@ class MoveBaseState(EventState):
     def __init__(self):
         """Constructor"""
 
-        super(MoveBaseState, self).__init__(outcomes = ['arrived', 'failed'],
+        super(MoveBaseActionState, self).__init__(outcomes = ['arrived', 'failed'],
                                             input_keys = ['waypoint'])
 
         self._action_topic = "/move_base"

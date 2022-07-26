@@ -8,7 +8,7 @@ from sensor_msgs.msg import PointCloud2
 from armada_flexbe_utilities.srv import GetPointCloud, GetPointCloudResponse, GetPointCloudRequest
 
 
-class getPointCloudState(EventState):
+class GetPointCloudServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -25,7 +25,7 @@ class getPointCloudState(EventState):
 
         def __init__(self, camera_topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(getPointCloudState, self).__init__(outcomes = ['continue', 'failed'],
+                super(GetPointCloudServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_list'],
                                                        output_keys = ['pointcloud_list'])
 

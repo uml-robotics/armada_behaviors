@@ -7,7 +7,7 @@ from gazebo_msgs.srv import SpawnModel
 from geometry_msgs.msg import Pose
 
 
-class spawnObjectState(EventState):
+class SpawnModelServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -24,7 +24,7 @@ class spawnObjectState(EventState):
 
         def __init__(self, model_name, object_file_path, robot_namespace, reference_frame):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(spawnObjectState, self).__init__(outcomes = ['continue', 'failed'])
+                super(SpawnModelServiceState, self).__init__(outcomes = ['continue', 'failed'])
 
                 # store object spawn pose info from previous state
                 self._model_name = model_name

@@ -8,7 +8,7 @@ from sensor_msgs.msg import PointCloud2
 from armada_flexbe_utilities.srv import ConcatenatePointCloud, ConcatenatePointCloudResponse, ConcatenatePointCloudRequest
 
 
-class concatenatePointCloudState(EventState):
+class ConcatenatePointCloudServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -23,7 +23,7 @@ class concatenatePointCloudState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(concatenatePointCloudState, self).__init__(outcomes = ['continue', 'failed'],
+                super(ConcatenatePointCloudServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_list'],
                                                        output_keys = ['combined_pointcloud'])
 

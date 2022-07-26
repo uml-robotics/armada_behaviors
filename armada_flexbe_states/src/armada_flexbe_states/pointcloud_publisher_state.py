@@ -2,52 +2,50 @@
 import rospy
 
 from flexbe_core import EventState, Logger
-from gazebo_msgs.srv import DeleteModel
-from geometry_msgs.msg import Pose
+from flexbe_core.proxy import ProxyPublisher
+from sensor_msgs.msg import PointCloud2
+
+from armada_flexbe_utilities.srv import ConcatenatePointCloud, ConcatenatePointCloudResponse, ConcatenatePointCloudRequest
 
 
-class deleteObjectState(EventState):
+class PointCloudPublisherState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-        -- model_name 	string          Name of the model to be deleted from the scene.
+        -- topic                                        Topic to publish pointcloud on
 
-        #> x            int             random x position.
-        #> y            int             random y position.
+        ># pointcloud                                   List of PointCloud2 messages
 
-        <= continue 			generated x,y position.
-        <= failed 			something went wrong.
+        <= continue                                     concatenated pointclouds successfully
+        <= failed                                       something went wrong
 
         '''
 
-        def __init__(self, model_name):
+        def __init__(self, topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(deleteObjectState, self).__init__(outcomes = ['continue', 'failed'])
+                super(PointCloudPublisherState, self).__init__(outcomes = ['continue', 'failed'],
+                                                       input_keys = ['pointcloud'])
 
-                # store object spawn pose info from previous state
-                self._model_name = model_name
+                self._topic = topic
+                self._pub = ProxyPublisher({self._topic: PointCloud2})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                # check/wait for delete model service to spin up
-                rospy.wait_for_service('gazebo/delete_model')
-                delete_model_srv = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
-
-                try:
-                  delete_model_srv(self._model_name)
-                  return 'continue'
-                except:
-                  return 'failed'
+                return 'continue'
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('attempting to spawn object...' )
+                Logger.loginfo('attempting to publish concatenated pointcloud...' )
+
+                val = PointCloud2()
+                val = userdata.pointcloud
+                self._pub.publish(self._topic, val)
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.

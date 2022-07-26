@@ -8,7 +8,7 @@ from sensor_msgs.msg import PointCloud2
 from armada_flexbe_utilities.srv import GetGraspCandidates, GetGraspCandidatesResponse, GetGraspCandidatesRequest
 
 
-class getGraspCandidateState(EventState):
+class GetGraspCandidatesServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -26,7 +26,7 @@ class getGraspCandidateState(EventState):
 
         def __init__(self, combined_cloud_topic, grasp_candidates_topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(getGraspCandidateState, self).__init__(outcomes = ['continue', 'failed'],
+                super(GetGraspCandidatesServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['combined_pointcloud'],
                                                        output_keys = ['grasp_candidates'])
 

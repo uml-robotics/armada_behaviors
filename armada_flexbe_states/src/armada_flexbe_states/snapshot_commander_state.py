@@ -3,7 +3,7 @@
 import rospy
 from flexbe_core import EventState, Logger
 
-class snapshotCommanderState(EventState):
+class SnapshotCommanderState(EventState):
         '''
         This state will iterate through a list of snapshot poses that the robot needs to move to
         and initiate either movement or capture of pointcloud data depending on the current step,
@@ -21,7 +21,7 @@ class snapshotCommanderState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(snapshotCommanderState, self).__init__(outcomes = ['continue', 'take_snapshot', 'failed'],
+                super(SnapshotCommanderState, self).__init__(outcomes = ['continue', 'take_snapshot', 'failed'],
                                                              input_keys = ['snapshot_pose_list', 'current_snapshot_step'],
                                                              output_keys = ['target_pose'])
 

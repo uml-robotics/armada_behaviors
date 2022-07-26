@@ -7,7 +7,7 @@ from flexbe_core.proxy import ProxyServiceCaller
 from armada_flexbe_utilities.srv import SacSegmentation, SacSegmentationResponse, SacSegmentationRequest
 
 
-class pointCloudSacSegmentationState(EventState):
+class SacSegmentationServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -22,7 +22,7 @@ class pointCloudSacSegmentationState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(pointCloudSacSegmentationState, self).__init__(outcomes = ['continue', 'failed'],
+                super(SacSegmentationServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_in'],
                                                        output_keys = ['pointcloud_out'])
 
