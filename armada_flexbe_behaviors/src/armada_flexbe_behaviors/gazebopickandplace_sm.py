@@ -111,13 +111,6 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:80 y:547
-			OperatableStateMachine.add('GaspCommander',
-										GraspCommanderState(),
-										transitions={'continue': 'MoveArmPostGrasp', 'approach': 'MoveArmGrasp', 'retreat': 'MoveArmGrasp', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'approach': Autonomy.Off, 'retreat': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'grasp_task_candidates': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt', 'grasp_state': 'grasp_state', 'gripper_state': 'gripper_state', 'target_pose_list': 'target_pose_list', 'gripper_target_position': 'gripper_target_position'})
-
 			# x:813 y:412
 			OperatableStateMachine.add('GetGraspCandidates',
 										GetGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
@@ -125,10 +118,17 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
 
+			# x:80 y:547
+			OperatableStateMachine.add('GraspCommander',
+										GraspCommanderState(),
+										transitions={'continue': 'MoveArmPostGrasp', 'approach': 'MoveArmGrasp', 'retreat': 'MoveArmGrasp', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'approach': Autonomy.Off, 'retreat': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'grasp_task_candidates': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt', 'grasp_state': 'grasp_state', 'gripper_state': 'gripper_state', 'target_pose_list': 'target_pose_list', 'gripper_target_position': 'gripper_target_position'})
+
 			# x:239 y:648
 			OperatableStateMachine.add('GripperCommandGrasp',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
-										transitions={'continue': 'GaspCommander', 'failed': 'failed'},
+										transitions={'continue': 'GraspCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
@@ -142,7 +142,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:376 y:549
 			OperatableStateMachine.add('MoveArmGrasp',
 										MoveArmActionState(),
-										transitions={'finished': 'GripperCommandGrasp', 'failed': 'failed'},
+										transitions={'finished': 'GripperCommandGrasp', 'failed': 'GraspCommander'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose_list'})
 
@@ -225,7 +225,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:1009 y:83
 			OperatableStateMachine.add('CalculateGraspWaypoints',
 										CalculateGraspWaypointsServiceState(grasp_offset=self.grasp_offset, pregrasp_dist=self.pregrasp_dist, postgrasp_dist=self.postgrasp_dist),
-										transitions={'continue': 'GaspCommander', 'failed': 'failed'},
+										transitions={'continue': 'GraspCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
 
