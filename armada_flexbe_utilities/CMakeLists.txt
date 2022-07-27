@@ -49,7 +49,6 @@ add_action_files(
   FILES
   CartesianMove.action
   NamedPoseMove.action
-  ChooseAndPerformGrasp.action
 )
 
 ## Generate added msg and srv with any dependencies listed here

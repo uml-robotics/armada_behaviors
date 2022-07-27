@@ -3,7 +3,6 @@
 #include <actionlib/server/simple_action_server.h>
 #include <armada_flexbe_utilities/CartesianMoveAction.h>
 #include <armada_flexbe_utilities/NamedPoseMoveAction.h>
-//#include <armada_flexbe_utilities/ChooseAndPerformGraspAction.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 
 typedef boost::shared_ptr<moveit::planning_interface::MoveGroupInterface> MoveGroupPtr;
@@ -15,15 +14,12 @@ protected:
   ros::NodeHandle nh;
   actionlib::SimpleActionServer<armada_flexbe_utilities::CartesianMoveAction> CartesianMoveServer_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::NamedPoseMoveAction> MoveToNamedPoseServer_;
-  //actionlib::SimpleActionServer<armada_flexbe_utilities::ChooseAndPerformGraspAction> ChooseAndPerformGraspServer_;
   std::string planning_group_;
   MoveGroupPtr MoveGroupPtr_;
   armada_flexbe_utilities::CartesianMoveFeedback cartesian_move_feedback_;
   armada_flexbe_utilities::CartesianMoveResult cartesian_move_result_;
   armada_flexbe_utilities::NamedPoseMoveFeedback named_pose_move_feedback_;
   armada_flexbe_utilities::NamedPoseMoveResult named_pose_move_result_;
-  //armada_flexbe_utilities::ChooseAndPerformGraspFeedback choose_and_perform_grasp_feedback_;
-  //armada_flexbe_utilities::ChooseAndPerformGraspResult choose_and_perform_grasp_result_;
   double jump_threshold_ = 0.5;               // 0.5 default (works well for me), one source uses 5.0 with good results, others use 0
   double eef_step_ = 0.01;                    // 0.01 default (1 cm)
 
@@ -40,7 +36,6 @@ public:
   CartesianPlanningCPPAction(ros::NodeHandle nh, std::string planning_group) :
     CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&CartesianPlanningCPPAction::executeCartesianPlan, this, _1), false),
     MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false),
-    //ChooseAndPerformGraspServer_(nh, "choose_and_perform_grasp", boost::bind(&CartesianPlanningCPPAction::chooseAndPerformGrasp, this, _1), false),
     planning_group_(planning_group)
   {
     CartesianMoveServer_.start();
