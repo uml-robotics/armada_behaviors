@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="GripperTestBehavior">
+
+	<executable package_path="armada_flexbe_behaviors.grippertestbehavior_sm" class="GripperTestBehaviorSM" />
+	<tagstring>gripper</tagstring>
+	<author>Brian Flynn</author>
+	<date>Wed Jul 27 2022</date>
+	<description>
+		Testing gripper functionality without arm movement
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="wait_time" default="2" label="wait_time" hint="Sets the wait_time">
+			<min value="1" />
+			<max value="5" />
+		</param>
+
+		<param type="text" name="gripper_topic" default="/r2f85_gripper_controller/gripper_cmd" label="gripper_topic" hint="Sets the gripper_topic" />
+
+	</params>
+
+
+</behavior>
