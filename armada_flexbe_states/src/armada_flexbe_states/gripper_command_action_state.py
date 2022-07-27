@@ -12,8 +12,11 @@ class GripperCommandActionState(EventState):
         -- gripper_topic              string           The gripper command topic being used
         -- text  	              string 	       The message to be logged to the terminal Example:  'Counter value:  {}'
 
-        ># gripper_target_position                     The target gripper gap size (in meters)
-        #> gripper_actual_position                     The current actual gripper gap size (in meters)
+        ># gripper_target_position    int              The target gripper gap size (in meters)
+        ># gripper_initial_state      int              Initial functional state of the gripper (open/closed)
+        ># gripper_actual_position    int              The current actual gripper gap size (in meters)
+        #> gripper_actual_position    int              The current actual gripper gap size (in meters)
+        #> gripper_state              string           Functional state of the gripper (open/closed)
 
         <= continue 			               Task completed successfully
         <= failed 			               Something went wrong.
@@ -23,8 +26,10 @@ class GripperCommandActionState(EventState):
         def __init__(self, gripper_topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(GripperCommandActionState, self).__init__(outcomes = ['continue', 'failed'],
-                                                        input_keys = ['gripper_target_position'],
-                                                        output_keys = ['gripper_actual_position'])
+                                                        input_keys = ['gripper_target_position', 'gripper_initial_state', 'gripper_actual_position'],
+                                                        output_keys = ['gripper_actual_position', 'gripper_state'])
+
+                self._initial_position = 0
 
                 self._topic = gripper_topic
                 self._client = ProxyActionClient({self._topic: GripperCommandAction})
@@ -39,6 +44,8 @@ class GripperCommandActionState(EventState):
                 if self._error:
                         return 'failed'
 
+                self._initial_position = userdata.gripper_actual_position
+
                 # Check if the action has been finished
                 if self._client.has_result(self._topic):
                         result = self._client.get_result(self._topic)
@@ -48,10 +55,24 @@ class GripperCommandActionState(EventState):
                         # Based on the result, decide which outcome to trigger.
                         if reached_goal == 1:
                                 userdata.gripper_actual_position = result.position
+                                if result.position > self._initial_position:
+                                  userdata.gripper_state = 'closed'
+                                elif result.position < self._initial_position:
+                                  userdata.gripper_state = 'open'
+                                else:
+                                  userdata.gripper_state = userdata.gripper_initial_state
                                 return 'continue'
+
                         elif stalled == 1:
                                 userdata.gripper_actual_position = result.position
+                                if result.position > self._initial_position:
+                                  userdata.gripper_state = 'closed'
+                                elif result.position < self._initial_position:
+                                  userdata.gripper_state = 'open'
+                                else:
+                                  userdata.gripper_state = userdata.gripper_initial_state
                                 return 'continue'
+
                         else:
                                 return 'failed'
 
@@ -63,7 +84,7 @@ class GripperCommandActionState(EventState):
                 # It is primarily used to start actions which are associated with this state.
 
                 goal = GripperCommandGoal()
-                goal.command.position = userdata.target_gripper_position
+                goal.command.position = userdata.gripper_target_position
                 goal.command.max_effort = 1.0
 
                 # Send the goal.
