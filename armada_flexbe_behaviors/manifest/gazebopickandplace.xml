@@ -33,7 +33,7 @@
 
 		<param type="text" name="concatenated_cloud_topic" default="/combined_cloud" label="concatenated_cloud_topic" hint="Sets the concatenated_cloud_topic" />
 
-		<param type="text" name="gripper_topic" default="/r2f85_gripper_controller/gripper_cmd/goal" label="gripper_topic" hint="Sets the gripper_topic" />
+		<param type="text" name="gripper_topic" default="/r2f85_gripper_controller/gripper_cmd" label="gripper_topic" hint="Sets the gripper_topic" />
 
 		<param type="text" name="grasp_candidates_topic" default="/detect_grasps/clustered_grasps" label="grasp_candidates_topic" hint="Sets the grasp_candidates_topic" />
 
