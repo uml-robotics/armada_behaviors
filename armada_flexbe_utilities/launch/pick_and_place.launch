@@ -15,12 +15,9 @@
   <arg name="gripper_model" default="r2f85" />
   <arg name="robot_description_file" default="$(find armada_description)/$(arg robot_make)/urdf/$(arg robot_model)_robot_$(arg wrist_cam)_$(arg gripper_model)_workstation.urdf.xacro" />
   <arg name="namespace" default="" />
-  <arg name="param_file" default="" />
 
-  <!-- Load custom moveit params, create a new yaml file for each different robot config and call in launch command -->
-  <group unless="$(eval param_file == '')" >
-    <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg param_file).yaml" />
-  </group>
+  <!-- Load specific robot params, create a new yaml file for each robot config and call in launch command -->
+  <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg robot_model)_moveit_params.yaml" />
 
   <!-- GPD (this should be separated after testing + add matching GQCNN launch files***)-->
   <node name="detect_grasps" pkg="gpd_ros" type="detect_grasps" respawn="true">
