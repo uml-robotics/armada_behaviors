@@ -89,21 +89,21 @@ public:
 
     try {
       tf::TransformListener listener;
-      listener.waitForTransform("base_link", "base_link", ros::Time(0), ros::Duration(3.0) );
-      listener.lookupTransform("base_link", "base_link", ros::Time(0), tf_base_odom);
+      listener.waitForTransform("world", "base_link", ros::Time::now(), ros::Duration(3.0) );
+      listener.lookupTransform("world", "base_link", ros::Time::now(), tf_base_odom);
     } catch (tf::TransformException err) {
       ROS_ERROR("%s", err.what());
     }
 
-    tf::Transform tf_grasp_odom_(tf::Quaternion(0, 0, -M_PI/4 - M_PI/16, 1), tf::Vector3(0, 0, -grasp_offset));
+    tf::Transform tf_grasp_odom_(tf::Quaternion(0, 0, -M_PI/4 - M_PI/16, 1), tf::Vector3(0, 0, 0));
     tf::Transform tf_grasp_odom = tf_base_odom * tf_grasp_base * tf_grasp_odom_;
     tf::poseTFToMsg(tf_grasp_odom, grasp_poses.target);
 
-    tf::Transform tf_pregrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -pregrasp_dist));
+    tf::Transform tf_pregrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -0.10));
     tf::Transform tf_pregrasp_odom = tf_grasp_odom * tf_pregrasp_odom_;
     tf::poseTFToMsg(tf_pregrasp_odom, grasp_poses.pre);
 
-    tf::Transform tf_aftergrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -postgrasp_dist));
+    tf::Transform tf_aftergrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -0.10));
     tf::Transform tf_aftergrasp_odom = tf_grasp_odom * tf_aftergrasp_odom_;
     tf::poseTFToMsg(tf_aftergrasp_odom, grasp_poses.post);
 
