@@ -63,6 +63,9 @@ public:
    */
   double cartesianPlan(std::vector<geometry_msgs::Pose> pose_list, moveit::planning_interface::MoveGroupInterface::Plan& my_plan)
   {
+    nh.getParam("/move_group/jump_threshold", jump_threshold_);
+    nh.getParam("/move_group/eef_step", eef_step_);
+
     moveit_msgs::RobotTrajectory trajectory;
     double success = MoveGroupPtr_->computeCartesianPath(pose_list, eef_step_, jump_threshold_, trajectory);
     my_plan.trajectory_ = trajectory;
