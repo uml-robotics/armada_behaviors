@@ -1,0 +1,11 @@
+move_group: {
+    planning_group: "manipulator",
+    MaxVelocityScalingFactor: 1.0,
+    PlanningTime: 5,
+    NumPlanningAttempts: 5,
+    GoalPositionTolerance: 0.001,
+    GoalOrientationTolerance: 0.002,
+    setPlannerId: "RRTConnect",
+    jump_threshold: 5.0,
+    eef_step: 0.01,
+}
