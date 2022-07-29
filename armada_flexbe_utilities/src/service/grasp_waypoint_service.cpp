@@ -37,15 +37,6 @@ public:
   }
 
   /**
-   * Class Destructor.
-   *
-   * Destructor for SetGripperService class.
-   */
-  ~GraspWaypointservice(void)
-  {
-  }
-
-  /**
    * Generate a list of grasp waypoint sets.
    *
    * Given a list of grasp target candidates, generate a set of waypoint poses (pre-approach, target pose, post-retreat) for each candidate.
