@@ -68,7 +68,9 @@ public:
 
     moveit_msgs::RobotTrajectory trajectory;
     double success = MoveGroupPtr_->computeCartesianPath(pose_list, eef_step_, jump_threshold_, trajectory);
+    success *= 100;
     my_plan.trajectory_ = trajectory;
+    ros::Duration(0.5).sleep();   // this was in here previously, testing to see if necessary
     return success;
   }
 
@@ -88,7 +90,9 @@ public:
 
     cartesian_move_feedback_.plan_success = cartesianPlan(waypoints, plan);
     CartesianMoveServer_.publishFeedback(cartesian_move_feedback_);
-    if (cartesian_move_feedback_.plan_success > 0.95) {
+    ROS_WARN_STREAM("Pre/Grasp Success: " << cartesian_move_feedback_.plan_success << "%");
+
+    if (cartesian_move_feedback_.plan_success >= 100) {
       MoveGroupPtr_->execute(plan);
       ros::Duration(0.5).sleep();
       cartesian_move_result_.execution_success = 1;
