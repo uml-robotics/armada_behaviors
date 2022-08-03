@@ -24,16 +24,11 @@ class CalculateGraspWaypointsServiceState(EventState):
 
         '''
 
-        def __init__(self, grasp_offset, pregrasp_dist, postgrasp_dist):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(CalculateGraspWaypointsServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                         input_keys = ['grasp_candidates'],
                                                         output_keys = ['grasp_waypoints_list'])
-
-                # store object spawn pose info from previous state
-                self._grasp_offset = grasp_offset
-                self._pregrasp_dist = pregrasp_dist
-                self._postgrasp_dist = postgrasp_dist
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -46,9 +41,6 @@ class CalculateGraspWaypointsServiceState(EventState):
 
                 request = CalculateGraspWaypointsRequest()
                 request.grasp_msg_list = userdata.grasp_candidates
-                request.grasp_offset = self._grasp_offset
-                request.pregrasp_dist = self._pregrasp_dist
-                request.postgrasp_dist = self._postgrasp_dist
 
                 try:
                   service_response = self._service.call(self._service_topic, request)
