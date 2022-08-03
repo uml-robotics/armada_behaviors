@@ -37,6 +37,9 @@ public:
   GraspWaypointservice(ros::NodeHandle nh)
   {
     graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &GraspWaypointservice::calculateGraspWaypoints, this);
+    nh.getParam("/end_effector/name", gripper_offset);
+    nh.getParam("/end_effector/name", approach_dist);
+    nh.getParam("/end_effector/name", retreat_dist);
   }
 
   /**
