@@ -1,6 +1,3 @@
 gpd_ros/GraspConfigList grasp_msg_list
-int64 grasp_offset
-int64 pregrasp_dist
-int64 postgrasp_dist
 ---
 armada_flexbe_utilities/GraspPosesList grasp_poses_list
