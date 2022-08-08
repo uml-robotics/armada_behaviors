@@ -1,0 +1,111 @@
+/*
+ * This code uses a modification of the implemetation presented at:
+ * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8 for using GPD
+ *
+ * Please refer to the gist provided for more information
+ *
+ */
+
+#include "ros/ros.h"
+#include "armada_flexbe_utilities/BasicGraspWaypoints.h"
+#include "geometry_msgs/Point.h"
+#include "armada_flexbe_utilities/GraspPoses.h"
+#include <gpd_ros/GraspConfigList.h>
+#include <gpd_ros/GraspConfig.h>
+#include <tf/transform_listener.h>
+
+using namespace std;
+
+class GraspWaypointservice
+{
+protected:
+
+  ros::ServiceServer graspWaypointService;
+  double gripper_offset;
+  double approach_dist;
+  double retreat_dist;
+
+  string global_frame;
+  string robot_frame;
+
+public:
+
+  /**
+   * Class Constructor.
+   *
+   * Constructor for SetGripperService class.
+   *
+   * @param[in] nh A ROS NodeHandle object.
+   */
+  GraspWaypointservice(ros::NodeHandle nh)
+  {
+    graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &GraspWaypointservice::calculateGraspWaypoints, this);
+    nh.getParam("/end_effector/gripper_offset", gripper_offset);
+    nh.getParam("/end_effector/approach_dist", approach_dist);
+    nh.getParam("/end_effector/retreat_dist", retreat_dist);
+    nh.getParam("/reference_frame/global_frame", global_frame);
+    nh.getParam("/reference_frame/robot_frame", robot_frame);
+  }
+
+  /**
+   * Generate a list of grasp waypoint sets.
+   *
+   * Given a grasp target position, generate a set of waypoint poses (pre-approach, target pose, post-retreat).
+   *
+   * @param[in] req geometry_msgs/Point Position of grasp target.
+   * @param[out] res armada_flexbe_utilities/GraspPoses Set of pose waypoints for grasp target.
+   * @return Bool Service completion result.
+   */
+  bool calculateGraspWaypoints(armada_flexbe_utilities::BasicGraspWaypoints::Request &req,
+                               armada_flexbe_utilities::BasicGraspWaypoints::Response &res)
+  {
+    ROS_WARN("Executing CalculateGraspWaypoints Service");
+
+    armada_flexbe_utilities::GraspPoses grasp_poses;
+
+    tf::Matrix3x3 rot_matrix_grasp_base(1.0, 0.0, 0.0,
+                                        0.0, 1.0, 0.0,
+                                        0.0, 0.0, 1.0);
+
+    tf::Vector3 tr_grasp_base(req.position.x, req.position.y, req.position.z);
+    tf::Transform tf_grasp_base(rot_matrix_grasp_base, tr_grasp_base);
+    tf::StampedTransform tf_base_odom;
+
+    try {
+      tf::TransformListener listener;
+      listener.waitForTransform(global_frame, robot_frame, ros::Time::now(), ros::Duration(3.0) );
+      listener.lookupTransform(global_frame, robot_frame, ros::Time::now(), tf_base_odom);
+    } catch (tf::TransformException err) {
+      ROS_ERROR("%s", err.what());
+    }
+
+    tf::Transform tf_grasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, gripper_offset));
+    tf::Transform tf_grasp_odom = tf_base_odom * tf_grasp_base * tf_grasp_odom_;
+    tf::poseTFToMsg(tf_grasp_odom, grasp_poses.target);
+
+    tf::Transform tf_pregrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, approach_dist));
+    tf::Transform tf_pregrasp_odom = tf_grasp_odom * tf_pregrasp_odom_;
+    tf::poseTFToMsg(tf_pregrasp_odom, grasp_poses.pre);
+
+    tf::Transform tf_aftergrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, retreat_dist));
+    tf::Transform tf_aftergrasp_odom = tf_grasp_odom * tf_aftergrasp_odom_;
+    tf::poseTFToMsg(tf_aftergrasp_odom, grasp_poses.post);
+
+    res.grasp_poses = grasp_poses;
+
+    ROS_WARN("Finished CalculateGraspWaypoints Service");
+    return true;
+  }
+};
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "calculate_grasp_waypoints_service");
+  ros::NodeHandle nh;
+
+  GraspWaypointservice graspWaypointService = GraspWaypointservice(nh);
+  ROS_WARN("calculate_grasp_waypoints_service Ready.");
+  ros::spin();
+
+  return 0;
+}
