@@ -4,7 +4,7 @@ reference_frame: {
 }
 end_effector: {
     name: "robotiq_2f_85",
-    gripper_offset: 0.165,
+    gripper_offset: 0.0,
     approach_dist: 0.10,
     retreat_dist: 0.10,
 }
