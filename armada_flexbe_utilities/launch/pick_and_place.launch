@@ -82,6 +82,6 @@
   <node name="pointcloud_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pointcloud_passthrough_filter_service" output="screen" />
   <node name="sac_segmentation_service" pkg="armada_flexbe_utilities" type="sac_segmentation_service" output="screen" />
   <node name="get_grasp_candidates_service" pkg="armada_flexbe_utilities" type="get_grasp_candidates_service" output="screen" />
-  <node name="grasp_waypoint_service" pkg="armada_flexbe_utilities" type="grasp_waypoint_service" output="screen" />
+  <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" />
 
 </launch>
