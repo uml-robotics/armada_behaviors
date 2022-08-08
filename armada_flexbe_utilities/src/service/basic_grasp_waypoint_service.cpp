@@ -100,11 +100,11 @@ public:
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "calculate_grasp_waypoints_service");
+  ros::init(argc, argv, "basic_grasp_waypoints_service");
   ros::NodeHandle nh;
 
   GraspWaypointservice graspWaypointService = GraspWaypointservice(nh);
-  ROS_WARN("calculate_grasp_waypoints_service Ready.");
+  ROS_WARN("basic_grasp_waypoints_service Ready.");
   ros::spin();
 
   return 0;

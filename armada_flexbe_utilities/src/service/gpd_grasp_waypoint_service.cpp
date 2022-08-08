@@ -7,7 +7,7 @@
  */
 
 #include "ros/ros.h"
-#include "armada_flexbe_utilities/CalculateGraspWaypoints.h"
+#include "armada_flexbe_utilities/GPDGraspWaypoints.h"
 #include "armada_flexbe_utilities/GraspPoses.h"
 #include "armada_flexbe_utilities/GraspPosesList.h"
 #include <gpd_ros/GraspConfigList.h>
@@ -56,8 +56,8 @@ public:
    * @param[out] res armada_flexbe_utilities/GraspPosesList Container of sets of pose waypoints for grasp target candidates.
    * @return Bool Service completion result.
    */
-  bool calculateGraspWaypoints(armada_flexbe_utilities::CalculateGraspWaypoints::Request &req,
-                               armada_flexbe_utilities::CalculateGraspWaypoints::Response &res)
+  bool calculateGraspWaypoints(armada_flexbe_utilities::GPDGraspWaypoints::Request &req,
+                               armada_flexbe_utilities::GPDGraspWaypoints::Response &res)
   {
     ROS_WARN("Executing CalculateGraspWaypoints Service");
 
