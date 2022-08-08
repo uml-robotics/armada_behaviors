@@ -40,7 +40,7 @@ add_service_files(
   ConcatenatePointCloud.srv
   PointCloudPassthroughFilter.srv
   SacSegmentation.srv
-  CalculateGraspWaypoints.srv
+  GPDGraspWaypoints.srv
   BasicGraspWaypoints.srv
   GetGraspCandidates.srv
 )
@@ -73,7 +73,7 @@ include_directories(
 
 add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
 add_executable(get_grasp_candidates_service src/service/get_grasp_candidates_service.cpp)
-add_executable(grasp_waypoint_service src/service/grasp_waypoint_service.cpp)
+add_executable(gpd_grasp_waypoint_service src/service/gpd_grasp_waypoint_service.cpp)
 add_executable(basic_grasp_waypoint_service src/service/basic_grasp_waypoint_service.cpp)
 add_executable(pointcloud_snapshot_service src/service/pointcloud_snapshot_service.cpp)
 add_executable(concatenate_pointcloud_service src/service/concatenate_pointcloud_service.cpp)
@@ -83,7 +83,7 @@ add_executable(sac_segmentation_service src/service/sac_segmentation_service.cpp
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
 target_link_libraries(get_grasp_candidates_service ${catkin_LIBRARIES})
-target_link_libraries(grasp_waypoint_service ${catkin_LIBRARIES})
+target_link_libraries(gpd_grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(basic_grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(pointcloud_snapshot_service ${catkin_LIBRARIES})
 target_link_libraries(concatenate_pointcloud_service ${catkin_LIBRARIES})
@@ -93,7 +93,7 @@ target_link_libraries(sac_segmentation_service ${catkin_LIBRARIES})
 
 add_dependencies(move_arm_cpp_server armada_flexbe_utilities_gencpp)
 add_dependencies(get_grasp_candidates_service armada_flexbe_utilities_gencpp)
-add_dependencies(grasp_waypoint_service armada_flexbe_utilities_gencpp)
+add_dependencies(gpd_grasp_waypoint_service armada_flexbe_utilities_gencpp)
 add_dependencies(basic_grasp_waypoint_service armada_flexbe_utilities_gencpp)
 add_dependencies(pointcloud_snapshot_service armada_flexbe_utilities_gencpp)
 add_dependencies(concatenate_pointcloud_service armada_flexbe_utilities_gencpp)
