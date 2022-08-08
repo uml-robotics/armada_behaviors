@@ -1,3 +1,13 @@
+reference_frame: {
+    global_frame: "world",
+    robot_frame: "base_link",
+}
+end_effector: {
+    name: "robotiq_2f_85",
+    gripper_offset: 0.165,
+    approach_dist: 0.10,
+    retreat_dist: 0.10,
+}
 move_group: {
     planning_group: "manipulator",
     MaxVelocityScalingFactor: 1.0,
