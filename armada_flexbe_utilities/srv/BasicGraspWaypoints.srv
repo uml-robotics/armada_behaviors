@@ -1,0 +1,3 @@
+geometry_msgs/Point position
+---
+armada_flexbe_utilities/GraspPoses grasp_poses
