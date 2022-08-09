@@ -16,7 +16,7 @@
 
 using namespace std;
 
-class GraspWaypointservice
+class GPDGraspWaypointservice
 {
 protected:
 
@@ -37,9 +37,9 @@ public:
    *
    * @param[in] nh A ROS NodeHandle object.
    */
-  GraspWaypointservice(ros::NodeHandle nh)
+  GPDGraspWaypointservice(ros::NodeHandle nh)
   {
-    graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &GraspWaypointservice::calculateGraspWaypoints, this);
+    graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &GPDGraspWaypointservice::calculateGraspWaypoints, this);
     nh.getParam("/end_effector/gripper_offset", gripper_offset);
     nh.getParam("/end_effector/approach_dist", approach_dist);
     nh.getParam("/end_effector/retreat_dist", retreat_dist);
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "gen_grasp_waypoints_service");
   ros::NodeHandle nh;
 
-  GraspWaypointservice graspWaypointService = GraspWaypointservice(nh);
+  GPDGraspWaypointservice graspWaypointService = GPDGraspWaypointservice(nh);
   ROS_WARN("gen_grasp_waypoints_service Ready.");
   ros::spin();
 
