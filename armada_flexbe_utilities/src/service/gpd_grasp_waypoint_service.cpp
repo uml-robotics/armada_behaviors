@@ -48,7 +48,7 @@ public:
   }
 
   /**
-   * Generate a list of grasp waypoint sets.
+   * Generate a list of grasp waypoint sets (pre, target and post poses) to be used with the GPD (grasp pose detection) algorithm.
    *
    * Given a list of grasp target candidates, generate a set of waypoint poses (pre-approach, target pose, post-retreat) for each candidate.
    *
@@ -59,7 +59,7 @@ public:
   bool calculateGraspWaypoints(armada_flexbe_utilities::GPDGraspWaypoints::Request &req,
                                armada_flexbe_utilities::GPDGraspWaypoints::Response &res)
   {
-    ROS_WARN("Executing CalculateGraspWaypoints Service");
+    ROS_WARN("Executing GPDGraspWaypoints Service");
 
     std::vector<armada_flexbe_utilities::GraspPoses> grasp_poses_vect;
     armada_flexbe_utilities::GraspPosesList msg;
@@ -69,7 +69,7 @@ public:
       res.grasp_poses_list.poses.push_back(calculateGraspPoses(req.grasp_msg_list.grasps[i]));
     }
 
-    ROS_WARN("Finished CalculateGraspWaypoints Service");
+    ROS_WARN("Finished GPDGraspWaypoints Service");
     return true;
   }
 

@@ -16,7 +16,7 @@
 
 using namespace std;
 
-class GraspWaypointservice
+class BasicGraspWaypointservice
 {
 protected:
 
@@ -37,9 +37,9 @@ public:
    *
    * @param[in] nh A ROS NodeHandle object.
    */
-  GraspWaypointservice(ros::NodeHandle nh)
+  BasicGraspWaypointservice(ros::NodeHandle nh)
   {
-    graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &GraspWaypointservice::calculateGraspWaypoints, this);
+    graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &BasicGraspWaypointservice::calculateGraspWaypoints, this);
     nh.getParam("/end_effector/gripper_offset", gripper_offset);
     nh.getParam("/end_effector/approach_dist", approach_dist);
     nh.getParam("/end_effector/retreat_dist", retreat_dist);
@@ -50,7 +50,7 @@ public:
   /**
    * Generate a list of grasp waypoint sets.
    *
-   * Given a grasp target position, generate a set of waypoint poses (pre-approach, target pose, post-retreat).
+   * Given a target Point, generate a set of waypoint poses (pre-approach, target pose, post-retreat).
    *
    * @param[in] req geometry_msgs/Point Position of grasp target.
    * @param[out] res armada_flexbe_utilities/GraspPoses Set of pose waypoints for grasp target.
@@ -59,7 +59,7 @@ public:
   bool calculateGraspWaypoints(armada_flexbe_utilities::BasicGraspWaypoints::Request &req,
                                armada_flexbe_utilities::BasicGraspWaypoints::Response &res)
   {
-    ROS_WARN("Executing CalculateGraspWaypoints Service");
+    ROS_WARN("Executing BasicGraspWaypoints Service");
 
     armada_flexbe_utilities::GraspPoses grasp_poses;
 
@@ -93,7 +93,7 @@ public:
 
     res.grasp_poses = grasp_poses;
 
-    ROS_WARN("Finished CalculateGraspWaypoints Service");
+    ROS_WARN("Finished BasicGraspWaypoints Service");
     return true;
   }
 };
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "basic_grasp_waypoints_service");
   ros::NodeHandle nh;
 
-  GraspWaypointservice graspWaypointService = GraspWaypointservice(nh);
+  BasicGraspWaypointservice graspWaypointService = BasicGraspWaypointservice(nh);
   ROS_WARN("basic_grasp_waypoints_service Ready.");
   ros::spin();
 
