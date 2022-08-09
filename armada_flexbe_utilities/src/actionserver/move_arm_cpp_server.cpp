@@ -136,7 +136,10 @@ int main(int argc, char** argv)
 
   CartesianPlanningCPPAction cartesian_planning_cpp_server(nh);
   ROS_WARN("cartesian_planning_cpp_server Ready.");
-  ros::spin();
+
+  while(ros::ok()){
+    // spin
+  }
 
   return 0;
 }
