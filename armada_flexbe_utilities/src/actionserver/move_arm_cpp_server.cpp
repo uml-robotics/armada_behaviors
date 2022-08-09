@@ -14,14 +14,14 @@ protected:
   ros::NodeHandle nh;
   actionlib::SimpleActionServer<armada_flexbe_utilities::CartesianMoveAction> CartesianMoveServer_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::NamedPoseMoveAction> MoveToNamedPoseServer_;
-  std::string planning_group_;
-  MoveGroupPtr MoveGroupPtr_;
   armada_flexbe_utilities::CartesianMoveFeedback cartesian_move_feedback_;
   armada_flexbe_utilities::CartesianMoveResult cartesian_move_result_;
   armada_flexbe_utilities::NamedPoseMoveFeedback named_pose_move_feedback_;
   armada_flexbe_utilities::NamedPoseMoveResult named_pose_move_result_;
-  double jump_threshold_ = 0.5;               // 0.5 default (works well for me), one source uses 5.0 with good results, others use 0
-  double eef_step_ = 0.01;                    // 0.01 default (1 cm)
+  std::string planning_group_;
+  MoveGroupPtr MoveGroupPtr_;
+  double jump_threshold_;
+  double eef_step_;
 
 public:
 
@@ -33,14 +33,15 @@ public:
    * @param[in] nh A ROS NodeHandle object.
    * @param[in] planning_group MoveIt manipulator planning group.
    */
-  CartesianPlanningCPPAction(ros::NodeHandle nh, std::string planning_group) :
+  CartesianPlanningCPPAction(ros::NodeHandle nh) :
     CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&CartesianPlanningCPPAction::executeCartesianPlan, this, _1), false),
-    MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false),
-    planning_group_(planning_group)
+    MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false)
   {
+    nh.getParam("/move_group/planning_group", planning_group_);
+
     CartesianMoveServer_.start();
     MoveToNamedPoseServer_.start();
-    MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group));
+    MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group_));
   }
 
   /**
@@ -133,7 +134,7 @@ int main(int argc, char** argv)
   ros::AsyncSpinner spinner(2);
   spinner.start();
 
-  CartesianPlanningCPPAction cartesian_planning_cpp_server(nh, "manipulator");
+  CartesianPlanningCPPAction cartesian_planning_cpp_server(nh);
   ROS_WARN("cartesian_planning_cpp_server Ready.");
   ros::spin();
 
