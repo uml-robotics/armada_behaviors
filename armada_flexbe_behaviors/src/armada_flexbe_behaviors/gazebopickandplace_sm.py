@@ -21,7 +21,7 @@ from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherS
 from armada_flexbe_states.sac_segmentation_service_state import SacSegmentationServiceState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
 from armada_flexbe_states.spawn_model_service_state import SpawnModelServiceState
-from sandbox_flexbe_states.step_iterator_state import stepIteratorState
+from flexbe_practice_states.step_iterator_state import stepIteratorState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -52,9 +52,6 @@ class GazeboPickAndPlaceSM(Behavior):
 		self.add_parameter('concatenated_cloud_topic', '/combined_cloud')
 		self.add_parameter('gripper_topic', '/r2f85_gripper_controller/gripper_cmd')
 		self.add_parameter('grasp_candidates_topic', '/detect_grasps/clustered_grasps')
-		self.add_parameter('grasp_offset', 0.165)
-		self.add_parameter('pregrasp_dist', 0.10)
-		self.add_parameter('postgrasp_dist', 0.10)
 
 		# references to used behaviors
 
@@ -202,7 +199,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'take_snapshot': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
-			# x:633 y:317
+			# x:634 y:353
 			OperatableStateMachine.add('SnapshotStepIterator',
 										stepIteratorState(),
 										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
@@ -224,7 +221,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:1009 y:83
 			OperatableStateMachine.add('CalculateGraspWaypoints',
-										CalculateGraspWaypointsServiceState(grasp_offset=self.grasp_offset, pregrasp_dist=self.pregrasp_dist, postgrasp_dist=self.postgrasp_dist),
+										CalculateGraspWaypointsServiceState(),
 										transitions={'continue': 'GraspCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
