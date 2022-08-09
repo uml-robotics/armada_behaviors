@@ -39,7 +39,7 @@ class ApproachCommanderState(EventState):
           if userdata.grasp_attempt < list_size:
             userdata.target_pose_list.append(userdata.grasp_task_candidates[userdata.grasp_attempt].pre)
             userdata.target_pose_list.append(userdata.grasp_task_candidates[userdata.grasp_attempt].target)
-            userdata.gripper_target_position = 0.8
+            userdata.gripper_target_position = 0.4
             return 'continue'
           else:
             return 'failed'
