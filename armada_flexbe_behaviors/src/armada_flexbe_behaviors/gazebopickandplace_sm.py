@@ -68,7 +68,7 @@ class GazeboPickAndPlaceSM(Behavior):
 	def create(self):
 		# x:879 y:593, x:246 y:464
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
-		_state_machine.userdata.initial_pose = ['wait']
+		_state_machine.userdata.wait_pose = ['wait']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
 		_state_machine.userdata.target_pose = ['']
 		_state_machine.userdata.current_snapshot_step = 0
@@ -149,21 +149,21 @@ class GazeboPickAndPlaceSM(Behavior):
 										MoveArmActionState(),
 										transitions={'finished': 'DeleteObjectEnd', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'target_pose_list': 'initial_pose'})
+										remapping={'target_pose_list': 'wait_pose'})
 
 			# x:615 y:59
 			OperatableStateMachine.add('MoveArmPostSnapshot',
 										MoveArmActionState(),
 										transitions={'finished': 'ConcatenatePointCloud', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'target_pose_list': 'initial_pose'})
+										remapping={'target_pose_list': 'wait_pose'})
 
 			# x:239 y:61
 			OperatableStateMachine.add('MoveArmPreSnapshot',
 										MoveArmActionState(),
 										transitions={'finished': 'SnapshotCommander', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'target_pose_list': 'initial_pose'})
+										remapping={'target_pose_list': 'wait_pose'})
 
 			# x:407 y:162
 			OperatableStateMachine.add('MoveToSnapshotPose',
