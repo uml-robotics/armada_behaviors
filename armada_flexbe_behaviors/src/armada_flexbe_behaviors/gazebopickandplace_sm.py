@@ -22,6 +22,7 @@ from armada_flexbe_states.sac_segmentation_service_state import SacSegmentationS
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
 from armada_flexbe_states.spawn_model_service_state import SpawnModelServiceState
 from flexbe_practice_states.step_iterator_state import stepIteratorState
+from flexbe_states.wait_state import WaitState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -111,7 +112,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:813 y:412
 			OperatableStateMachine.add('GetGraspCandidates',
 										GetGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
-										transitions={'continue': 'CalculateGraspWaypoints', 'failed': 'failed'},
+										transitions={'continue': 'CalculateGraspWaypoints', 'failed': 'WaitForGPDRespawn'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
 
@@ -211,6 +212,12 @@ class GazeboPickAndPlaceSM(Behavior):
 										SpawnModelServiceState(model_name=self.model_name, object_file_path=self.object_file_path, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
 										transitions={'continue': 'GripperCommandInit', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
+			# x:1033 y:325
+			OperatableStateMachine.add('WaitForGPDRespawn',
+										WaitState(wait_time=self.wait_time),
+										transitions={'done': 'PublishPointCloud'},
+										autonomy={'done': Autonomy.Off})
 
 			# x:408 y:256
 			OperatableStateMachine.add('getPointCloud',
