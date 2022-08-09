@@ -91,7 +91,7 @@ public:
 
     cartesian_move_feedback_.plan_success = cartesianPlan(waypoints, plan);
     CartesianMoveServer_.publishFeedback(cartesian_move_feedback_);
-    ROS_WARN_STREAM("Pre/Grasp Success: " << cartesian_move_feedback_.plan_success << "%");
+    ROS_WARN_STREAM("This attempt success: " << cartesian_move_feedback_.plan_success << "%");
 
     if (cartesian_move_feedback_.plan_success >= 100) {
       MoveGroupPtr_->execute(plan);
