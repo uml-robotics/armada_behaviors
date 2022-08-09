@@ -134,11 +134,8 @@ int main(int argc, char** argv)
   spinner.start();
 
   CartesianPlanningCPPAction cartesian_planning_cpp_server(nh, "manipulator");
-
-  while(ros::ok())
-  {
-    // spin until shutdown
-  }
+  ROS_WARN("cartesian_planning_cpp_server Ready.");
+  ros::spin();
 
   return 0;
 }
