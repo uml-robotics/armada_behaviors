@@ -3,7 +3,6 @@ reference_frame: {
     robot_frame: "base_link",
 }
 end_effector: {
-    name: "robotiq_2f_85",
     gripper_offset: 0.0,
     approach_dist: 0.10,
     retreat_dist: 0.10,
@@ -11,7 +10,6 @@ end_effector: {
 move_group: {
     planning_group: "manipulator",
     MaxVelocityScalingFactor: 1.0,
-    PlanningTime: 5,
     NumPlanningAttempts: 5,
     GoalPositionTolerance: 0.001,
     GoalOrientationTolerance: 0.002,
