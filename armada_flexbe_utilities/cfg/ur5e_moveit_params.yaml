@@ -3,7 +3,7 @@ reference_frame: {
     robot_frame: "base_link",
 }
 end_effector: {
-    gripper_offset: 0.0,
+    gripper_offset: -0.04,
     approach_dist: 0.10,
     retreat_dist: 0.10,
 }
