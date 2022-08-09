@@ -10,7 +10,6 @@ end_effector: {
 move_group: {
     planning_group: "manipulator",
     MaxVelocityScalingFactor: 1.0,
-    NumPlanningAttempts: 5,
     GoalPositionTolerance: 0.001,
     GoalOrientationTolerance: 0.002,
     setPlannerId: "RRTConnect",
