@@ -22,8 +22,6 @@
 
 		<param type="text" name="robot_namespace" default="" label="robot_namespace" hint="Sets the robot_namespace" />
 
-		<param type="text" name="reference_frame" default="world" label="reference_frame" hint="Sets the reference_frame" />
-
 		<param type="numeric" name="wait_time" default="2" label="wait_time" hint="Sets the wait_time">
 			<min value="0" />
 			<max value="5" />
@@ -36,6 +34,8 @@
 		<param type="text" name="gripper_topic" default="/r2f85_gripper_controller/gripper_cmd" label="gripper_topic" hint="Sets the gripper_topic" />
 
 		<param type="text" name="grasp_candidates_topic" default="/detect_grasps/clustered_grasps" label="grasp_candidates_topic" hint="Sets the grasp_candidates_topic" />
+
+		<param type="text" name="reference_frame" default="world" label="reference_frame" hint="Sets the reference_frame" />
 
 	</params>
 
