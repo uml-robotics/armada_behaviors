@@ -67,7 +67,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 
 	def create(self):
-		# x:879 y:593, x:1321 y:92
+		# x:836 y:592, x:1321 y:92
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.wait_pose = ['wait']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
@@ -148,7 +148,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:724 y:649
 			OperatableStateMachine.add('GripperCommandOpen',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
-										transitions={'continue': 'DeleteObjectEnd', 'failed': 'failed'},
+										transitions={'continue': 'WaitToOpenGripper', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
@@ -162,7 +162,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:638 y:429
 			OperatableStateMachine.add('MoveArmPostGrasp',
 										MoveArmActionState(),
-										transitions={'finished': 'DeleteObjectEnd', 'failed': 'failed'},
+										transitions={'finished': 'GripperCommandOpen', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
@@ -246,6 +246,12 @@ class GazeboPickAndPlaceSM(Behavior):
 			OperatableStateMachine.add('WaitForGPDRespawn',
 										WaitState(wait_time=self.wait_time),
 										transitions={'done': 'PublishPointCloud'},
+										autonomy={'done': Autonomy.Off})
+
+			# x:1087 y:533
+			OperatableStateMachine.add('WaitToOpenGripper',
+										WaitState(wait_time=3),
+										transitions={'done': 'DeleteObjectEnd'},
 										autonomy={'done': Autonomy.Off})
 
 			# x:408 y:256
