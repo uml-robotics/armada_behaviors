@@ -46,7 +46,7 @@ class GripperCommandActionState(EventState):
 
                 self._initial_position = userdata.gripper_actual_position
 
-                # Check if the action has been finished
+                # Check if the action has been finished or stalled
                 if self._client.has_result(self._topic):
                         result = self._client.get_result(self._topic)
                         reached_goal = result.reached_goal
@@ -68,6 +68,35 @@ class GripperCommandActionState(EventState):
                                 if result.position > self._initial_position:
                                   userdata.gripper_state = 'closed'
                                 elif result.position < self._initial_position:
+                                  userdata.gripper_state = 'open'
+                                else:
+                                  userdata.gripper_state = userdata.gripper_initial_state
+                                return 'continue'
+
+                        else:
+                                return 'failed'
+
+                if self._client.has_feedback(self._topic):
+                        feedback = self._client.get_feedback(self._topic)
+                        reached_goal = feedback.reached_goal
+                        stalled = feedback.stalled
+
+                        # Based on the feedback, decide which outcome to trigger.
+                        if reached_goal == 1:
+                                userdata.gripper_actual_position = feedback.position
+                                if feedback.position > self._initial_position:
+                                  userdata.gripper_state = 'closed'
+                                elif feedback.position < self._initial_position:
+                                  userdata.gripper_state = 'open'
+                                else:
+                                  userdata.gripper_state = userdata.gripper_initial_state
+                                return 'continue'
+
+                        elif stalled == 1:
+                                userdata.gripper_actual_position = feedback.position
+                                if feedback.position > self._initial_position:
+                                  userdata.gripper_state = 'closed'
+                                elif feedback.position < self._initial_position:
                                   userdata.gripper_state = 'open'
                                 else:
                                   userdata.gripper_state = userdata.gripper_initial_state
