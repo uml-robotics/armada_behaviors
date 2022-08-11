@@ -20,7 +20,7 @@ class GPDGraspWaypointservice
 {
 protected:
 
-  ros::NodeHandle nh;
+  ros::NodeHandle nh_;
   ros::ServiceServer graspWaypointService;
   double gripper_offset;
   double approach_dist;
@@ -38,7 +38,8 @@ public:
    *
    * @param[in] nh A ROS NodeHandle object.
    */
-  GPDGraspWaypointservice(ros::NodeHandle nh)
+  GPDGraspWaypointservice(ros::NodeHandle nh) :
+    nh_(nh)
   {
     graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &GPDGraspWaypointservice::calculateGraspWaypoints, this);
   }
@@ -57,11 +58,11 @@ public:
   {
     ROS_WARN("Executing GPDGraspWaypoints Service");
 
-    nh.getParam("/end_effector/gripper_offset", gripper_offset);
-    nh.getParam("/end_effector/approach_dist", approach_dist);
-    nh.getParam("/end_effector/retreat_dist", retreat_dist);
-    nh.getParam("/reference_frame/global_frame", global_frame);
-    nh.getParam("/reference_frame/robot_frame", robot_frame);
+    nh_.getParam("/end_effector/gripper_offset", gripper_offset);
+    nh_.getParam("/end_effector/approach_dist", approach_dist);
+    nh_.getParam("/end_effector/retreat_dist", retreat_dist);
+    nh_.getParam("/reference_frame/global_frame", global_frame);
+    nh_.getParam("/reference_frame/robot_frame", robot_frame);
 
     std::vector<armada_flexbe_utilities::GraspPoses> grasp_poses_vect;
     armada_flexbe_utilities::GraspPosesList msg;

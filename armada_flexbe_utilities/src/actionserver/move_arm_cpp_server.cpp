@@ -11,7 +11,7 @@ class CartesianPlanningCPPAction
 {
 protected:
 
-  ros::NodeHandle nh;
+  ros::NodeHandle nh_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::CartesianMoveAction> CartesianMoveServer_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::NamedPoseMoveAction> MoveToNamedPoseServer_;
   armada_flexbe_utilities::CartesianMoveFeedback cartesian_move_feedback_;
@@ -34,6 +34,7 @@ public:
    * @param[in] planning_group MoveIt manipulator planning group.
    */
   CartesianPlanningCPPAction(ros::NodeHandle nh) :
+    nh_(nh),
     CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&CartesianPlanningCPPAction::executeCartesianPlan, this, _1), false),
     MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false)
   {
@@ -64,8 +65,8 @@ public:
    */
   double cartesianPlan(std::vector<geometry_msgs::Pose> pose_list, moveit::planning_interface::MoveGroupInterface::Plan& my_plan)
   {
-    nh.getParam("/move_group/jump_threshold", jump_threshold_);
-    nh.getParam("/move_group/eef_step", eef_step_);
+    nh_.getParam("/move_group/jump_threshold", jump_threshold_);
+    nh_.getParam("/move_group/eef_step", eef_step_);
 
     moveit_msgs::RobotTrajectory trajectory;
     double success = MoveGroupPtr_->computeCartesianPath(pose_list, eef_step_, jump_threshold_, trajectory);
