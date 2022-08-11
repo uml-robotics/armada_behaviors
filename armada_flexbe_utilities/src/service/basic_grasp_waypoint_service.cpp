@@ -1,9 +1,6 @@
 /*
- * This code uses a modification of the implemetation presented at:
+ * This code uses a modification of the method implemented in:
  * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8 for using GPD
- *
- * Please refer to the gist provided for more information
- *
  */
 
 #include "ros/ros.h"
@@ -45,7 +42,7 @@ public:
   }
 
   /**
-   * Generate a list of grasp waypoint sets.
+   * Generate a set of grasp waypoints (pre, target and post poses).
    *
    * Given a target Point, generate a set of waypoint poses (pre-approach, target pose, post-retreat).
    *

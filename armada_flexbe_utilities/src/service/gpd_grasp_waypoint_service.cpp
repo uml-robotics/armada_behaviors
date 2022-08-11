@@ -1,9 +1,6 @@
 /*
- * This code uses a modification of the implemetation presented at:
+ * This code uses a modification of the method implemented in:
  * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8 for using GPD
- *
- * Please refer to the gist provided for more information
- *
  */
 
 #include "ros/ros.h"
