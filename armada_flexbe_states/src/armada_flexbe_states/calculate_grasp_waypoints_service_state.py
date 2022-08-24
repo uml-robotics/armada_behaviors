@@ -4,7 +4,7 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import CalculateGraspWaypoints, CalculateGraspWaypointsResponse, CalculateGraspWaypointsRequest
+from armada_flexbe_utilities.srv import GPDGraspWaypoints, GPDGraspWaypointsResponse, GPDGraspWaypointsRequest
 
 
 class CalculateGraspWaypointsServiceState(EventState):
@@ -37,9 +37,9 @@ class CalculateGraspWaypointsServiceState(EventState):
 
                 self._service_topic = '/calculate_grasp_waypoints'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: CalculateGraspWaypoints})
+                self._service = ProxyServiceCaller({self._service_topic: GPDGraspWaypoints})
 
-                request = CalculateGraspWaypointsRequest()
+                request = GPDGraspWaypointsRequest()
                 request.grasp_msg_list = userdata.grasp_candidates
 
                 try:
