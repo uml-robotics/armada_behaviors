@@ -42,11 +42,12 @@
   </include>
 
   <group unless="$(eval robot_ip == '')" >
-    <node name="Robotiq2FGripperTcpNode" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperTcpNode.py" args="$(arg gripper_ip)" />
-    <node name="robotiq_2f_gripper_action_server_node" pkg="robotiq_2f_gripper_action_server" type="robotiq_2f_gripper_action_server_node" args="$(arg gripper_ip)" />
+    <include file="$(find armada_bringup)/$(find gripper_make)/launch/$(find gripper_model)_action_server.launch">
+        <arg name="gripper_ip" value="$(arg gripper_ip)"/>
+      </include>
 
     <!-- Launch realsense camera nodes with actual camera (serial number typically on back of device) -->
-    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch" unless="$(eval robot_ip == '')">
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
       <arg name="serial_no" value="$(arg serial_no)" unless="$(eval serial_no == '')"/>
       <arg name="camera" value="wrist_camera" />
     </include>
