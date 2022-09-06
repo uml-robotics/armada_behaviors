@@ -2,8 +2,8 @@
 <launch>
 
   <arg name="kinematics_config" default="$(find armada_description)/universal_robot/cfg/ur5e_calibration.yaml" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
-  <arg name="robot_ip" default="" />
-  <arg name="gripper_ip" default="10.10.10.42" doc="If no roobot_ip is given, the robot will be brought up in Gazebo (simulation)" />
+  <arg name="robot_ip" default="" doc="If no robot_ip is given, the robot will be brought up in Gazebo (simulation)"/>
+  <arg name="gripper_ip" default="" />
   <arg name="limited" default="" />
   <arg name="sim_workstation" default="" />
   <arg name="wrist_cam" default="d435_millibar" />
@@ -29,7 +29,7 @@
     <!-- (optional) The ROS topic that the samples come from (default: an empty string) -->
     <param name="samples_topic" value="" />
     <!-- Filepath to the configuration file for GPD -->
-    <param name="config_file" value="$(find armada_flexbe_utilities)/cfg/ros_eigen_params.cfg" />
+    <param name="config_file" value="/home/csrobot/catkin_ws/src/gpd/cfg/ros_eigen_params.cfg" />
     <!-- <param name="config_file" value="$(find armada_flexbe_utilities)/cfg/ros_vino_params.cfg" /> -->
     <param name="rviz_topic" value="grasps_rviz" />
   </node>
@@ -42,16 +42,18 @@
   </include>
 
   <group unless="$(eval robot_ip == '')" >
-    <node name="Robotiq2FGripperTcpNode" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperTcpNode.py" args="$(arg gripper_ip)" />
+    <include file="$(find armada_bringup)/$(arg gripper_make)/launch/$(arg gripper_model)_action_server.launch">
+        <arg name="gripper_ip" value="$(arg gripper_ip)"/>
+      </include>
 
     <!-- Launch realsense camera nodes with actual camera (serial number typically on back of device) -->
-    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch" unless="$(eval robot_ip == '')">
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
       <arg name="serial_no" value="$(arg serial_no)" unless="$(eval serial_no == '')"/>
       <arg name="camera" value="wrist_camera" />
     </include>
 
-    <include file="$(find armada_bringup)/$(arg robot_make)/launch/$(arg robot_model)_bringup.launch" unless="$(eval robot_ip == '')">
-      <arg name="robot_ip" value="10.10.10.152"/>
+    <include file="$(find armada_bringup)/$(arg robot_make)/launch/$(arg robot_model)_bringup.launch">
+      <arg name="robot_ip" value="$(arg robot_ip)"/>
       <arg name="kinematics_config" value="$(arg kinematics_config)"/>
       <arg name="robot_description_file" value="$(arg robot_description_file)" unless="$(eval wrist_cam == '')"/>
       <arg name="limited" value="false"/>
@@ -65,7 +67,7 @@
   </group>
 
   <group if="$(eval robot_ip == '')">
-    <include file="$(find armada_gazebo)/$(arg robot_make)/launch/gazebo_$(arg robot_make).launch" if="$(eval robot_ip == '')">
+    <include file="$(find armada_gazebo)/$(arg robot_make)/launch/gazebo_$(arg robot_make).launch">
       <arg name="sim_workstation" value="true"/>
       <arg name="robot_make" value="$(arg robot_make)" />
       <arg name="robot_model" value="$(arg robot_model)" />
