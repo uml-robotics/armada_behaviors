@@ -31,7 +31,6 @@ public:
    * Constructor for CartesianPlanningCPPAction class.
    *
    * @param[in] nh A ROS NodeHandle object.
-   * @param[in] planning_group MoveIt manipulator planning group.
    */
   CartesianPlanningCPPAction(ros::NodeHandle nh) :
     nh_(nh),
