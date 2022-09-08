@@ -2,6 +2,8 @@
 #include <actionlib/server/simple_action_server.h>
 #include <control_msgs/GripperCommand.h>
 #include <control_msgs/GripperCommandAction.h>
+#include <robotiq_2f_gripper_control/Robotiq2FGripper_robot_output.h>
+#include <robotiq_2f_gripper_control/Robotiq2FGripper_robot_input.h>
 
 
 class R2f85GripperControlAction
@@ -9,6 +11,10 @@ class R2f85GripperControlAction
 protected:
 
   ros::NodeHandle nh_;
+  ros::Publisher gripper_pub;
+  ros::Subscriber gripper_sub;
+  robotiq_2f_gripper_control::Robotiq2FGripper_robot_output gripper_cmd;
+  robotiq_2f_gripper_control::Robotiq2FGripper_robot_input gripper_state;
   actionlib::SimpleActionServer<control_msgs::GripperCommandAction> R2f85GripperCommandServer_;
   control_msgs::GripperCommandFeedback r2f85_gripper_feedback_;
   control_msgs::GripperCommandResult r2f85_gripper_result_;
@@ -26,6 +32,8 @@ public:
     nh_(nh),
     R2f85GripperCommandServer_(nh, "r2f85_gripper_command", boost::bind(&R2f85GripperControlAction::r2f85GripperCommand, this, _1), false)
   {
+    gripper_pub = nh_.advertise<robotiq_2f_gripper_control::Robotiq2FGripper_robot_output>("/Robotiq2FGripperRobotOutput", 10);
+    gripper_sub = nh_.subscribe("/Robotiq2FGripperRobotInput", 10, &R2f85GripperControlAction::gripperStateCallback, this);
     R2f85GripperCommandServer_.start();
   }
 
@@ -35,11 +43,66 @@ public:
    * Plan a cartesian path along one or more set points using the MoveIt interface.
    *
    * @param goal GripperCommand action goal: control_msgs/GripperCommand, a gripper command target position.
-   * @return Success of motion plan execution.
    */
   void r2f85GripperCommand(const control_msgs::GripperCommandGoalConstPtr &goal)
   {
-    // do something
+    if (!gripper_state.gACT && !gripper_state.gGTO)
+    {
+      gripper_cmd.rACT = 1;
+      gripper_cmd.rGTO = 1;
+      gripper_cmd.rSP = 255;
+      gripper_cmd.rFR = 150;
+      gripper_pub.publish(gripper_cmd);
+      while (!gripper_state.gGTO && !gripper_state.gFLT && ros::ok())
+      {
+        // wait until gripper activation sequence is complete
+      }
+    }
+    // map goal position into range 0->255
+    double target_position = goal->command.position * 255;
+    // send command to go to position
+    gripper_cmd.rPR = int(target_position);
+    gripper_pub.publish(gripper_cmd);
+    while (gripper_state.gOBJ == 0 && !gripper_state.gFLT && ros::ok())
+    {
+      // wait until gripper gets to position, stalls, or faults
+      r2f85_gripper_feedback_.position = 1/gripper_state.gPO;
+      R2f85GripperCommandServer_.publishFeedback(r2f85_gripper_feedback_);
+    }
+    r2f85_gripper_result_.position = 1/gripper_state.gPO;
+    switch (gripper_state.gOBJ)
+    {
+      case 1: // gripper faulted
+        R2f85GripperCommandServer_.setAborted(r2f85_gripper_result_);
+        R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
+        break;
+      case 2: // stalled
+        r2f85_gripper_result_.stalled = 1;
+        r2f85_gripper_result_.reached_goal = 1;
+        R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
+        break;
+      case 3: // reached
+        r2f85_gripper_result_.reached_goal = 1;
+        R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
+        break;
+      default:
+        // something went wrong
+        R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
+        break;
+    }
+  }
+
+  /**
+   * Store the current state of the gripper.
+   *
+   * A callback function to store the current full state of the gripper to the R2f85GripperControlAction object for use in sending commands and returning feedback.
+   *
+   * @param msg Robotiq2FGripper input message: robotiq_2f_gripper_control/Robotiq2FGripper_robot_input, a robotiq gripper status message.
+   * @return Success of motion plan execution.
+   */
+  void gripperStateCallback(const robotiq_2f_gripper_control::Robotiq2FGripper_robot_input::ConstPtr& msg)
+  {
+    this->gripper_state = *msg;
   }
 
 };
