@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_conversions
   pcl_ros
   message_generation
+  robotiq_2f_gripper_control
 )
 
 ## Generate messages in the 'msg' folder
