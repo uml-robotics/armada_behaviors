@@ -50,7 +50,7 @@
     <!-- Launch realsense camera nodes with actual camera (serial number typically on back of device) -->
     <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
       <arg name="serial_no" value="$(arg serial_no)" unless="$(eval serial_no == '')"/>
-      <arg name="camera" value="(arg camera_name)" />
+      <arg name="camera" value="$(arg camera_name)" />
     </include>
 
     <include file="$(find armada_bringup)/$(arg robot_make)/launch/$(arg robot_model)_bringup.launch">
