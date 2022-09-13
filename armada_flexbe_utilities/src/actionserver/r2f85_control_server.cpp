@@ -18,6 +18,8 @@ protected:
   actionlib::SimpleActionServer<control_msgs::GripperCommandAction> R2f85GripperCommandServer_;
   control_msgs::GripperCommandFeedback r2f85_gripper_feedback_;
   control_msgs::GripperCommandResult r2f85_gripper_result_;
+  double gPO;
+  double gripper_pos_val;
 
 public:
 
@@ -63,32 +65,48 @@ public:
     // send command to go to position
     gripper_cmd.rPR = int(target_position);
     gripper_pub.publish(gripper_cmd);
+    while (gripper_state.gOBJ != 0 && !gripper_state.gFLT && ros::ok())
+    {
+      // wait until gripper starts moving
+    }
+    // wait until gripper gets to position, stalls, or faults
     while (gripper_state.gOBJ == 0 && !gripper_state.gFLT && ros::ok())
     {
-      // wait until gripper gets to position, stalls, or faults
-      r2f85_gripper_feedback_.position = 1/gripper_state.gPO;
+      // get current gripper position (##/255) and convert it to a decimal val (0-1)
+      gPO = gripper_state.gPO;
+      gripper_pos_val = gPO/255;
+      r2f85_gripper_feedback_.position = gripper_pos_val;
       R2f85GripperCommandServer_.publishFeedback(r2f85_gripper_feedback_);
+      ros::Duration(0.1).sleep();
     }
-    r2f85_gripper_result_.position = 1/gripper_state.gPO;
+    // get current gripper position (##/255) and convert it to a decimal val (0-1)
+    gPO = gripper_state.gPO;
+    gripper_pos_val = gPO/255;
+    r2f85_gripper_feedback_.position = gripper_pos_val;
     switch (gripper_state.gOBJ)
     {
-      case 1: // gripper faulted
-        R2f85GripperCommandServer_.setAborted(r2f85_gripper_result_);
-        R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
-        break;
-      case 2: // stalled
-        r2f85_gripper_result_.stalled = 1;
-        r2f85_gripper_result_.reached_goal = 1;
-        R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
-        break;
-      case 3: // reached
-        r2f85_gripper_result_.reached_goal = 1;
-        R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
-        break;
-      default:
-        // something went wrong
-        R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
-        break;
+    case 1: // gripper faulted
+      r2f85_gripper_result_.stalled = 0;
+      r2f85_gripper_result_.reached_goal = 0;
+      R2f85GripperCommandServer_.setAborted(r2f85_gripper_result_);
+      R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
+      break;
+    case 2: // stalled
+      r2f85_gripper_result_.stalled = 1;
+      r2f85_gripper_result_.reached_goal = 1;
+      R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
+      break;
+    case 3: // reached
+      r2f85_gripper_result_.stalled = 0;
+      r2f85_gripper_result_.reached_goal = 1;
+      R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
+      break;
+    default:
+      // something went wrong
+      r2f85_gripper_result_.stalled = 0;
+      r2f85_gripper_result_.reached_goal = 0;
+      R2f85GripperCommandServer_.setSucceeded(r2f85_gripper_result_);
+      break;
     }
   }
 
