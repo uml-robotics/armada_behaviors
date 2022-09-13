@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="$(arg wrist_cam)" default="" />
-  <arg name="$(arg max_dist)" default="0.5" />
+  <arg name="wrist_cam" default="" />
+  <arg name="max_dist" default="0.5" />
 
   <!-- This transforms each resulting pointcloud into a global reference frame -->
   <node name="$(arg wrist_cam)_tf2" pkg="tf" type="static_transform_publisher"
