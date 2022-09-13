@@ -75,7 +75,6 @@ include_directories(
 )
 
 add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
-add_executable(r2f85_control_server src/actionserver/r2f85_control_server.cpp)
 add_executable(get_grasp_candidates_service src/service/get_grasp_candidates_service.cpp)
 add_executable(gpd_grasp_waypoint_service src/service/gpd_grasp_waypoint_service.cpp)
 add_executable(basic_grasp_waypoint_service src/service/basic_grasp_waypoint_service.cpp)
@@ -86,7 +85,6 @@ add_executable(pointcloud_passthrough_filter_service src/service/pointcloud_pass
 add_executable(sac_segmentation_service src/service/sac_segmentation_service.cpp)
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
-target_link_libraries(r2f85_control_server ${catkin_LIBRARIES})
 target_link_libraries(get_grasp_candidates_service ${catkin_LIBRARIES})
 target_link_libraries(gpd_grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(basic_grasp_waypoint_service ${catkin_LIBRARIES})
@@ -97,7 +95,6 @@ target_link_libraries(pointcloud_passthrough_filter_service ${catkin_LIBRARIES})
 target_link_libraries(sac_segmentation_service ${catkin_LIBRARIES})
 
 add_dependencies(move_arm_cpp_server armada_flexbe_utilities_gencpp)
-add_dependencies(r2f85_control_server armada_flexbe_utilities_gencpp)
 add_dependencies(get_grasp_candidates_service armada_flexbe_utilities_gencpp)
 add_dependencies(gpd_grasp_waypoint_service armada_flexbe_utilities_gencpp)
 add_dependencies(basic_grasp_waypoint_service armada_flexbe_utilities_gencpp)
