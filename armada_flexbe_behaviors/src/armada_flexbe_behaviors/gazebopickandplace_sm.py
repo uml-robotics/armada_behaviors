@@ -67,7 +67,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 
 	def create(self):
-		# x:789 y:703, x:663 y:156
+		# x:360 y:665, x:367 y:351
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.wait_pose = ['wait']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
@@ -216,10 +216,27 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 
-		# x:203 y:421, x:475 y:110
-		_sm_approachcontainer_5 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['grasp_waypoints_list', 'gripper_target_position', 'gripper_actual_position', 'gripper_initial_state', 'grasp_attempt', 'gripper_state'], output_keys=['grasp_attempt', 'gripper_actual_position', 'gripper_state'])
+		# x:101 y:284, x:234 y:166
+		_sm_deleteobjectcontainer_5 = OperatableStateMachine(outcomes=['finished', 'failed'])
 
-		with _sm_approachcontainer_5:
+		with _sm_deleteobjectcontainer_5:
+			# x:41 y:67
+			OperatableStateMachine.add('WaitToOpenGripper',
+										WaitState(wait_time=self.wait_time),
+										transitions={'done': 'DeleteModel'},
+										autonomy={'done': Autonomy.Off})
+
+			# x:30 y:152
+			OperatableStateMachine.add('DeleteModel',
+										DeleteModelServiceState(model_name=self.model_name),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
+
+		# x:203 y:421, x:475 y:110
+		_sm_approachcontainer_6 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['grasp_waypoints_list', 'gripper_target_position', 'gripper_actual_position', 'gripper_initial_state', 'grasp_attempt', 'gripper_state'], output_keys=['grasp_attempt', 'gripper_actual_position', 'gripper_state'])
+
+		with _sm_approachcontainer_6:
 			# x:30 y:40
 			OperatableStateMachine.add('ApproachCommander',
 										ApproachCommanderState(),
@@ -257,55 +274,55 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'finished': 'GripperCommandInit', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
-			# x:608 y:517
-			OperatableStateMachine.add('DeleteObjectEnd',
-										DeleteModelServiceState(model_name=self.model_name),
-										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+			# x:48 y:617
+			OperatableStateMachine.add('DeleteObjectContainer',
+										_sm_deleteobjectcontainer_5,
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
-			# x:289 y:36
+			# x:539 y:61
 			OperatableStateMachine.add('GripperCommandInit',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
 										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
-			# x:251 y:651
+			# x:541 y:528
 			OperatableStateMachine.add('GripperCommandOpen',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
-										transitions={'continue': 'WaitToOpenGripper', 'failed': 'failed'},
+										transitions={'continue': 'DeleteObjectContainer', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
-			# x:269 y:528
+			# x:554 y:406
 			OperatableStateMachine.add('MoveArmPostGrasp',
 										MoveArmActionState(),
 										transitions={'finished': 'GripperCommandOpen', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
-			# x:300 y:239
+			# x:548 y:240
 			OperatableStateMachine.add('MoveArmPostSnapshot',
 										MoveArmActionState(),
 										transitions={'finished': 'PCLFilterContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
-			# x:300 y:144
+			# x:551 y:161
 			OperatableStateMachine.add('MoveArmPreSnapshot',
 										MoveArmActionState(),
 										transitions={'finished': 'SnapshotContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
-			# x:60 y:259
+			# x:55 y:233
 			OperatableStateMachine.add('PCLFilterContainer',
 										_sm_pclfiltercontainer_3,
 										transitions={'finished': 'SolveGraspWaypointsContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
 
-			# x:51 y:600
+			# x:61 y:533
 			OperatableStateMachine.add('RetreatContainer',
 										_sm_retreatcontainer_2,
 										transitions={'finished': 'MoveArmPostGrasp', 'failed': 'GripperCommandOpen'},
@@ -319,22 +336,16 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'pointcloud_list': 'pointcloud_list'})
 
-			# x:34 y:374
+			# x:27 y:340
 			OperatableStateMachine.add('SolveGraspWaypointsContainer',
 										_sm_solvegraspwaypointscontainer_0,
 										transitions={'finished': 'ApproachContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
 
-			# x:509 y:683
-			OperatableStateMachine.add('WaitToOpenGripper',
-										WaitState(wait_time=3),
-										transitions={'done': 'DeleteObjectEnd'},
-										autonomy={'done': Autonomy.Off})
-
-			# x:49 y:490
+			# x:58 y:437
 			OperatableStateMachine.add('ApproachContainer',
-										_sm_approachcontainer_5,
+										_sm_approachcontainer_6,
 										transitions={'finished': 'RetreatContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'grasp_waypoints_list': 'grasp_waypoints_list', 'gripper_target_position': 'gripper_target_position', 'gripper_actual_position': 'gripper_actual_position', 'gripper_initial_state': 'gripper_initial_state', 'grasp_attempt': 'grasp_attempt', 'gripper_state': 'gripper_state'})
