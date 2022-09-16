@@ -10,7 +10,6 @@
 
   <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
 
-  <!-- Run a passthrough filter to clean NaNs -->l
   <node pkg="nodelet" type="nodelet" name="$(anon x_passthrough)" args="load pcl/PassThrough pcl_manager" output="screen">
     <remap from="~input" to="/$(arg wrist_cam)/depth_registered/points" />
     <rosparam>
@@ -21,7 +20,6 @@
     </rosparam>
   </node>
 
-  <!-- Run a passthrough filter to clean NaNs -->
   <node pkg="nodelet" type="nodelet" name="$(anon y_passthrough)" args="load pcl/PassThrough pcl_manager" output="screen">
     <remap from="~input" to="/x_passthrough/output" />
     <rosparam>
@@ -32,7 +30,6 @@
     </rosparam>
   </node>
 
-  <!-- Run a passthrough filter to clean NaNs -->
   <node pkg="nodelet" type="nodelet" name="$(anon z_passthrough)" args="load pcl/PassThrough pcl_manager" output="screen">
     <remap from="~input" to="/y_passthrough/output" />
     <remap from="~output" to="/$(arg wrist_cam)/depth_registered/points" />
