@@ -45,14 +45,11 @@ add_service_files(
   GPDGraspWaypoints.srv
   BasicGraspWaypoints.srv
   GetGraspCandidates.srv
-<<<<<<< Updated upstream
   ConditionalOutlierRemoval.srv
   StatisticalOutlierRemoval.srv
   RadiusOutlierRemoval.srv
   VoxelGridFilter.srv
-=======
   EuclideanClusterExtraction.srv
->>>>>>> Stashed changes
 )
 
 ## Generate actions in the 'action' folder
