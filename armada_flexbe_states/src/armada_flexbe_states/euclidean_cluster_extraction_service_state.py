@@ -19,18 +19,29 @@ class EuclideanClusterExtractionServiceState(EventState):
 
         '''
 
-        def __init__(self, example_param):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(EuclideanClusterExtractionServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = ['input_key'],
-                                                       output_keys = ['output_key'])
+                                                       input_keys = ['pointcloud_in'],
+                                                       output_keys = ['pointcloud_list_out'])
 
-                self._example_param = example_param
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
+
+                self._service_topic = '/euclidean_cluster_extraction'
+                rospy.wait_for_service(self._service_topic)
+                self._service = ProxyServiceCaller({self._service_topic: PointCloudPassthroughFilter})
+
+                try:
+                  service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
+                  userdata.pointcloud_list_out = service_response.cloud_list_out
+                  return 'continue'
+                except:
+                  return 'failed'
+
 
                 pass # Add functionality here if necessary
 
