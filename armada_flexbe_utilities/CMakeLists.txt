@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_conversions
   pcl_ros
   message_generation
+  robotiq_2f_gripper_control
 )
 
 ## Generate messages in the 'msg' folder
@@ -44,6 +45,10 @@ add_service_files(
   GPDGraspWaypoints.srv
   BasicGraspWaypoints.srv
   GetGraspCandidates.srv
+  ConditionalOutlierRemoval.srv
+  StatisticalOutlierRemoval.srv
+  RadiusOutlierRemoval.srv
+  VoxelGridFilter.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -74,34 +79,40 @@ include_directories(
 )
 
 add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
-add_executable(r2f85_control_server src/actionserver/r2f85_control_server.cpp)
 add_executable(get_grasp_candidates_service src/service/get_grasp_candidates_service.cpp)
 add_executable(gpd_grasp_waypoint_service src/service/gpd_grasp_waypoint_service.cpp)
 add_executable(basic_grasp_waypoint_service src/service/basic_grasp_waypoint_service.cpp)
-add_executable(pointcloud_snapshot_service src/service/pointcloud_snapshot_service.cpp)
-add_executable(concatenate_pointcloud_service src/service/concatenate_pointcloud_service.cpp)
 add_executable(get_pointcloud_service src/service/get_pointcloud_service.cpp)
-add_executable(pointcloud_passthrough_filter_service src/service/pointcloud_passthrough_filter_service.cpp)
-add_executable(sac_segmentation_service src/service/sac_segmentation_service.cpp)
+add_executable(pcl_concatenate_pointcloud_service src/service/pcl_concatenate_pointcloud_service.cpp)
+add_executable(pcl_passthrough_filter_service src/service/pcl_passthrough_filter_service.cpp)
+add_executable(pcl_plane_segmentation_service src/service/pcl_plane_segmentation_service.cpp)
+add_executable(pcl_conditional_outlier_removal_service src/service/pcl_conditional_outlier_removal_service.cpp)
+add_executable(pcl_radius_outlier_removal_service src/service/pcl_radius_outlier_removal_service.cpp)
+add_executable(pcl_statistical_outlier_removal_service src/service/pcl_statistical_outlier_removal_service.cpp)
+add_executable(pcl_voxel_grid_filter_service src/service/pcl_voxel_grid_filter_service.cpp)
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
-target_link_libraries(r2f85_control_server ${catkin_LIBRARIES})
 target_link_libraries(get_grasp_candidates_service ${catkin_LIBRARIES})
 target_link_libraries(gpd_grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(basic_grasp_waypoint_service ${catkin_LIBRARIES})
-target_link_libraries(pointcloud_snapshot_service ${catkin_LIBRARIES})
-target_link_libraries(concatenate_pointcloud_service ${catkin_LIBRARIES})
 target_link_libraries(get_pointcloud_service ${catkin_LIBRARIES})
-target_link_libraries(pointcloud_passthrough_filter_service ${catkin_LIBRARIES})
-target_link_libraries(sac_segmentation_service ${catkin_LIBRARIES})
+target_link_libraries(pcl_concatenate_pointcloud_service ${catkin_LIBRARIES})
+target_link_libraries(pcl_passthrough_filter_service ${catkin_LIBRARIES})
+target_link_libraries(pcl_plane_segmentation_service ${catkin_LIBRARIES})
+target_link_libraries(pcl_conditional_outlier_removal_service ${catkin_LIBRARIES})
+target_link_libraries(pcl_radius_outlier_removal_service ${catkin_LIBRARIES})
+target_link_libraries(pcl_statistical_outlier_removal_service ${catkin_LIBRARIES})
+target_link_libraries(pcl_voxel_grid_filter_service ${catkin_LIBRARIES})
 
 add_dependencies(move_arm_cpp_server armada_flexbe_utilities_gencpp)
-add_dependencies(r2f85_control_server armada_flexbe_utilities_gencpp)
 add_dependencies(get_grasp_candidates_service armada_flexbe_utilities_gencpp)
 add_dependencies(gpd_grasp_waypoint_service armada_flexbe_utilities_gencpp)
 add_dependencies(basic_grasp_waypoint_service armada_flexbe_utilities_gencpp)
-add_dependencies(pointcloud_snapshot_service armada_flexbe_utilities_gencpp)
-add_dependencies(concatenate_pointcloud_service armada_flexbe_utilities_gencpp)
 add_dependencies(get_pointcloud_service armada_flexbe_utilities_gencpp)
-add_dependencies(pointcloud_passthrough_filter_service armada_flexbe_utilities_gencpp)
-add_dependencies(sac_segmentation_service armada_flexbe_utilities_gencpp)
+add_dependencies(pcl_concatenate_pointcloud_service armada_flexbe_utilities_gencpp)
+add_dependencies(pcl_passthrough_filter_service armada_flexbe_utilities_gencpp)
+add_dependencies(pcl_plane_segmentation_service armada_flexbe_utilities_gencpp)
+add_dependencies(pcl_conditional_outlier_removal_service armada_flexbe_utilities_gencpp)
+add_dependencies(pcl_radius_outlier_removal_service armada_flexbe_utilities_gencpp)
+add_dependencies(pcl_statistical_outlier_removal_service armada_flexbe_utilities_gencpp)
+add_dependencies(pcl_voxel_grid_filter_service armada_flexbe_utilities_gencpp)
