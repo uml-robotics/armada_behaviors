@@ -7,7 +7,8 @@
   <arg name="limited" default="" />
   <arg name="sim_workstation" default="" />
   <arg name="wrist_cam" default="d435_millibar" />
-  <arg name="max_dist" default="" />
+  <arg name="camera_name" default="camera_wrist" />
+  <arg name="max_dist" default="2" doc="default passthrough filter is active, supply no arg on command line to turn off entirely" />
   <arg name="serial_no" default="843112074121" doc="Serial number of 1st device" />
   <arg name="robot_make" default="universal_robot" />
   <arg name="robot_model" default="ur5e" />
@@ -37,7 +38,7 @@
   <rosparam file="$(find armada_flexbe_utilities)/cfg/ur5e_wrist_d435.yaml" />
 
   <include file="$(find armada_flexbe_utilities)/launch/passthrough_filter.launch" unless="$(eval max_dist == '')" >
-    <arg name="wrist_cam" value="$(arg wrist_cam)" />
+    <arg name="wrist_cam" value="$(arg camera_name)" />
     <arg name="max_dist" value="$(arg max_dist)" />
   </include>
 
@@ -49,7 +50,7 @@
     <!-- Launch realsense camera nodes with actual camera (serial number typically on back of device) -->
     <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
       <arg name="serial_no" value="$(arg serial_no)" unless="$(eval serial_no == '')"/>
-      <arg name="camera" value="wrist_camera" />
+      <arg name="camera" value="$(arg camera_name)" />
     </include>
 
     <include file="$(find armada_bringup)/$(arg robot_make)/launch/$(arg robot_model)_bringup.launch">
@@ -78,11 +79,11 @@
   </group>
 
   <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
-  <node name="concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="concatenate_pointcloud_service" output="screen" />
-  <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" />
-  <node name="pointcloud_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pointcloud_passthrough_filter_service" output="screen" />
-  <node name="sac_segmentation_service" pkg="armada_flexbe_utilities" type="sac_segmentation_service" output="screen" />
   <node name="get_grasp_candidates_service" pkg="armada_flexbe_utilities" type="get_grasp_candidates_service" output="screen" />
   <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" />
+  <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" />
+  <node name="pcl_concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="pcl_concatenate_pointcloud_service" output="screen" />
+  <node name="pcl_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pcl_passthrough_filter_service" output="screen" />
+  <node name="pcl_plane_segmentation_service" pkg="armada_flexbe_utilities" type="pcl_plane_segmentation_service" output="screen" />
 
 </launch>

@@ -2,13 +2,7 @@
 #include "armada_flexbe_utilities/ConcatenatePointCloud.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <pcl_ros/transforms.h>
-#include <tf/transform_listener.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/segmentation/extract_clusters.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/filters/passthrough.h>
+
 
 using namespace pcl;
 
@@ -27,12 +21,12 @@ bool concatenatePointCloud(armada_flexbe_utilities::ConcatenatePointCloud::Reque
   ROS_WARN("Executing ConcatenatePointCloud Service");
   unsigned int cloud_list_size = req.cloud_list_in.size();
   PointCloud<PointXYZRGB> cloud_array[cloud_list_size];
-  PointCloud<PointXYZRGB> temp_transform_cloud;
+  PointCloud<PointXYZRGB> temp_cloud;
   PointCloud<PointXYZRGB>::Ptr concatenated_cloud(new PointCloud<PointXYZRGB>);
 
   for (unsigned int i = 0; i < cloud_list_size; ++i) {
-    fromROSMsg(req.cloud_list_in[i], temp_transform_cloud);
-    cloud_array[i] = temp_transform_cloud;
+    fromROSMsg(req.cloud_list_in[i], temp_cloud);
+    cloud_array[i] = temp_cloud;
   }
 
   *concatenated_cloud = cloud_array[0];
