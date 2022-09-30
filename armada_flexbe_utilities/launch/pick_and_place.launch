@@ -85,5 +85,6 @@
   <node name="pcl_concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="pcl_concatenate_pointcloud_service" output="screen" />
   <node name="pcl_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pcl_passthrough_filter_service" output="screen" />
   <node name="pcl_plane_segmentation_service" pkg="armada_flexbe_utilities" type="pcl_plane_segmentation_service" output="screen" />
+  <node name="pcl_voxel_grid_filter_service" pkg="armada_flexbe_utilities" type="pcl_voxel_grid_filter_service" output="screen" />
 
 </launch>
