@@ -18,6 +18,7 @@ from armada_flexbe_states.gripper_command_action_state import GripperCommandActi
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
 from armada_flexbe_states.pointcloud_passthrough_filter_service_state import PointCloudPassthroughFilterServiceState
 from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
+from armada_flexbe_states.pointcloud_voxel_grid_filter_service_state import PointCloudVoxelGridFilterServiceState
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
 from armada_flexbe_states.sac_segmentation_service_state import SacSegmentationServiceState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
@@ -180,21 +181,28 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:30 y:40
 			OperatableStateMachine.add('ConcatenatePointCloud',
 										ConcatenatePointCloudServiceState(),
-										transitions={'continue': 'PointCloudPassthroughFilter', 'failed': 'failed'},
+										transitions={'continue': 'PointCloudVoxelGridFilter', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
 
-			# x:30 y:132
+			# x:33 y:208
 			OperatableStateMachine.add('PointCloudPassthroughFilter',
 										PointCloudPassthroughFilterServiceState(x_min=-1.125, x_max=-0.225, y_min=-0.6, y_max=0.6, z_min=-0.1, z_max=0.15),
 										transitions={'continue': 'PointCloudPlanarSegmentation', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
-			# x:30 y:215
+			# x:48 y:298
 			OperatableStateMachine.add('PointCloudPlanarSegmentation',
 										SacSegmentationServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
+
+			# x:37 y:121
+			OperatableStateMachine.add('PointCloudVoxelGridFilter',
+										PointCloudVoxelGridFilterServiceState(),
+										transitions={'continue': 'PointCloudPassthroughFilter', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
