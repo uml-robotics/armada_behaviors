@@ -4,6 +4,9 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
+from armada_flexbe_utilities.srv import EuclideanClusterExtraction, EuclideanClusterExtractionResponse, EuclideanClusterExtractionRequest
+
+
 class EuclideanClusterExtractionServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
@@ -33,11 +36,11 @@ class EuclideanClusterExtractionServiceState(EventState):
 
                 self._service_topic = '/euclidean_cluster_extraction'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: PointCloudPassthroughFilter})
+                self._service = ProxyServiceCaller({self._service_topic: EuclideanClusterExtraction})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
-                  userdata.pointcloud_list_out = service_response.cloud_list_out
+                  userdata.pointcloud_list_out = service_response.cluster_cloud
                   return 'continue'
                 except:
                   return 'failed'
