@@ -12,6 +12,7 @@ from armada_flexbe_states.approach_commander_state import ApproachCommanderState
 from armada_flexbe_states.calculate_grasp_waypoints_service_state import CalculateGraspWaypointsServiceState
 from armada_flexbe_states.concatenate_pointcloud_service_state import ConcatenatePointCloudServiceState
 from armada_flexbe_states.delete_model_service_state import DeleteModelServiceState
+from armada_flexbe_states.euclidean_cluster_extraction_service_state import EuclideanClusterExtractionServiceState
 from armada_flexbe_states.get_grasp_candidates_service_state import GetGraspCandidatesServiceState
 from armada_flexbe_states.get_pointcloud_service_state import GetPointCloudServiceState
 from armada_flexbe_states.gripper_command_action_state import GripperCommandActionState
@@ -46,7 +47,6 @@ class GazeboPickAndPlaceSM(Behavior):
 
 		# parameters of this behavior
 		self.add_parameter('model_name', 'coke_can')
-		self.add_parameter('object_file_path', '/home/csrobot/.gazebo/models/coke_can/model.sdf')
 		self.add_parameter('robot_namespace', '')
 		self.add_parameter('wait_time', 2)
 		self.add_parameter('camera_topic', '/camera_wrist/depth/points')
@@ -54,6 +54,11 @@ class GazeboPickAndPlaceSM(Behavior):
 		self.add_parameter('gripper_topic', '/r2f85_gripper_controller/gripper_cmd')
 		self.add_parameter('grasp_candidates_topic', '/detect_grasps/clustered_grasps')
 		self.add_parameter('reference_frame', 'world')
+		self.add_parameter('second_model_name', 'coke_can_2')
+		self.add_parameter('third_model_name', 'coke_can_3')
+		self.add_parameter('Cluster_cloud', 'cluster_cloud')
+		self.add_parameter('object_file_path_coke', '/home/csrobot/.gazebo/models/coke_can/model.sdf')
+		self.add_parameter('object_file_path_cube', '/home/csrobot/.gazebo/gazebo_models/demo_cube/model.sdf')
 
 		# references to used behaviors
 
@@ -83,37 +88,45 @@ class GazeboPickAndPlaceSM(Behavior):
 		_state_machine.userdata.gripper_target_position = 0.0
 		_state_machine.userdata.gripper_initial_state = 0.0
 		_state_machine.userdata.gripper_actual_position = 0.0
+		_state_machine.userdata.dropoff_pose = ['dropoff']
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
 		
 		# [/MANUAL_CREATE]
 
-		# x:133 y:365, x:341 y:247
-		_sm_solvegraspwaypointscontainer_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['combined_pointcloud', 'grasp_candidates'], output_keys=['grasp_waypoints_list'])
+		# x:117 y:485, x:341 y:247
+		_sm_solvegraspwaypointscontainer_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['combined_pointcloud', 'grasp_candidates', 'combined_pointcloud_cluster'], output_keys=['grasp_waypoints_list'])
 
 		with _sm_solvegraspwaypointscontainer_0:
 			# x:30 y:40
 			OperatableStateMachine.add('PublishPointCloud',
 										PointCloudPublisherState(topic=self.concatenated_cloud_topic),
-										transitions={'continue': 'GetGraspCandidates', 'failed': 'failed'},
+										transitions={'continue': 'PublishCluster', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud': 'combined_pointcloud'})
 
-			# x:35 y:143
+			# x:28 y:275
 			OperatableStateMachine.add('GetGraspCandidates',
 										GetGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
 										transitions={'continue': 'CalculateGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
 
-			# x:278 y:40
+			# x:386 y:134
+			OperatableStateMachine.add('PublishCluster',
+										PointCloudPublisherState(topic=self.Cluster_cloud),
+										transitions={'continue': 'GetGraspCandidates', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'pointcloud': 'combined_pointcloud_cluster'})
+
+			# x:401 y:44
 			OperatableStateMachine.add('WaitForNodeRespawn',
 										WaitState(wait_time=self.wait_time),
 										transitions={'done': 'PublishPointCloud'},
 										autonomy={'done': Autonomy.Off})
 
-			# x:35 y:242
+			# x:15 y:380
 			OperatableStateMachine.add('CalculateGraspWaypoints',
 										CalculateGraspWaypointsServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
@@ -122,7 +135,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 
 		# x:317 y:17, x:420 y:184
-		_sm_snapshotcontainer_1 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['snapshot_pose_list', 'current_snapshot_step', 'pointcloud_list'], output_keys=['snapshot_pose_list', 'current_snapshot_step', 'pointcloud_list'])
+		_sm_snapshotcontainer_1 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['snapshot_pose_list', 'current_snapshot_step', 'pointcloud_list', 'combined_pointcloud'], output_keys=['snapshot_pose_list', 'current_snapshot_step', 'pointcloud_list'])
 
 		with _sm_snapshotcontainer_1:
 			# x:30 y:40
@@ -132,24 +145,17 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'take_snapshot': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
-			# x:32 y:153
+			# x:36 y:125
 			OperatableStateMachine.add('MoveToSnapshotPose',
 										MoveArmActionState(),
 										transitions={'finished': 'GetPointCloud', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose'})
 
-			# x:258 y:350
-			OperatableStateMachine.add('SnapshotStepIterator',
-										stepIteratorState(),
-										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'iterator_in': 'current_snapshot_step', 'iterator_out': 'current_snapshot_step'})
-
-			# x:27 y:253
+			# x:23 y:346
 			OperatableStateMachine.add('GetPointCloud',
 										GetPointCloudServiceState(camera_topic=self.camera_topic),
-										transitions={'continue': 'SnapshotStepIterator', 'failed': 'failed'},
+										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list': 'pointcloud_list'})
 
@@ -174,7 +180,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 
 		# x:115 y:405, x:404 y:181
-		_sm_pclfiltercontainer_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['pointcloud_list', 'combined_pointcloud'], output_keys=['combined_pointcloud'])
+		_sm_pclfiltercontainer_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['pointcloud_list', 'combined_pointcloud'], output_keys=['combined_pointcloud', 'pointcloud_list', 'combined_pointcloud_cluster'])
 
 		with _sm_pclfiltercontainer_3:
 			# x:30 y:40
@@ -182,7 +188,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										ConcatenatePointCloudServiceState(),
 										transitions={'continue': 'PointCloudPassthroughFilter', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
+										remapping={'pointcloud_list_in': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'pointcloud_list_out': 'pointcloud_list'})
 
 			# x:30 y:132
 			OperatableStateMachine.add('PointCloudPassthroughFilter',
@@ -194,24 +200,55 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:30 y:215
 			OperatableStateMachine.add('PointCloudPlanarSegmentation',
 										SacSegmentationServiceState(),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+										transitions={'continue': 'cluster_extraction_state', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
+			# x:243 y:341
+			OperatableStateMachine.add('cluster_extraction_state',
+										EuclideanClusterExtractionServiceState(),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_list_out': 'combined_pointcloud_cluster'})
 
-		# x:70 y:280, x:350 y:119
+
+		# x:60 y:401, x:350 y:119
 		_sm_initobjectcontainer_4 = OperatableStateMachine(outcomes=['finished', 'failed'])
 
 		with _sm_initobjectcontainer_4:
 			# x:32 y:63
 			OperatableStateMachine.add('InitDeleteObject',
 										DeleteModelServiceState(model_name=self.model_name),
+										transitions={'continue': 'InitDeleteObject2', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
+			# x:30 y:125
+			OperatableStateMachine.add('InitDeleteObject2',
+										DeleteModelServiceState(model_name=self.second_model_name),
+										transitions={'continue': 'initDeleteObject3', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
+			# x:32 y:246
+			OperatableStateMachine.add('InitSpawnObject',
+										SpawnModelServiceState(model_name=self.model_name, object_file_path=self.object_file_path_coke, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
+										transitions={'continue': 'SpawnModel2', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
+			# x:33 y:318
+			OperatableStateMachine.add('SpawnModel2',
+										SpawnModelServiceState(model_name=self.second_model_name, object_file_path=self.object_file_path_cube, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
+										transitions={'continue': 'third_item', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
+			# x:440 y:180
+			OperatableStateMachine.add('initDeleteObject3',
+										DeleteModelServiceState(model_name=self.third_model_name),
 										transitions={'continue': 'InitSpawnObject', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:30 y:161
-			OperatableStateMachine.add('InitSpawnObject',
-										SpawnModelServiceState(model_name=self.model_name, object_file_path=self.object_file_path, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
+			# x:215 y:374
+			OperatableStateMachine.add('third_item',
+										SpawnModelServiceState(model_name=self.third_model_name, object_file_path=self.object_file_path_cube, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
@@ -287,10 +324,10 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
-			# x:541 y:528
+			# x:551 y:536
 			OperatableStateMachine.add('GripperCommandOpen',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
-										transitions={'continue': 'DeleteObjectContainer', 'failed': 'failed'},
+										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
@@ -299,7 +336,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										MoveArmActionState(),
 										transitions={'finished': 'GripperCommandOpen', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'target_pose_list': 'wait_pose'})
+										remapping={'target_pose_list': 'dropoff_pose'})
 
 			# x:548 y:240
 			OperatableStateMachine.add('MoveArmPostSnapshot',
@@ -320,7 +357,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										_sm_pclfiltercontainer_3,
 										transitions={'finished': 'SolveGraspWaypointsContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
+										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'combined_pointcloud_cluster': 'combined_pointcloud_cluster'})
 
 			# x:61 y:533
 			OperatableStateMachine.add('RetreatContainer',
@@ -334,14 +371,14 @@ class GazeboPickAndPlaceSM(Behavior):
 										_sm_snapshotcontainer_1,
 										transitions={'finished': 'MoveArmPostSnapshot', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'pointcloud_list': 'pointcloud_list'})
+										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud'})
 
 			# x:27 y:340
 			OperatableStateMachine.add('SolveGraspWaypointsContainer',
 										_sm_solvegraspwaypointscontainer_0,
 										transitions={'finished': 'ApproachContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
+										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates', 'combined_pointcloud_cluster': 'combined_pointcloud_cluster', 'grasp_waypoints_list': 'grasp_waypoints_list'})
 
 			# x:58 y:437
 			OperatableStateMachine.add('ApproachContainer',
