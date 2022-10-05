@@ -1,11 +1,26 @@
-/*
- * Nothing here yet
- */
+#include <sensor_msgs/PointCloud2.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl_ros/transforms.h>
+#include <tf/transform_listener.h>
+//#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/segmentation/extract_clusters.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/passthrough.h>
+
+#include <pcl/ModelCoefficients.h>
+#include <pcl/point_types.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/kdtree/kdtree.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
 
 #include "ros/ros.h"
 #include "armada_flexbe_utilities/EuclideanClusterExtraction.h"
 
-using namespace std;
+using namespace pcl;
+
 
 class EuclideanClusterExtractionService
 {
@@ -42,8 +57,55 @@ public:
                                   armada_flexbe_utilities::EuclideanClusterExtraction::Response &res)
   {
     ROS_WARN("Executing EuclideanClusterExtraction Service");
+    PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
+    PointCloud<PointXYZRGB>::Ptr desired_cluster (new PointCloud<PointXYZRGB>);
+    fromROSMsg(req.cloud_in, *temp_cloud);
 
-    // Do stuff here
+
+    // Create the filtering object: downsample the dataset using a leaf size of 1cm
+     VoxelGrid<PointXYZRGB> vg;
+     PointCloud<PointXYZRGB>::Ptr cloud_filtered (new PointCloud<PointXYZRGB>);
+     vg.setInputCloud (temp_cloud);
+     vg.setLeafSize (0.01f, 0.01f, 0.01f);
+     vg.filter (*cloud_filtered);
+
+
+     // Creating the KdTree object for the search method of the extraction
+     search::KdTree<PointXYZRGB>::Ptr tree (new search::KdTree<PointXYZRGB>);
+     tree->setInputCloud (cloud_filtered);
+
+     std::vector<PointIndices> cluster_indices;
+     EuclideanClusterExtraction<PointXYZRGB> ec;
+     ec.setClusterTolerance (0.02); // 2cm
+     ec.setMinClusterSize (100);
+     ec.setMaxClusterSize (25000);
+     ec.setSearchMethod (tree);
+     ec.setInputCloud (cloud_filtered);
+     ec.extract (cluster_indices);
+
+     unsigned long j = 0;
+     int biggest_size = 0;
+     for (std::vector<PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+     {
+       PointCloud<PointXYZRGB>::Ptr cloud_cluster (new PointCloud<PointXYZRGB>);
+       for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
+
+       cloud_cluster->push_back ((*cloud_filtered)[*pit]); //*
+       cloud_cluster->width = cloud_cluster->size ();
+       cloud_cluster->height = 1;
+       cloud_cluster->is_dense = true;
+       cloud_cluster->header.frame_id = cloud_filtered->header.frame_id;
+
+       int cluster_size = cloud_cluster->size();
+
+       if (biggest_size < cluster_size)
+       {
+        biggest_size = cluster_size;
+        desired_cluster = cloud_cluster;
+       }
+     }
+
+     toROSMsg(*desired_cluster, res.cluster_cloud);
 
     ROS_WARN("Finished EuclideanClusterExtraction Service");
     return true;

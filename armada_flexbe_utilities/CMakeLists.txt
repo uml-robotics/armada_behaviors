@@ -49,6 +49,7 @@ add_service_files(
   StatisticalOutlierRemoval.srv
   RadiusOutlierRemoval.srv
   VoxelGridFilter.srv
+  EuclideanClusterExtraction.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -90,6 +91,7 @@ add_executable(pcl_conditional_outlier_removal_service src/service/pcl_condition
 add_executable(pcl_radius_outlier_removal_service src/service/pcl_radius_outlier_removal_service.cpp)
 add_executable(pcl_statistical_outlier_removal_service src/service/pcl_statistical_outlier_removal_service.cpp)
 add_executable(pcl_voxel_grid_filter_service src/service/pcl_voxel_grid_filter_service.cpp)
+add_executable(euclidean_cluster_extraction_service src/service/euclidean_cluster_extraction_service.cpp)
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
 target_link_libraries(get_grasp_candidates_service ${catkin_LIBRARIES})
@@ -103,6 +105,7 @@ target_link_libraries(pcl_conditional_outlier_removal_service ${catkin_LIBRARIES
 target_link_libraries(pcl_radius_outlier_removal_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_statistical_outlier_removal_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_voxel_grid_filter_service ${catkin_LIBRARIES})
+target_link_libraries(euclidean_cluster_extraction_service ${catkin_LIBRARIES})
 
 add_dependencies(move_arm_cpp_server armada_flexbe_utilities_gencpp)
 add_dependencies(get_grasp_candidates_service armada_flexbe_utilities_gencpp)
@@ -116,3 +119,4 @@ add_dependencies(pcl_conditional_outlier_removal_service armada_flexbe_utilities
 add_dependencies(pcl_radius_outlier_removal_service armada_flexbe_utilities_gencpp)
 add_dependencies(pcl_statistical_outlier_removal_service armada_flexbe_utilities_gencpp)
 add_dependencies(pcl_voxel_grid_filter_service armada_flexbe_utilities_gencpp)
+add_dependencies(euclidean_cluster_extraction_service armada_flexbe_utilities_gencpp)

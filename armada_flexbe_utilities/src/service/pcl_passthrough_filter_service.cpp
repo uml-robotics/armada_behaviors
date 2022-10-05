@@ -20,7 +20,6 @@ bool passthroughFilter(armada_flexbe_utilities::PointCloudPassthroughFilter::Req
                        armada_flexbe_utilities::PointCloudPassthroughFilter::Response &res)
 {
   ROS_WARN("Executing PassthroughFilter Service");
-  ROS_WARN_STREAM("Number of points in cloud before filter: " << req.cloud_in.data.size());
   PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
   fromROSMsg(req.cloud_in, *temp_cloud);
 
@@ -46,7 +45,6 @@ bool passthroughFilter(armada_flexbe_utilities::PointCloudPassthroughFilter::Req
   pass_z.filter(*temp_cloud);
 
   toROSMsg(*temp_cloud, res.cloud_out);
-  ROS_WARN_STREAM("Number of points in cloud after filter: " << res.cloud_out.data.size());
   ROS_WARN("Finishing PassthroughFilter Service");
   return true;
 }

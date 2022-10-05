@@ -13,8 +13,9 @@ class ConcatenatePointCloudServiceState(EventState):
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-        ># pointcloud_list                              List of PointCloud2 messages
+        ># pointcloud_list_in                           List of PointCloud2 messages
         #> combined_pointcloud                          Concatenated PointCloud2 message
+        #> pointcloud_list_out                          List of PointCloud2 messages
 
         <= continue                                     Concatenated pointclouds successfully
         <= failed                                       Something went wrong
@@ -24,8 +25,8 @@ class ConcatenatePointCloudServiceState(EventState):
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(ConcatenatePointCloudServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = ['pointcloud_list'],
-                                                       output_keys = ['combined_pointcloud'])
+                                                       input_keys = ['pointcloud_list_in'],
+                                                       output_keys = ['combined_pointcloud', 'pointcloud_list_out'])
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -37,8 +38,9 @@ class ConcatenatePointCloudServiceState(EventState):
                 self._service = ProxyServiceCaller({self._service_topic: ConcatenatePointCloud})
 
                 try:
-                  service_response = self._service.call(self._service_topic, userdata.pointcloud_list)
+                  service_response = self._service.call(self._service_topic, userdata.pointcloud_list_in)
                   userdata.combined_pointcloud = service_response.cloud_out
+                  userdata.pointcloud_list_out = []
                   return 'continue'
                 except:
                   return 'failed'
