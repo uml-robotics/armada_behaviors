@@ -23,19 +23,23 @@ class SnapshotCommanderState(EventState):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(SnapshotCommanderState, self).__init__(outcomes = ['continue', 'take_snapshot', 'failed'],
                                                              input_keys = ['snapshot_pose_list', 'current_snapshot_step'],
-                                                             output_keys = ['target_pose'])
+                                                             output_keys = ['target_pose','current_snapshot_step'])
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
+#                print ("userdata.snapshot_pose_list = ", len(userdata.snapshot_pose_list)
+#                print ("userdata.current_snapshot_step = ", userdata.current_snapshot_step)
                 pose_list_size = len(userdata.snapshot_pose_list)
                 if userdata.current_snapshot_step < pose_list_size:
                     next_pose = [userdata.snapshot_pose_list[userdata.current_snapshot_step]]
                     userdata.target_pose = next_pose
+                    userdata.current_snapshot_step = userdata.current_snapshot_step + 1
                     return 'take_snapshot'
                 else:
+                    userdata.current_snapshot_step = 0
                     return 'continue'
 
         def on_enter(self, userdata):
