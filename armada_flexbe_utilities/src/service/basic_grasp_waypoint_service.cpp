@@ -1,8 +1,3 @@
-/*
- * This code uses a modification of the method implemented in:
- * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8 for using GPD
- */
-
 #include "ros/ros.h"
 #include "armada_flexbe_utilities/BasicGraspWaypoints.h"
 #include "geometry_msgs/Point.h"
@@ -45,6 +40,8 @@ public:
    * Generate a set of grasp waypoints (pre, target and post poses).
    *
    * Given a target Point, generate a set of waypoint poses (pre-approach, target pose, post-retreat).
+   * This code uses a modification of the method for using GPD implemented in:
+   * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8
    *
    * @param[in] req geometry_msgs/Point Position of grasp target.
    * @param[out] res armada_flexbe_utilities/GraspPoses Set of pose waypoints for grasp target.
