@@ -19,14 +19,20 @@ using namespace pcl;
 bool radiusOutlierRemoval(armada_flexbe_utilities::RadiusOutlierRemoval::Request &req,
                           armada_flexbe_utilities::RadiusOutlierRemoval::Response &res)
 {
-  //ROS_WARN_STREAM("Number of points in cloud before filter: " << req.cloud_in.data.size());
-  PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
-  fromROSMsg(req.cloud_in, *temp_cloud);
+  PointCloud<PointXYZRGB>::Ptr input_cloud(new PointCloud<PointXYZRGB>);
+  PointCloud<PointXYZRGB>::Ptr filtered_cloud(new PointCloud<PointXYZRGB>);
+  fromROSMsg(req.cloud_in, *input_cloud);
 
-  // perform task here
+  RadiusOutlierRemoval<PointXYZRGB> outrem;
+  // build the filter
+  outrem.setInputCloud(input_cloud);
+  outrem.setRadiusSearch(0.8);
+  outrem.setMinNeighborsInRadius (2);
+  outrem.setKeepOrganized(true);
+  // apply filter
+  outrem.filter (*filtered_cloud);
 
-  toROSMsg(*temp_cloud, res.cloud_out);
-  //ROS_WARN_STREAM("Number of points in cloud after filter: " << res.cloud_out.data.size());
+  toROSMsg(*filtered_cloud, res.cloud_out);
   return true;
 }
 
