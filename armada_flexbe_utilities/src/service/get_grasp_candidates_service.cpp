@@ -20,7 +20,7 @@
 bool GetGraspCandidates(armada_flexbe_utilities::GetGraspCandidates::Request &req,
                         armada_flexbe_utilities::GetGraspCandidates::Response &res)
 {
-  ros::Duration timeout(30);
+  ros::Duration timeout(10);
   boost::shared_ptr<gpd_ros::GraspConfigList const> sharedGraspConfigListPtr;
   sharedGraspConfigListPtr = ros::topic::waitForMessage<gpd_ros::GraspConfigList>(req.grasp_candidates_topic, timeout);
   if(sharedGraspConfigListPtr != NULL) {
