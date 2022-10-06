@@ -3,7 +3,6 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-
 using namespace pcl;
 
 /**
@@ -20,26 +19,23 @@ bool concatenatePointCloud(armada_flexbe_utilities::ConcatenatePointCloud::Reque
 {
   unsigned int cloud_list_size = req.cloud_list_in.size();
   PointCloud<PointXYZRGB> cloud_array[cloud_list_size];
-  PointCloud<PointXYZRGB> temp_cloud;
+  PointCloud<PointXYZRGB> input_cloud;
   PointCloud<PointXYZRGB>::Ptr concatenated_cloud(new PointCloud<PointXYZRGB>);
 
   for (unsigned int i = 0; i < cloud_list_size; ++i) {
-    fromROSMsg(req.cloud_list_in[i], temp_cloud);
-    cloud_array[i] = temp_cloud;
+    fromROSMsg(req.cloud_list_in[i], input_cloud);
+    cloud_array[i] = input_cloud;
   }
 
   *concatenated_cloud = cloud_array[0];
 
-  if (cloud_list_size > 1) {
-    for (unsigned int i = 1; i < cloud_list_size; i++) {
-      *concatenated_cloud+= cloud_array[i];
-    }
+  for (unsigned int i = 1; i < cloud_list_size; i++) {
+    *concatenated_cloud+= cloud_array[i];
   }
-  toROSMsg(*concatenated_cloud, res.cloud_out);
 
+  toROSMsg(*concatenated_cloud, res.cloud_out);
   return true;
 }
-
 
 int main(int argc, char **argv)
 {
