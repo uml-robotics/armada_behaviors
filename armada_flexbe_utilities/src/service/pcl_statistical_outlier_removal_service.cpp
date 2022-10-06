@@ -20,12 +20,17 @@ bool statisticalOutlierRemoval(armada_flexbe_utilities::StatisticalOutlierRemova
                                armada_flexbe_utilities::StatisticalOutlierRemoval::Response &res)
 {
   //ROS_WARN_STREAM("Number of points in cloud before filter: " << req.cloud_in.data.size());
-  PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
-  fromROSMsg(req.cloud_in, *temp_cloud);
+  PointCloud<PointXYZRGB>::Ptr input_cloud(new PointCloud<PointXYZRGB>);
+  PointCloud<PointXYZRGB>::Ptr filtered_cloud(new PointCloud<PointXYZRGB>);
+  fromROSMsg(req.cloud_in, *input_cloud);
 
-  // perform task here
+  StatisticalOutlierRemoval<PointXYZRGB> sor;
+  sor.setInputCloud (input_cloud);
+  sor.setMeanK (50);
+  sor.setStddevMulThresh (1.0);
+  sor.filter (*filtered_cloud);
 
-  toROSMsg(*temp_cloud, res.cloud_out);
+  toROSMsg(*filtered_cloud, res.cloud_out);
   //ROS_WARN_STREAM("Number of points in cloud after filter: " << res.cloud_out.data.size());
   return true;
 }
