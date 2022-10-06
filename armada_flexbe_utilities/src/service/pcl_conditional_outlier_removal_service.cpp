@@ -19,14 +19,23 @@ using namespace pcl;
 bool conditionalOutlierRemoval(armada_flexbe_utilities::ConditionalOutlierRemoval::Request &req,
                                armada_flexbe_utilities::ConditionalOutlierRemoval::Response &res)
 {
-  //ROS_WARN_STREAM("Number of points in cloud before filter: " << req.cloud_in.data.size());
-  PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
-  fromROSMsg(req.cloud_in, *temp_cloud);
+  PointCloud<PointXYZRGB>::Ptr input_cloud(new PointCloud<PointXYZRGB>);
+  PointCloud<PointXYZRGB>::Ptr filtered_cloud(new PointCloud<PointXYZRGB>);
+  fromROSMsg(req.cloud_in, *input_cloud);
 
-  // perform task here
+  // build the condition
+  ConditionAnd<PointXYZRGB>::Ptr range_cond (new ConditionAnd<PointXYZRGB> ());
+  range_cond->addComparison (FieldComparison<PointXYZRGB>::ConstPtr (new FieldComparison<PointXYZRGB> ("z", ComparisonOps::GT, 0.0)));
+  range_cond->addComparison (FieldComparison<PointXYZRGB>::ConstPtr (new FieldComparison<PointXYZRGB> ("z", ComparisonOps::LT, 0.8)));
+  // build the filter
+  ConditionalRemoval<PointXYZRGB> condrem;
+  condrem.setCondition (range_cond);
+  condrem.setInputCloud (input_cloud);
+  condrem.setKeepOrganized(true);
+  // apply filter
+  condrem.filter (*filtered_cloud);
 
-  toROSMsg(*temp_cloud, res.cloud_out);
-  //ROS_WARN_STREAM("Number of points in cloud after filter: " << res.cloud_out.data.size());
+  toROSMsg(*filtered_cloud, res.cloud_out);
   return true;
 }
 
