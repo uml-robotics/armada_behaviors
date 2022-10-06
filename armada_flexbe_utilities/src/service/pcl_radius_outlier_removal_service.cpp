@@ -11,6 +11,7 @@ using namespace pcl;
  *
  * Given a PointCloud2 message, perform a radius outlier removal process and provide the resulting PointCloud2 message.
  * More information about pcl filters at: https://pcl.readthedocs.io/projects/tutorials/en/master/#
+ * This filter (split into two separate services): https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html#remove-outliers
  *
  * @param[in] req sensor_msgs/PointCloud2 A PointCloud2 message.
  * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
@@ -24,12 +25,10 @@ bool radiusOutlierRemoval(armada_flexbe_utilities::RadiusOutlierRemoval::Request
   fromROSMsg(req.cloud_in, *input_cloud);
 
   RadiusOutlierRemoval<PointXYZRGB> outrem;
-  // build the filter
   outrem.setInputCloud(input_cloud);
   outrem.setRadiusSearch(0.8);
   outrem.setMinNeighborsInRadius (2);
   outrem.setKeepOrganized(true);
-  // apply filter
   outrem.filter (*filtered_cloud);
 
   toROSMsg(*filtered_cloud, res.cloud_out);

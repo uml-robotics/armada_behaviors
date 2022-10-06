@@ -11,6 +11,7 @@ using namespace pcl;
  *
  * Given a PointCloud2 message, perform a conditional outlier removal process and provide the resulting PointCloud2 message.
  * More information about pcl filters at: https://pcl.readthedocs.io/projects/tutorials/en/master/#
+ * This filter (split into two separate services): https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html#remove-outliers
  *
  * @param[in] req sensor_msgs/PointCloud2 A PointCloud2 message.
  * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
@@ -23,16 +24,13 @@ bool conditionalOutlierRemoval(armada_flexbe_utilities::ConditionalOutlierRemova
   PointCloud<PointXYZRGB>::Ptr filtered_cloud(new PointCloud<PointXYZRGB>);
   fromROSMsg(req.cloud_in, *input_cloud);
 
-  // build the condition
   ConditionAnd<PointXYZRGB>::Ptr range_cond (new ConditionAnd<PointXYZRGB> ());
   range_cond->addComparison (FieldComparison<PointXYZRGB>::ConstPtr (new FieldComparison<PointXYZRGB> ("z", ComparisonOps::GT, 0.0)));
   range_cond->addComparison (FieldComparison<PointXYZRGB>::ConstPtr (new FieldComparison<PointXYZRGB> ("z", ComparisonOps::LT, 0.8)));
-  // build the filter
   ConditionalRemoval<PointXYZRGB> condrem;
   condrem.setCondition (range_cond);
   condrem.setInputCloud (input_cloud);
   condrem.setKeepOrganized(true);
-  // apply filter
   condrem.filter (*filtered_cloud);
 
   toROSMsg(*filtered_cloud, res.cloud_out);

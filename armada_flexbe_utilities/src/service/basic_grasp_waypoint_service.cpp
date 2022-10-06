@@ -53,8 +53,6 @@ public:
   bool calculateGraspWaypoints(armada_flexbe_utilities::BasicGraspWaypoints::Request &req,
                                armada_flexbe_utilities::BasicGraspWaypoints::Response &res)
   {
-    ROS_WARN("Executing BasicGraspWaypoints Service");
-
     nh_.getParam("/end_effector/gripper_offset", gripper_offset);
     nh_.getParam("/end_effector/approach_dist", approach_dist);
     nh_.getParam("/end_effector/retreat_dist", retreat_dist);
@@ -92,8 +90,6 @@ public:
     tf::poseTFToMsg(tf_aftergrasp_odom, grasp_poses.post);
 
     res.grasp_poses = grasp_poses;
-
-    ROS_WARN("Finished BasicGraspWaypoints Service");
     return true;
   }
 };
@@ -104,7 +100,6 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   BasicGraspWaypointservice graspWaypointService = BasicGraspWaypointservice(nh);
-  ROS_WARN("basic_grasp_waypoints_service Ready.");
   ros::spin();
 
   return 0;

@@ -1,6 +1,8 @@
 /*
- * This code uses a modification of the method implemented in:
- * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8 for using GPD
+ * This code uses a modification of the method for using GPD implemented in:
+ * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8
+ *
+ * Author of this node: Brian Flynn
  */
 
 #include "ros/ros.h"
@@ -31,7 +33,7 @@ public:
   /**
    * Class Constructor.
    *
-   * Constructor for SetGripperService class.
+   * Constructor for GPDGraspWaypointservice class.
    *
    * @param[in] nh A ROS NodeHandle object.
    */
@@ -53,8 +55,6 @@ public:
   bool calculateGraspWaypoints(armada_flexbe_utilities::GPDGraspWaypoints::Request &req,
                                armada_flexbe_utilities::GPDGraspWaypoints::Response &res)
   {
-    ROS_WARN("Executing GPDGraspWaypoints Service");
-
     nh_.getParam("/end_effector/gripper_offset", gripper_offset);
     nh_.getParam("/end_effector/approach_dist", approach_dist);
     nh_.getParam("/end_effector/retreat_dist", retreat_dist);
@@ -69,7 +69,6 @@ public:
       res.grasp_poses_list.poses.push_back(calculateGraspPoses(req.grasp_msg_list.grasps[i]));
     }
 
-    ROS_WARN("Finished GPDGraspWaypoints Service");
     return true;
   }
 
@@ -128,7 +127,6 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   GPDGraspWaypointservice graspWaypointService = GPDGraspWaypointservice(nh);
-  ROS_WARN("gen_grasp_waypoints_service Ready.");
   ros::spin();
 
   return 0;

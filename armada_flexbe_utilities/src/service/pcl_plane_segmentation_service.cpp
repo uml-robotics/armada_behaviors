@@ -13,6 +13,7 @@ using namespace pcl;
  *
  * Given a PointCloud2 message, perform SAC (planar) segmentation and provide the resulting PointCloud2 message.
  * More information about pcl filters at: https://pcl.readthedocs.io/projects/tutorials/en/master/#
+ * This filter/segmentation: https://pcl.readthedocs.io/projects/tutorials/en/latest/planar_segmentation.html#planar-segmentation
  *
  * @param[in] req sensor_msgs/PointCloud2 A PointCloud2 message.
  * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
@@ -21,7 +22,6 @@ using namespace pcl;
 bool sacSegmentation(armada_flexbe_utilities::SacSegmentation::Request &req,
                      armada_flexbe_utilities::SacSegmentation::Response &res)
 {
-  ROS_WARN("Executing SacSegmentation Service");
   PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
   fromROSMsg(req.cloud_in, *temp_cloud);
 
@@ -43,7 +43,6 @@ bool sacSegmentation(armada_flexbe_utilities::SacSegmentation::Request &req,
   extract_indices.filter(*temp_cloud);
 
   toROSMsg(*temp_cloud, res.cloud_out);
-  ROS_WARN("Finishing SacSegmentation Service");
   return true;
 }
 
@@ -53,7 +52,6 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   ros::ServiceServer sacSegmentationService = nh.advertiseService("sac_segmentation", sacSegmentation);
-  ROS_WARN("sac_segmentation_service Ready.");
   ros::spin();
 
   return 0;
