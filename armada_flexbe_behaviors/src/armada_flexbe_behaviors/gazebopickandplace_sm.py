@@ -47,7 +47,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 		# parameters of this behavior
 		self.add_parameter('model_name', 'coke_can')
-		self.add_parameter('object_file_path', '/home/csrobot/.gazebo/models/coke_can/model.sdf')
+		self.add_parameter('object_file_path', '/home/brian/.gazebo/models/coke_can/model.sdf')
 		self.add_parameter('robot_namespace', '')
 		self.add_parameter('wait_time', 2)
 		self.add_parameter('camera_topic', '/camera_wrist/depth/points')
