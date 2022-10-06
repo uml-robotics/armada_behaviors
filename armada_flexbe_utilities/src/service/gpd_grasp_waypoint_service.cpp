@@ -1,8 +1,6 @@
 /*
  * This code uses a modification of the method for using GPD implemented in:
  * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8
- *
- * Author of this node: Brian Flynn
  */
 
 #include "ros/ros.h"
