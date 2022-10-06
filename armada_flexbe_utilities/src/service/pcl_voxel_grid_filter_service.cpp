@@ -20,15 +20,15 @@ bool voxelGridFilter(armada_flexbe_utilities::VoxelGridFilter::Request &req,
                      armada_flexbe_utilities::VoxelGridFilter::Response &res)
 {
   ROS_WARN_STREAM("Number of points in cloud before filter: " << req.cloud_in.data.size());
-  PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
+  PointCloud<PointXYZRGB>::Ptr input_cloud(new PointCloud<PointXYZRGB>);
   PointCloud<PointXYZRGB>::Ptr filtered_cloud(new PointCloud<PointXYZRGB>);
-  fromROSMsg(req.cloud_in, *temp_cloud);
+  fromROSMsg(req.cloud_in, *input_cloud);
 
   // Create the filtering object
-    VoxelGrid<PointXYZRGB> sor;
-    sor.setInputCloud (temp_cloud);
-    sor.setLeafSize (0.01f, 0.01f, 0.01f);
-    sor.filter (*filtered_cloud);
+  VoxelGrid<PointXYZRGB> vox;
+  vox.setInputCloud (input_cloud);
+  vox.setLeafSize (0.01f, 0.01f, 0.01f);
+  vox.filter (*filtered_cloud);
 
   toROSMsg(*filtered_cloud, res.cloud_out);
   ROS_WARN_STREAM("Number of points in cloud after filter: " << res.cloud_out.data.size());
