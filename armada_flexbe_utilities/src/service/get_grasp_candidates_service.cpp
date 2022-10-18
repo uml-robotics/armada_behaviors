@@ -20,9 +20,7 @@
 bool GetGraspCandidates(armada_flexbe_utilities::GetGraspCandidates::Request &req,
                         armada_flexbe_utilities::GetGraspCandidates::Response &res)
 {
-  ROS_WARN("Executing GetGraspCandidates Service");
-
-  ros::Duration timeout(30);
+  ros::Duration timeout(10);
   boost::shared_ptr<gpd_ros::GraspConfigList const> sharedGraspConfigListPtr;
   sharedGraspConfigListPtr = ros::topic::waitForMessage<gpd_ros::GraspConfigList>(req.grasp_candidates_topic, timeout);
   if(sharedGraspConfigListPtr != NULL) {
@@ -33,8 +31,7 @@ bool GetGraspCandidates(armada_flexbe_utilities::GetGraspCandidates::Request &re
     return false;
   }
   else {
-    ROS_WARN_STREAM("Number of grasp candidates: " << res.grasp_msg_list.grasps.size());
-    ROS_WARN("Finished GetGraspCandidates Service");
+    //ROS_WARN_STREAM("Number of grasp candidates: " << res.grasp_msg_list.grasps.size());
     return true;
   }
 }
@@ -45,7 +42,6 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   ros::ServiceServer getGraspCandidatesService = nh.advertiseService("get_grasp_candidates", GetGraspCandidates);
-  ROS_WARN("get_grasp_candidates_service Ready.");
   ros::spin();
 
   return 0;

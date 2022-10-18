@@ -11,6 +11,7 @@ using namespace pcl;
  *
  * Given a PointCloud2 message, perform a statistical outlier removal process and provide the resulting PointCloud2 message.
  * More information about pcl filters at: https://pcl.readthedocs.io/projects/tutorials/en/master/#
+ * This filter: https://pcl.readthedocs.io/projects/tutorials/en/latest/statistical_outlier.html#statistical-outlier-removal
  *
  * @param[in] req sensor_msgs/PointCloud2 A PointCloud2 message.
  * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
@@ -19,14 +20,17 @@ using namespace pcl;
 bool statisticalOutlierRemoval(armada_flexbe_utilities::StatisticalOutlierRemoval::Request &req,
                                armada_flexbe_utilities::StatisticalOutlierRemoval::Response &res)
 {
-  //ROS_WARN_STREAM("Number of points in cloud before filter: " << req.cloud_in.data.size());
-  PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
-  fromROSMsg(req.cloud_in, *temp_cloud);
+  PointCloud<PointXYZRGB>::Ptr input_cloud(new PointCloud<PointXYZRGB>);
+  PointCloud<PointXYZRGB>::Ptr filtered_cloud(new PointCloud<PointXYZRGB>);
+  fromROSMsg(req.cloud_in, *input_cloud);
 
-  // perform task here
+  StatisticalOutlierRemoval<PointXYZRGB> sor;
+  sor.setInputCloud (input_cloud);
+  sor.setMeanK (50);
+  sor.setStddevMulThresh (1.0);
+  sor.filter (*filtered_cloud);
 
-  toROSMsg(*temp_cloud, res.cloud_out);
-  //ROS_WARN_STREAM("Number of points in cloud after filter: " << res.cloud_out.data.size());
+  toROSMsg(*filtered_cloud, res.cloud_out);
   return true;
 }
 

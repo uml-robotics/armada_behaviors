@@ -1,8 +1,3 @@
-/*
- * This code uses a modification of the method implemented in:
- * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8 for using GPD
- */
-
 #include "ros/ros.h"
 #include "armada_flexbe_utilities/BasicGraspWaypoints.h"
 #include "geometry_msgs/Point.h"
@@ -45,6 +40,8 @@ public:
    * Generate a set of grasp waypoints (pre, target and post poses).
    *
    * Given a target Point, generate a set of waypoint poses (pre-approach, target pose, post-retreat).
+   * This code uses a modification of the method for using GPD implemented in:
+   * https://gist.github.com/tkelestemur/60401be131344dae98671b95d46060f8
    *
    * @param[in] req geometry_msgs/Point Position of grasp target.
    * @param[out] res armada_flexbe_utilities/GraspPoses Set of pose waypoints for grasp target.
@@ -53,8 +50,6 @@ public:
   bool calculateGraspWaypoints(armada_flexbe_utilities::BasicGraspWaypoints::Request &req,
                                armada_flexbe_utilities::BasicGraspWaypoints::Response &res)
   {
-    ROS_WARN("Executing BasicGraspWaypoints Service");
-
     nh_.getParam("/end_effector/gripper_offset", gripper_offset);
     nh_.getParam("/end_effector/approach_dist", approach_dist);
     nh_.getParam("/end_effector/retreat_dist", retreat_dist);
@@ -92,8 +87,6 @@ public:
     tf::poseTFToMsg(tf_aftergrasp_odom, grasp_poses.post);
 
     res.grasp_poses = grasp_poses;
-
-    ROS_WARN("Finished BasicGraspWaypoints Service");
     return true;
   }
 };
@@ -104,7 +97,6 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   BasicGraspWaypointservice graspWaypointService = BasicGraspWaypointservice(nh);
-  ROS_WARN("basic_grasp_waypoints_service Ready.");
   ros::spin();
 
   return 0;

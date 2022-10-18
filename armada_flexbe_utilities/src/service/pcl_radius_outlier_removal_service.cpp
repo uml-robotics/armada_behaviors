@@ -11,6 +11,7 @@ using namespace pcl;
  *
  * Given a PointCloud2 message, perform a radius outlier removal process and provide the resulting PointCloud2 message.
  * More information about pcl filters at: https://pcl.readthedocs.io/projects/tutorials/en/master/#
+ * This filter (split into two separate services): https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html#remove-outliers
  *
  * @param[in] req sensor_msgs/PointCloud2 A PointCloud2 message.
  * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
@@ -19,14 +20,18 @@ using namespace pcl;
 bool radiusOutlierRemoval(armada_flexbe_utilities::RadiusOutlierRemoval::Request &req,
                           armada_flexbe_utilities::RadiusOutlierRemoval::Response &res)
 {
-  //ROS_WARN_STREAM("Number of points in cloud before filter: " << req.cloud_in.data.size());
-  PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
-  fromROSMsg(req.cloud_in, *temp_cloud);
+  PointCloud<PointXYZRGB>::Ptr input_cloud(new PointCloud<PointXYZRGB>);
+  PointCloud<PointXYZRGB>::Ptr filtered_cloud(new PointCloud<PointXYZRGB>);
+  fromROSMsg(req.cloud_in, *input_cloud);
 
-  // perform task here
+  RadiusOutlierRemoval<PointXYZRGB> outrem;
+  outrem.setInputCloud(input_cloud);
+  outrem.setRadiusSearch(0.8);
+  outrem.setMinNeighborsInRadius (2);
+  outrem.setKeepOrganized(true);
+  outrem.filter (*filtered_cloud);
 
-  toROSMsg(*temp_cloud, res.cloud_out);
-  //ROS_WARN_STREAM("Number of points in cloud after filter: " << res.cloud_out.data.size());
+  toROSMsg(*filtered_cloud, res.cloud_out);
   return true;
 }
 

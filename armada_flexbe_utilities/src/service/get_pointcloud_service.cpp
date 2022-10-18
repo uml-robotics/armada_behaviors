@@ -19,7 +19,6 @@ using namespace pcl;
 bool getPointCloud(armada_flexbe_utilities::GetPointCloud::Request &req,
                    armada_flexbe_utilities::GetPointCloud::Response &res)
 {
-  ROS_WARN("Executing GetPointCloud Service");
   ros::Duration timeout(5);
   sensor_msgs::PointCloud2ConstPtr pointcloud2_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>(req.camera_topic, timeout);
 
@@ -47,7 +46,6 @@ bool getPointCloud(armada_flexbe_utilities::GetPointCloud::Request &req,
   toROSMsg(temp_transform_cloud, transformed_pointcloud_msg);
 
   res.cloud_out = transformed_pointcloud_msg;
-  ROS_WARN("Finished GetPointCloud Service");
   return true;
 }
 
@@ -57,7 +55,6 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   ros::ServiceServer getPointCloudService = nh.advertiseService("get_pointcloud", getPointCloud);
-  ROS_WARN("get_pointcloud_service Ready.");
   ros::spin();
 
   return 0;
