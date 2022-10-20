@@ -16,3 +16,10 @@ move_group: {
     jump_threshold: 5.0,
     eef_step: 0.01,
 }
+filters: {
+    euclidean_cluster_extraction: {
+        clusterTolerance: 0.02,
+        minClusterSize: 100,
+        maxClusterSize: 25000,
+    },
+}
