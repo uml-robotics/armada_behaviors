@@ -19,7 +19,6 @@ from armada_flexbe_states.gripper_command_action_state import GripperCommandActi
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
 from armada_flexbe_states.pointcloud_passthrough_filter_service_state import PointCloudPassthroughFilterServiceState
 from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
-from armada_flexbe_states.pointcloud_voxel_grid_filter_service_state import PointCloudVoxelGridFilterServiceState
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
 from armada_flexbe_states.sac_segmentation_service_state import SacSegmentationServiceState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
@@ -60,7 +59,7 @@ class GazeboPickAndPlaceSM(Behavior):
 		self.add_parameter('Cluster_cloud', 'cluster_cloud')
 		self.add_parameter('object_file_path_coke', '/home/csrobot/.gazebo/models/coke_can/model.sdf')
 		self.add_parameter('object_file_path_cube', '/home/csrobot/.gazebo/gazebo_models/demo_cube/model.sdf')
-    self.add_parameter('object_file_path', '/home/brian/.gazebo/models/coke_can/model.sdf')
+		self.add_parameter('object_file_path', '/home/brian/.gazebo/models/coke_can/model.sdf')
 
 		# references to used behaviors
 
@@ -188,7 +187,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:30 y:40
 			OperatableStateMachine.add('ConcatenatePointCloud',
 										ConcatenatePointCloudServiceState(),
-										transitions={'continue': 'PointCloudVoxelGridFilter', 'failed': 'failed'},
+										transitions={'continue': 'cluster_extraction_state', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list_in': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'pointcloud_list_out': 'pointcloud_list'})
 
@@ -206,13 +205,12 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
-			# x:243 y:341
+			# x:297 y:350
 			OperatableStateMachine.add('cluster_extraction_state',
 										EuclideanClusterExtractionServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_list_out': 'combined_pointcloud_cluster'})
-
 
 
 		# x:60 y:401, x:350 y:119
