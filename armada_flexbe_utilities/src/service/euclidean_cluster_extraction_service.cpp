@@ -28,6 +28,9 @@ protected:
 
   ros::NodeHandle nh_;
   ros::ServiceServer euclideanClusterExtractionService;
+  double clusterTolerance;
+  int minClusterSize;
+  int maxClusterSize;
 
 public:
 
@@ -56,6 +59,10 @@ public:
   bool euclideanClusterExtraction(armada_flexbe_utilities::EuclideanClusterExtraction::Request &req,
                                   armada_flexbe_utilities::EuclideanClusterExtraction::Response &res)
   {
+    nh_.getParam("/filters/euclidean_cluster_extraction/clusterTolerance", clusterTolerance);
+    nh_.getParam("/filters/euclidean_cluster_extraction/minClusterSize", minClusterSize);
+    nh_.getParam("/filters/euclidean_cluster_extraction/maxClusterSize", maxClusterSize);
+
     PointCloud<PointXYZRGB>::Ptr input_cloud (new PointCloud<PointXYZRGB>);
     sensor_msgs::PointCloud2::Ptr temp_cloud (new sensor_msgs::PointCloud2);
     std::vector<sensor_msgs::PointCloud2> cluster_cloud_list;
@@ -66,9 +73,9 @@ public:
 
     EuclideanClusterExtraction<PointXYZRGB> ec;
     std::vector<PointIndices> cluster_indices;
-    ec.setClusterTolerance (0.02);
-    ec.setMinClusterSize (100);
-    ec.setMaxClusterSize (25000);
+    ec.setClusterTolerance (0.02); //0.02
+    ec.setMinClusterSize (100); //100
+    ec.setMaxClusterSize (25000); //25000
     ec.setSearchMethod (tree);
     ec.setInputCloud (input_cloud);
     ec.extract (cluster_indices);
