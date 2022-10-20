@@ -43,7 +43,7 @@ public:
   bool GetGraspCandidates(armada_flexbe_utilities::GetGraspCandidates::Request &req,
                           armada_flexbe_utilities::GetGraspCandidates::Response &res)
   {
-    nh_.getParam("/grasp/timeout_len", timeout_len);
+    nh_.getParam("/grasp_plan/timeout_len", timeout_len);
 
     ros::Duration timeout(timeout_len);
     boost::shared_ptr<gpd_ros::GraspConfigList const> sharedGraspConfigListPtr;
