@@ -2,10 +2,18 @@ reference_frame: {
     global_frame: "world",
     robot_frame: "base_link",
 }
+#-M_PI/4 - M_PI/16
+#−0.981747704
 end_effector: {
     gripper_offset: -0.04,
     approach_dist: 0.10,
     retreat_dist: 0.10,
+    grasping: {
+        grasp_rot_x: 0,
+        grasp_rot_y: 0,
+        grasp_rot_z: -0.981747704,
+        grasp_rot_w: 1,
+    },
 }
 move_group: {
     planning_group: "manipulator",
@@ -21,5 +29,9 @@ filters: {
         clusterTolerance: 0.02,
         minClusterSize: 100,
         maxClusterSize: 25000,
+    },
+    plane_segmentation: {
+        maxIterations: 1000,
+        distanceThreshold: 0.01,
     },
 }
