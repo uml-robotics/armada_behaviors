@@ -34,4 +34,8 @@ filters: {
         maxIterations: 1000,
         distanceThreshold: 0.01,
     },
+    radius_outlier_removal: {
+        searchRadius: 0.8,
+        minNeighborRadius: 2,
+    },
 }
