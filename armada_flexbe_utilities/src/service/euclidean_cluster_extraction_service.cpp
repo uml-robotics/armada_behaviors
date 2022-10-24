@@ -73,9 +73,9 @@ public:
 
     EuclideanClusterExtraction<PointXYZRGB> ec;
     std::vector<PointIndices> cluster_indices;
-    ec.setClusterTolerance (clusterTolerance); //0.02
-    ec.setMinClusterSize (minClusterSize); //100
-    ec.setMaxClusterSize (maxClusterSize); //25000
+    ec.setClusterTolerance (clusterTolerance);
+    ec.setMinClusterSize (minClusterSize);
+    ec.setMaxClusterSize (maxClusterSize);
     ec.setSearchMethod (tree);
     ec.setInputCloud (input_cloud);
     ec.extract (cluster_indices);
