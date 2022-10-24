@@ -17,6 +17,10 @@ protected:
   double gripper_offset;
   double approach_dist;
   double retreat_dist;
+  double grasp_rot_x;
+  double grasp_rot_y;
+  double grasp_rot_z;
+  double grasp_rot_w;
 
   string global_frame;
   string robot_frame;
@@ -53,6 +57,10 @@ public:
     nh_.getParam("/end_effector/gripper_offset", gripper_offset);
     nh_.getParam("/end_effector/approach_dist", approach_dist);
     nh_.getParam("/end_effector/retreat_dist", retreat_dist);
+    nh_.getParam("/end_effector/grasping/grasp_rot_x", grasp_rot_x);
+    nh_.getParam("/end_effector/grasping/grasp_rot_y", grasp_rot_y);
+    nh_.getParam("/end_effector/grasping/grasp_rot_z", grasp_rot_z);
+    nh_.getParam("/end_effector/grasping/grasp_rot_w", grasp_rot_w);
     nh_.getParam("/reference_frame/global_frame", global_frame);
     nh_.getParam("/reference_frame/robot_frame", robot_frame);
 
@@ -74,15 +82,15 @@ public:
       ROS_ERROR("%s", err.what());
     }
 
-    tf::Transform tf_grasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, gripper_offset));
+    tf::Transform tf_grasp_odom_(tf::Quaternion(grasp_rot_x, grasp_rot_y, grasp_rot_z, grasp_rot_w), tf::Vector3(0, 0, -gripper_offset));
     tf::Transform tf_grasp_odom = tf_base_odom * tf_grasp_base * tf_grasp_odom_;
     tf::poseTFToMsg(tf_grasp_odom, grasp_poses.target);
 
-    tf::Transform tf_pregrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, approach_dist));
+    tf::Transform tf_pregrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -approach_dist));
     tf::Transform tf_pregrasp_odom = tf_grasp_odom * tf_pregrasp_odom_;
     tf::poseTFToMsg(tf_pregrasp_odom, grasp_poses.pre);
 
-    tf::Transform tf_aftergrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, retreat_dist));
+    tf::Transform tf_aftergrasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -retreat_dist));
     tf::Transform tf_aftergrasp_odom = tf_grasp_odom * tf_aftergrasp_odom_;
     tf::poseTFToMsg(tf_aftergrasp_odom, grasp_poses.post);
 
