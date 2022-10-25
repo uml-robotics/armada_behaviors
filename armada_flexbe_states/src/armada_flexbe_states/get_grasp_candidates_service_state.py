@@ -5,10 +5,10 @@ from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 from sensor_msgs.msg import PointCloud2
 
-from armada_flexbe_utilities.srv import GetGraspCandidates, GetGraspCandidatesResponse, GetGraspCandidatesRequest
+from armada_flexbe_utilities.srv import GPDGraspCandidates, GPDGraspCandidatesResponse, GPDGraspCandidatesRequest
 
 
-class GetGraspCandidatesServiceState(EventState):
+class GPDGraspCandidatesServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -26,7 +26,7 @@ class GetGraspCandidatesServiceState(EventState):
 
         def __init__(self, combined_cloud_topic, grasp_candidates_topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(GetGraspCandidatesServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                super(GPDGraspCandidatesServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['combined_pointcloud'],
                                                        output_keys = ['grasp_candidates'])
 
@@ -38,11 +38,11 @@ class GetGraspCandidatesServiceState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/get_grasp_candidates'
+                self._service_topic = '/gpd_grasp_candidates'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: GetGraspCandidates})
+                self._service = ProxyServiceCaller({self._service_topic: GPDGraspCandidates})
 
-                request = GetGraspCandidatesRequest()
+                request = GPDGraspCandidatesRequest()
                 request.grasp_candidates_topic = self._grasp_candidates_topic
                 request.combined_cloud = userdata.combined_pointcloud
 
