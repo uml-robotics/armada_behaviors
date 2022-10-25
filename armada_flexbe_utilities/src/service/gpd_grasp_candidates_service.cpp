@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <boost/filesystem.hpp>
-#include "armada_flexbe_utilities/GetGraspCandidates.h"
+#include "armada_flexbe_utilities/GPDGraspCandidates.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <gpd_ros/GraspConfigList.h>
 #include <gpd_ros/GraspConfig.h>
@@ -40,8 +40,8 @@ public:
    * @param[out] res gpd_ros/GraspConfigList message containing list of grasp candidates.
    * @return Bool Service completion result.
    */
-  bool GetGraspCandidates(armada_flexbe_utilities::GetGraspCandidates::Request &req,
-                          armada_flexbe_utilities::GetGraspCandidates::Response &res)
+  bool GetGraspCandidates(armada_flexbe_utilities::GPDGraspCandidates::Request &req,
+                          armada_flexbe_utilities::GPDGraspCandidates::Response &res)
   {
     nh_.getParam("/grasp_plan/timeout_len", timeout_len);
 
