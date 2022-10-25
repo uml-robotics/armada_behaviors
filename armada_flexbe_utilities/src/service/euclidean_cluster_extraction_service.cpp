@@ -33,9 +33,9 @@ public:
   }
 
   /**
-   * Brief overview description of function usage.
+   * Segment clusters within a PointCloud into individual cloud objects.
    *
-   * Brief detail of what the function does (e.g., Takes in a type of data, does a process and returns some other data).
+   * BGiven a PointCloud2 message, segment clusters of points into their own PointCloud2 objects for further processing/handling.
    *
    * @param[in] req Fill in the type of data and its general purpose.
    * @param[out] res Fill in the type of data and its general purpose.
