@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class BasicGraspWaypointservice
+class BasicGraspWaypointService
 {
 protected:
 
@@ -30,14 +30,14 @@ public:
   /**
    * Class Constructor.
    *
-   * Constructor for SetGripperService class.
+   * Constructor for BasicGraspWaypointService class.
    *
    * @param[in] nh A ROS NodeHandle object.
    */
-  BasicGraspWaypointservice(ros::NodeHandle nh) :
+  BasicGraspWaypointService(ros::NodeHandle nh) :
     nh_(nh)
   {
-    graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &BasicGraspWaypointservice::calculateGraspWaypoints, this);
+    graspWaypointService = nh.advertiseService("calculate_grasp_waypoints", &BasicGraspWaypointService::calculateGraspWaypoints, this);
   }
 
   /**
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "basic_grasp_waypoints_service");
   ros::NodeHandle nh;
 
-  BasicGraspWaypointservice graspWaypointService = BasicGraspWaypointservice(nh);
+  BasicGraspWaypointService graspWaypointService = BasicGraspWaypointService(nh);
   ros::spin();
 
   return 0;
