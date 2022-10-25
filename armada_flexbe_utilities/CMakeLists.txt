@@ -44,7 +44,7 @@ add_service_files(
   SacSegmentation.srv
   GPDGraspWaypoints.srv
   BasicGraspWaypoints.srv
-  GetGraspCandidates.srv
+  GPDGraspCandidates.srv
   ConditionalOutlierRemoval.srv
   StatisticalOutlierRemoval.srv
   RadiusOutlierRemoval.srv
@@ -80,7 +80,7 @@ include_directories(
 )
 
 add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
-add_executable(get_grasp_candidates_service src/service/get_grasp_candidates_service.cpp)
+add_executable(gpd_grasp_candidates_service src/service/gpd_grasp_candidates_service.cpp)
 add_executable(gpd_grasp_waypoint_service src/service/gpd_grasp_waypoint_service.cpp)
 add_executable(basic_grasp_waypoint_service src/service/basic_grasp_waypoint_service.cpp)
 add_executable(get_pointcloud_service src/service/get_pointcloud_service.cpp)
@@ -94,7 +94,7 @@ add_executable(pcl_voxel_grid_filter_service src/service/pcl_voxel_grid_filter_s
 add_executable(euclidean_cluster_extraction_service src/service/euclidean_cluster_extraction_service.cpp)
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
-target_link_libraries(get_grasp_candidates_service ${catkin_LIBRARIES})
+target_link_libraries(gpd_grasp_candidates_service ${catkin_LIBRARIES})
 target_link_libraries(gpd_grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(basic_grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(get_pointcloud_service ${catkin_LIBRARIES})
@@ -108,7 +108,7 @@ target_link_libraries(pcl_voxel_grid_filter_service ${catkin_LIBRARIES})
 target_link_libraries(euclidean_cluster_extraction_service ${catkin_LIBRARIES})
 
 add_dependencies(move_arm_cpp_server armada_flexbe_utilities_gencpp)
-add_dependencies(get_grasp_candidates_service armada_flexbe_utilities_gencpp)
+add_dependencies(gpd_grasp_candidates_service armada_flexbe_utilities_gencpp)
 add_dependencies(gpd_grasp_waypoint_service armada_flexbe_utilities_gencpp)
 add_dependencies(basic_grasp_waypoint_service armada_flexbe_utilities_gencpp)
 add_dependencies(get_pointcloud_service armada_flexbe_utilities_gencpp)
