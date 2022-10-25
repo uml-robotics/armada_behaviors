@@ -27,7 +27,7 @@ public:
   StatisticalOutlierRemovalService(ros::NodeHandle nh) :
     nh_(nh)
   {
-    statisticalOutlierRemovalService = nh.advertiseService("calculate_grasp_waypoints", &StatisticalOutlierRemovalService::statisticalOutlierRemoval, this);
+    statisticalOutlierRemovalService = nh.advertiseService("statistical_outlier_removal", &StatisticalOutlierRemovalService::statisticalOutlierRemoval, this);
   }
 
   /**
