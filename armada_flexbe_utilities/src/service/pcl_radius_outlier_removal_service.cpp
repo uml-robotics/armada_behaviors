@@ -20,7 +20,7 @@ public:
   /**
    * Class Constructor.
    *
-   * Constructor for SetGripperService class.
+   * Constructor for RadiusOutlierRemovalService class.
    *
    * @param[in] nh A ROS NodeHandle object.
    */
