@@ -31,7 +31,7 @@ public:
   PassthroughFilterService(ros::NodeHandle nh) :
     nh_(nh)
   {
-    passthroughFilterService = nh.advertiseService("passthrough_filter_service", &PassthroughFilterService::passthroughFilter, this);
+    passthroughFilterService = nh.advertiseService("passthrough_filter", &PassthroughFilterService::passthroughFilter, this);
   }
 
   /**
