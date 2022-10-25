@@ -1,6 +1,5 @@
 #include "ros/ros.h"
 #include "armada_flexbe_utilities/BasicGraspWaypoints.h"
-#include "geometry_msgs/Point.h"
 #include "armada_flexbe_utilities/GraspPoses.h"
 #include <gpd_ros/GraspConfigList.h>
 #include <gpd_ros/GraspConfig.h>
