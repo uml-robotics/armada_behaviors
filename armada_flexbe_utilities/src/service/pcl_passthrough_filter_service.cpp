@@ -12,12 +12,12 @@ protected:
 
   ros::NodeHandle nh_;
   ros::ServiceServer passthroughFilterService;
-  double x_min;
-  double x_max;
-  double y_min;
-  double y_max;
-  double z_min;
-  double z_max;
+  float x_min;
+  float x_max;
+  float y_min;
+  float y_max;
+  float z_min;
+  float z_max;
 
 public:
 
