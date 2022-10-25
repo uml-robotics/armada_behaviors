@@ -37,8 +37,8 @@ public:
    *
    * BGiven a PointCloud2 message, segment clusters of points into their own PointCloud2 objects for further processing/handling.
    *
-   * @param[in] req Fill in the type of data and its general purpose.
-   * @param[out] res Fill in the type of data and its general purpose.
+   * @param[in] req sensor_msgs/PointCloud2 A PointCloud2 message.
+   * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
    * @return Bool Service completion result.
    */
   bool euclideanClusterExtraction(armada_flexbe_utilities::EuclideanClusterExtraction::Request &req,
