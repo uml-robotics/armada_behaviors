@@ -22,7 +22,7 @@ public:
   /**
    * Class Constructor.
    *
-   * Constructor for SetGripperService class.
+   * Constructor for PlaneSegmentationService class.
    *
    * @param[in] nh A ROS NodeHandle object.
    */
