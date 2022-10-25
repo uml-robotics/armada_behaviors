@@ -5,7 +5,7 @@
 #include <gpd_ros/GraspConfigList.h>
 #include <gpd_ros/GraspConfig.h>
 
-class GetGraspCandidateService
+class GPDGraspCandidateService
 {
 protected:
 
@@ -22,10 +22,10 @@ public:
    *
    * @param[in] nh A ROS NodeHandle object.
    */
-  GetGraspCandidateService(ros::NodeHandle nh) :
+  GPDGraspCandidateService(ros::NodeHandle nh) :
     nh_(nh)
   {
-    getGraspCandidateService = nh.advertiseService("get_grasp_candidates", &GetGraspCandidateService::GetGraspCandidates, this);
+    getGraspCandidateService = nh.advertiseService("gpd_grasp_candidates", &GPDGraspCandidateService::GPDGraspCandidates, this);
   }
 
   /**
@@ -40,7 +40,7 @@ public:
    * @param[out] res gpd_ros/GraspConfigList message containing list of grasp candidates.
    * @return Bool Service completion result.
    */
-  bool GetGraspCandidates(armada_flexbe_utilities::GPDGraspCandidates::Request &req,
+  bool GPDGraspCandidates(armada_flexbe_utilities::GPDGraspCandidates::Request &req,
                           armada_flexbe_utilities::GPDGraspCandidates::Response &res)
   {
     nh_.getParam("/grasp_plan/timeout_len", timeout_len);
@@ -63,10 +63,10 @@ public:
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "get_grasp_candidates_service");
+  ros::init(argc, argv, "gpd_grasp_candidates_service");
   ros::NodeHandle nh;
 
-  GetGraspCandidateService getGraspCandidateService = GetGraspCandidateService(nh);
+  GPDGraspCandidateService getGraspCandidateService = GPDGraspCandidateService(nh);
   ros::spin();
 
   return 0;
