@@ -29,7 +29,7 @@ public:
   PlaneSegmentationService(ros::NodeHandle nh) :
     nh_(nh)
   {
-    planeSegmentationService = nh.advertiseService("sac_segmentation", &PlaneSegmentationService::planeSegmentation, this);
+    planeSegmentationService = nh.advertiseService("plane_segmentation", &PlaneSegmentationService::planeSegmentation, this);
   }
 
   /**
