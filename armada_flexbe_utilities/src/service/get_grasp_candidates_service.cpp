@@ -18,7 +18,7 @@ public:
   /**
    * Class Constructor.
    *
-   * Constructor for SetGripperService class.
+   * Constructor for GetGraspCandidateService class.
    *
    * @param[in] nh A ROS NodeHandle object.
    */
@@ -54,10 +54,10 @@ public:
 
     if(res.grasp_msg_list.grasps.size() == 0){
       return false;
-    }
-    else {
+    } else {
       return true;
     }
+
   }
 };
 
