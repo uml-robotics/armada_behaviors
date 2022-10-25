@@ -2,8 +2,7 @@ reference_frame: {
     global_frame: "world",
     robot_frame: "base_link",
 }
-#-M_PI/4 - M_PI/16
-#−0.981747704
+#-M_PI/4 - M_PI/16 for ur5e robot and robotiq 2f 85 gripper
 end_effector: {
     gripper_offset: -0.04,
     approach_dist: 0.10,
@@ -30,6 +29,25 @@ filters: {
         minClusterSize: 100,
         maxClusterSize: 25000,
     },
+    conditional_outlier_removal: {
+        field: "z",
+        min: 0.0,
+        max: 0.8,
+    },
+    passthrough: {
+        x: {
+            min: -1.125,
+            max: -0.225,
+        },
+        y: {
+            min: -0.6,
+            max: 0.6,
+        },
+        z: {
+            min: -0.1,
+            max: 0.15,
+        },
+    },
     plane_segmentation: {
         maxIterations: 1000,
         distanceThreshold: 0.01,
@@ -37,5 +55,14 @@ filters: {
     radius_outlier_removal: {
         searchRadius: 0.8,
         minNeighborRadius: 2,
+    },
+    statistical_outlier_removal: {
+        meanK: 50,
+        stdDevMulThresh: 1.0,
+    },
+    voxel_grid: {
+        leaf_size_x: 0.01,
+        leaf_size_y: 0.01,
+        leaf_size_z: 0.01,
     },
 }
