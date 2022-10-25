@@ -95,7 +95,6 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   EuclideanClusterExtractionService euclideanClusterExtractionService = EuclideanClusterExtractionService(nh);
-  ROS_WARN("euclidean_cluster_extraction_service Ready.");
   ros::spin();
 
   return 0;
