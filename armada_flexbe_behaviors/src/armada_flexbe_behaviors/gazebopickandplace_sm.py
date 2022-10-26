@@ -13,7 +13,7 @@ from armada_flexbe_states.calculate_grasp_waypoints_service_state import Calcula
 from armada_flexbe_states.concatenate_pointcloud_service_state import ConcatenatePointCloudServiceState
 from armada_flexbe_states.delete_model_service_state import DeleteModelServiceState
 from armada_flexbe_states.euclidean_cluster_extraction_service_state import EuclideanClusterExtractionServiceState
-from armada_flexbe_states.get_grasp_candidates_service_state import GetGraspCandidatesServiceState
+from armada_flexbe_states.gpd_grasp_candidates_service_state import GPDGraspCandidatesServiceState
 from armada_flexbe_states.get_pointcloud_service_state import GetPointCloudServiceState
 from armada_flexbe_states.gripper_command_action_state import GripperCommandActionState
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
@@ -108,8 +108,8 @@ class GazeboPickAndPlaceSM(Behavior):
 										remapping={'pointcloud': 'combined_pointcloud'})
 
 			# x:28 y:275
-			OperatableStateMachine.add('GetGraspCandidates',
-										GetGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
+            OperatableStateMachine.add('GPDGraspCandidates',
+                                        GPDGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
 										transitions={'continue': 'CalculateGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
@@ -117,7 +117,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:386 y:134
 			OperatableStateMachine.add('PublishCluster',
 										PointCloudPublisherState(topic=self.Cluster_cloud),
-										transitions={'continue': 'GetGraspCandidates', 'failed': 'failed'},
+                                        transitions={'continue': 'GPDGraspCandidates', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud': 'combined_pointcloud_cluster'})
 
