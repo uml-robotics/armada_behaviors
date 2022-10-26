@@ -38,7 +38,7 @@ class GPDGraspCandidatesServiceState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/gpd_grasp_candidates'
+                self._service_topic = '/get_grasp_candidates'
                 rospy.wait_for_service(self._service_topic)
                 self._service = ProxyServiceCaller({self._service_topic: GPDGraspCandidates})
 
@@ -52,8 +52,6 @@ class GPDGraspCandidatesServiceState(EventState):
                   return 'continue'
                 except:
                   return 'failed'
-
-                return 'continue'
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
