@@ -7,7 +7,7 @@ from flexbe_core.proxy import ProxyServiceCaller
 from armada_flexbe_utilities.srv import GPDGraspWaypoints, GPDGraspWaypointsResponse, GPDGraspWaypointsRequest
 
 
-class CalculateGraspWaypointsServiceState(EventState):
+class GPDGraspWaypointsServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -26,7 +26,7 @@ class CalculateGraspWaypointsServiceState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(CalculateGraspWaypointsServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                super(GPDGraspWaypointsServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                         input_keys = ['grasp_candidates'],
                                                         output_keys = ['grasp_waypoints_list'])
 
