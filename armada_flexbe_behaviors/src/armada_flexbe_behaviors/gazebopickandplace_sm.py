@@ -110,7 +110,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:28 y:275
             OperatableStateMachine.add('GPDGraspCandidates',
                                         GPDGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
-										transitions={'continue': 'CalculateGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
+                                        transitions={'continue': 'GPDGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
 
@@ -128,8 +128,8 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'done': Autonomy.Off})
 
 			# x:15 y:380
-			OperatableStateMachine.add('CalculateGraspWaypoints',
-										CalculateGraspWaypointsServiceState(),
+            OperatableStateMachine.add('GPDGraspWaypoints',
+                                        GPDGraspWaypointsServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
