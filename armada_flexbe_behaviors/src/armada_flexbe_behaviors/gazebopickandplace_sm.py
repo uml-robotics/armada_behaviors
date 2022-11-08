@@ -9,18 +9,18 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from armada_flexbe_states.approach_commander_state import ApproachCommanderState
-from armada_flexbe_states.calculate_grasp_waypoints_service_state import CalculateGraspWaypointsServiceState
-from armada_flexbe_states.concatenate_pointcloud_service_state import ConcatenatePointCloudServiceState
 from armada_flexbe_states.delete_model_service_state import DeleteModelServiceState
-from armada_flexbe_states.euclidean_cluster_extraction_service_state import EuclideanClusterExtractionServiceState
-from armada_flexbe_states.gpd_grasp_candidates_service_state import GPDGraspCandidatesServiceState
 from armada_flexbe_states.get_pointcloud_service_state import GetPointCloudServiceState
+from armada_flexbe_states.gpd_grasp_candidates_service_state import GPDGraspCandidatesServiceState
+from armada_flexbe_states.gpd_grasp_waypoints_service_state import GPDGraspWaypointsServiceState
 from armada_flexbe_states.gripper_command_action_state import GripperCommandActionState
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
-from armada_flexbe_states.pointcloud_passthrough_filter_service_state import PointCloudPassthroughFilterServiceState
+from armada_flexbe_states.pcl_concatenate_pointcloud_service_state import PCLConcatenatePointCloudServiceState
+from armada_flexbe_states.pcl_euclidean_cluster_extraction_service_state import PCLEuclideanClusterExtractionServiceState
+from armada_flexbe_states.pcl_passthrough_filter_service_state import PCLPassthroughFilterServiceState
+from armada_flexbe_states.pcl_plane_segmentation_service_state import PCLPlaneSegmentationServiceState
 from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
-from armada_flexbe_states.sac_segmentation_service_state import SacSegmentationServiceState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
 from armada_flexbe_states.spawn_model_service_state import SpawnModelServiceState
 from flexbe_practice_states.step_iterator_state import stepIteratorState
@@ -107,17 +107,17 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud': 'combined_pointcloud'})
 
-			# x:28 y:275
-            OperatableStateMachine.add('GPDGraspCandidates',
-                                        GPDGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
-                                        transitions={'continue': 'GPDGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
+			# x:15 y:380
+			OperatableStateMachine.add('GPDGraspWaypoints',
+										GPDGraspWaypointsServiceState(),
+										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
+										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
 
 			# x:386 y:134
 			OperatableStateMachine.add('PublishCluster',
 										PointCloudPublisherState(topic=self.Cluster_cloud),
-                                        transitions={'continue': 'GPDGraspCandidates', 'failed': 'failed'},
+										transitions={'continue': 'GPDGraspCandidates', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud': 'combined_pointcloud_cluster'})
 
@@ -127,12 +127,12 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'done': 'PublishPointCloud'},
 										autonomy={'done': Autonomy.Off})
 
-			# x:15 y:380
-            OperatableStateMachine.add('GPDGraspWaypoints',
-                                        GPDGraspWaypointsServiceState(),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+			# x:28 y:275
+			OperatableStateMachine.add('GPDGraspCandidates',
+										GPDGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
+										transitions={'continue': 'GPDGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
+										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
 
 
 		# x:317 y:17, x:420 y:184
@@ -146,7 +146,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'take_snapshot': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
-			# x:36 y:125
+			# x:97 y:175
 			OperatableStateMachine.add('MoveToSnapshotPose',
 										MoveArmActionState(),
 										transitions={'finished': 'GetPointCloud', 'failed': 'failed'},
@@ -156,7 +156,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:23 y:346
 			OperatableStateMachine.add('GetPointCloud',
 										GetPointCloudServiceState(camera_topic=self.camera_topic),
-										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
+										transitions={'continue': 'MoveToSnapshotPose', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list': 'pointcloud_list'})
 
@@ -186,34 +186,34 @@ class GazeboPickAndPlaceSM(Behavior):
 		with _sm_pclfiltercontainer_3:
 			# x:30 y:40
 			OperatableStateMachine.add('ConcatenatePointCloud',
-										ConcatenatePointCloudServiceState(),
+										PCLConcatenatePointCloudServiceState(),
 										transitions={'continue': 'cluster_extraction_state', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list_in': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'pointcloud_list_out': 'pointcloud_list'})
 
-			# x:33 y:208
-			OperatableStateMachine.add('PointCloudPassthroughFilter',
-										PointCloudPassthroughFilterServiceState(x_min=-1.125, x_max=-0.225, y_min=-0.6, y_max=0.6, z_min=-0.1, z_max=0.15),
-										transitions={'continue': 'PointCloudPlanarSegmentation', 'failed': 'failed'},
+			# x:453 y:52
+			OperatableStateMachine.add('PCLPassthroughFilter',
+										PCLPassthroughFilterServiceState(x_min=-1.125, x_max=-0.225, y_min=-0.6, y_max=0.6, z_min=-0.1, z_max=0.15),
+										transitions={'continue': 'ConcatenatePointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
 			# x:48 y:298
 			OperatableStateMachine.add('PointCloudPlanarSegmentation',
-										SacSegmentationServiceState(),
+										PCLPlaneSegmentationServiceState(),
 										transitions={'continue': 'cluster_extraction_state', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
 			# x:297 y:350
 			OperatableStateMachine.add('cluster_extraction_state',
-										EuclideanClusterExtractionServiceState(),
+										PCLEuclideanClusterExtractionServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_list_out': 'combined_pointcloud_cluster'})
 
 
-		# x:60 y:401, x:350 y:119
+		# x:314 y:377, x:318 y:116
 		_sm_initobjectcontainer_4 = OperatableStateMachine(outcomes=['finished', 'failed'])
 
 		with _sm_initobjectcontainer_4:
@@ -223,31 +223,31 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'continue': 'InitDeleteObject2', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:30 y:125
+			# x:33 y:125
 			OperatableStateMachine.add('InitDeleteObject2',
 										DeleteModelServiceState(model_name=self.second_model_name),
 										transitions={'continue': 'initDeleteObject3', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:32 y:246
+			# x:32 y:250
 			OperatableStateMachine.add('InitSpawnObject',
 										SpawnModelServiceState(model_name=self.model_name, object_file_path=self.object_file_path_coke, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
 										transitions={'continue': 'SpawnModel2', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:33 y:318
+			# x:33 y:312
 			OperatableStateMachine.add('SpawnModel2',
 										SpawnModelServiceState(model_name=self.second_model_name, object_file_path=self.object_file_path_cube, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
 										transitions={'continue': 'third_item', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:440 y:180
+			# x:33 y:187
 			OperatableStateMachine.add('initDeleteObject3',
 										DeleteModelServiceState(model_name=self.third_model_name),
 										transitions={'continue': 'InitSpawnObject', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:215 y:374
+			# x:34 y:371
 			OperatableStateMachine.add('third_item',
 										SpawnModelServiceState(model_name=self.third_model_name, object_file_path=self.object_file_path_cube, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
 										transitions={'continue': 'finished', 'failed': 'failed'},
