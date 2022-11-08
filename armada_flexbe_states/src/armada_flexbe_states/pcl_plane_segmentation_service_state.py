@@ -4,10 +4,10 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import VoxelGridFilter, VoxelGridFilterResponse, VoxelGridFilterRequest
+from armada_flexbe_utilities.srv import SacSegmentation, SacSegmentationResponse, SacSegmentationRequest
 
 
-class PointCloudVoxelGridFilterServiceState(EventState):
+class PCLPlaneSegmentationServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -22,18 +22,18 @@ class PointCloudVoxelGridFilterServiceState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(PointCloudVoxelGridFilterServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                                            input_keys = ['pointcloud_in'],
-                                                                            output_keys = ['pointcloud_out'])
+                super(PCLPlaneSegmentationServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                                                       input_keys = ['pointcloud_in'],
+                                                       output_keys = ['pointcloud_out'])
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/voxelgrid_filter'
+                self._service_topic = '/sac_segmentation'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: VoxelGridFilter})
+                self._service = ProxyServiceCaller({self._service_topic: SacSegmentation})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)

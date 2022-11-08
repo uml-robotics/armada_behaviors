@@ -7,7 +7,7 @@ from flexbe_core.proxy import ProxyServiceCaller
 from armada_flexbe_utilities.srv import PointCloudPassthroughFilter, PointCloudPassthroughFilterResponse, PointCloudPassthroughFilterRequest
 
 
-class PointCloudPassthroughFilterServiceState(EventState):
+class PCLPassthroughFilterServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -29,7 +29,7 @@ class PointCloudPassthroughFilterServiceState(EventState):
 
         def __init__(self, x_min, x_max, y_min, y_max, z_min, z_max):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(PointCloudPassthroughFilterServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                super(PCLPassthroughFilterServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_in'],
                                                        output_keys = ['pointcloud_out'])
 

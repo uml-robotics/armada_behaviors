@@ -3,44 +3,41 @@ import rospy
 
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
-from sensor_msgs.msg import PointCloud2
 
-from armada_flexbe_utilities.srv import ConcatenatePointCloud, ConcatenatePointCloudResponse, ConcatenatePointCloudRequest
+from armada_flexbe_utilities.srv import VoxelGridFilter, VoxelGridFilterResponse, VoxelGridFilterRequest
 
 
-class ConcatenatePointCloudServiceState(EventState):
+class PCLVoxelGridFilterServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-        ># pointcloud_list_in                           List of PointCloud2 messages
-        #> combined_pointcloud                          Concatenated PointCloud2 message
-        #> pointcloud_list_out                          List of PointCloud2 messages
+        ># pointcloud_in                                Unfiltered PointCloud2 message
+        #> pointcloud_out                               Filtered PointCloud2 message
 
-        <= continue                                     Concatenated pointclouds successfully
+        <= continue                                     Filtered pointcloud successfully
         <= failed                                       Something went wrong
 
         '''
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(ConcatenatePointCloudServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = ['pointcloud_list_in'],
-                                                       output_keys = ['combined_pointcloud', 'pointcloud_list_out'])
+                super(PCLVoxelGridFilterServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                                                                            input_keys = ['pointcloud_in'],
+                                                                            output_keys = ['pointcloud_out'])
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/concatenate_pointcloud'
+                self._service_topic = '/voxelgrid_filter'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: ConcatenatePointCloud})
+                self._service = ProxyServiceCaller({self._service_topic: VoxelGridFilter})
 
                 try:
-                  service_response = self._service.call(self._service_topic, userdata.pointcloud_list_in)
-                  userdata.combined_pointcloud = service_response.cloud_out
-                  userdata.pointcloud_list_out = []
+                  service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
+                  userdata.pointcloud_out = service_response.cloud_out
                   return 'continue'
                 except:
                   return 'failed'
@@ -49,7 +46,7 @@ class ConcatenatePointCloudServiceState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('attempting to concatenate pointcloud...' )
+                Logger.loginfo('attempting to segment planes from pointcloud...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
