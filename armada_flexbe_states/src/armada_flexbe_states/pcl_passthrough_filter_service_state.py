@@ -9,15 +9,7 @@ from armada_flexbe_utilities.srv import PointCloudPassthroughFilter, PointCloudP
 
 class PCLPassthroughFilterServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
-
-        -- x_min                   float32              Desired X lower limit for pointcloud filtering
-        -- x_max                   float32              Desired X upper limit for pointcloud filtering
-        -- y_min                   float32              Desired Y lower limit for pointcloud filtering
-        -- y_max                   float32              Desired Y upper limit for pointcloud filtering
-        -- z_min                   float32              Desired Z lower limit for pointcloud filtering
-        -- z_max                   float32              Desired Z upper limit for pointcloud filtering
+        TODO
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message
@@ -27,18 +19,11 @@ class PCLPassthroughFilterServiceState(EventState):
 
         '''
 
-        def __init__(self, x_min, x_max, y_min, y_max, z_min, z_max):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(PCLPassthroughFilterServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_in'],
                                                        output_keys = ['pointcloud_out'])
-
-                self._x_min = x_min
-                self._x_max = x_max
-                self._y_min = y_min
-                self._y_max = y_max
-                self._z_min = z_min
-                self._z_max = z_max
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -51,12 +36,6 @@ class PCLPassthroughFilterServiceState(EventState):
 
                 request = PointCloudPassthroughFilterRequest()
                 request.cloud_in = userdata.pointcloud_in
-                request.x_min = self._x_min
-                request.x_max = self._x_max
-                request.y_min = self._y_min
-                request.y_max = self._y_max
-                request.z_min = self._z_min
-                request.z_max = self._z_max
 
                 try:
                   service_response = self._service.call(self._service_topic, request)

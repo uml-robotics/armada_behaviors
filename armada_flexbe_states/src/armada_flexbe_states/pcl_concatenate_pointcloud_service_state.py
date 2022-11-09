@@ -10,8 +10,7 @@ from armada_flexbe_utilities.srv import ConcatenatePointCloud, ConcatenatePointC
 
 class PCLConcatenatePointCloudServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        TODO
 
         ># pointcloud_list_in                           List of PointCloud2 messages
         #> combined_pointcloud                          Concatenated PointCloud2 message
