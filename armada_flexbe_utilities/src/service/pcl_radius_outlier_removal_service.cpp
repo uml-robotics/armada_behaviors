@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "armada_flexbe_utilities/RadiusOutlierRemoval.h"
+#include "armada_flexbe_utilities/PCLRadiusOutlierRemoval.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/radius_outlier_removal.h>
@@ -41,8 +41,8 @@ public:
    * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
    * @return Bool Service completion result.
    */
-  bool radiusOutlierRemoval(armada_flexbe_utilities::RadiusOutlierRemoval::Request &req,
-                            armada_flexbe_utilities::RadiusOutlierRemoval::Response &res)
+  bool radiusOutlierRemoval(armada_flexbe_utilities::PCLRadiusOutlierRemoval::Request &req,
+                            armada_flexbe_utilities::PCLRadiusOutlierRemoval::Response &res)
   {
     nh_.getParam("/filters/radius_outlier_removal/searchRadius", searchRadius);
     nh_.getParam("/filters/radius_outlier_removal/minNeighborRadius", minNeighborRadius);

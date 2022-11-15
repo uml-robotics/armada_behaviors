@@ -47,7 +47,7 @@ public:
 
     ros::Duration timeout(timeout_len);
     boost::shared_ptr<gpd_ros::GraspConfigList const> sharedGraspConfigListPtr;
-    sharedGraspConfigListPtr = ros::topic::waitForMessage<gpd_ros::GraspConfigList>(req.grasp_candidates_topic, timeout);
+    sharedGraspConfigListPtr = ros::topic::waitForMessage<gpd_ros::GraspConfigList>("/detect_grasps/clustered_grasps", timeout);
     if(sharedGraspConfigListPtr != NULL) {
       res.grasp_msg_list = *sharedGraspConfigListPtr;
     }

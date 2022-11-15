@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "armada_flexbe_utilities/SacSegmentation.h"
+#include "armada_flexbe_utilities/PCLPlaneSegmentation.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/transforms.h>
@@ -43,8 +43,8 @@ public:
    * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
    * @return Bool Service completion result.
    */
-  bool planeSegmentation(armada_flexbe_utilities::SacSegmentation::Request &req,
-                       armada_flexbe_utilities::SacSegmentation::Response &res)
+  bool planeSegmentation(armada_flexbe_utilities::PCLPlaneSegmentation::Request &req,
+                         armada_flexbe_utilities::PCLPlaneSegmentation::Response &res)
   {
     PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
     fromROSMsg(req.cloud_in, *temp_cloud);

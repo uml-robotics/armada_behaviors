@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "armada_flexbe_utilities/EuclideanClusterExtraction.h"
+#include "armada_flexbe_utilities/PCLEuclideanClusterExtraction.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/segmentation/extract_clusters.h>
@@ -41,8 +41,8 @@ public:
    * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
    * @return Bool Service completion result.
    */
-  bool euclideanClusterExtraction(armada_flexbe_utilities::EuclideanClusterExtraction::Request &req,
-                                  armada_flexbe_utilities::EuclideanClusterExtraction::Response &res)
+  bool euclideanClusterExtraction(armada_flexbe_utilities::PCLEuclideanClusterExtraction::Request &req,
+                                  armada_flexbe_utilities::PCLEuclideanClusterExtraction::Response &res)
   {
     nh_.getParam("/filters/euclidean_cluster_extraction/clusterTolerance", clusterTolerance);
     nh_.getParam("/filters/euclidean_cluster_extraction/minClusterSize", minClusterSize);

@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "armada_flexbe_utilities/PointCloudPassthroughFilter.h"
+#include "armada_flexbe_utilities/PCLPassthroughFilter.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/passthrough.h>
@@ -45,8 +45,8 @@ public:
    * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
    * @return Bool Service completion result.
    */
-  bool passthroughFilter(armada_flexbe_utilities::PointCloudPassthroughFilter::Request &req,
-                         armada_flexbe_utilities::PointCloudPassthroughFilter::Response &res)
+  bool passthroughFilter(armada_flexbe_utilities::PCLPassthroughFilter::Request &req,
+                         armada_flexbe_utilities::PCLPassthroughFilter::Response &res)
   {
     nh_.getParam("/filters/passthrough/x", x_min);
     nh_.getParam("/filters/passthrough/x", x_max);

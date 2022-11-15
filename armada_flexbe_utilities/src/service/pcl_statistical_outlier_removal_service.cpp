@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "armada_flexbe_utilities/StatisticalOutlierRemoval.h"
+#include "armada_flexbe_utilities/PCLStatisticalOutlierRemoval.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/statistical_outlier_removal.h>
@@ -41,8 +41,8 @@ public:
    * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
    * @return Bool Service completion result.
    */
-  bool statisticalOutlierRemoval(armada_flexbe_utilities::StatisticalOutlierRemoval::Request &req,
-                                 armada_flexbe_utilities::StatisticalOutlierRemoval::Response &res)
+  bool statisticalOutlierRemoval(armada_flexbe_utilities::PCLStatisticalOutlierRemoval::Request &req,
+                                 armada_flexbe_utilities::PCLStatisticalOutlierRemoval::Response &res)
   {
     nh_.getParam("/filters/statistical_outlier_removal/meanK", meanK);
     nh_.getParam("/filters/statistical_outlier_removal/stdDevMulThresh", stdDevMulThresh);

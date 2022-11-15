@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "armada_flexbe_utilities/ConditionalOutlierRemoval.h"
+#include "armada_flexbe_utilities/PCLConditionalOutlierRemoval.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/conditional_removal.h>
@@ -42,8 +42,8 @@ public:
    * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
    * @return Bool Service completion result.
    */
-  bool conditionalOutlierRemoval(armada_flexbe_utilities::ConditionalOutlierRemoval::Request &req,
-                                 armada_flexbe_utilities::ConditionalOutlierRemoval::Response &res)
+  bool conditionalOutlierRemoval(armada_flexbe_utilities::PCLConditionalOutlierRemoval::Request &req,
+                                 armada_flexbe_utilities::PCLConditionalOutlierRemoval::Response &res)
   {
     nh_.getParam("/filters/conditional_outlier_removal/field", comp_axis);
     nh_.getParam("/filters/conditional_outlier_removal/min", min_comp);
