@@ -38,18 +38,18 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  GetPointCloud.srv
-  ConcatenatePointCloud.srv
-  PointCloudPassthroughFilter.srv
-  SacSegmentation.srv
-  GPDGraspWaypoints.srv
   BasicGraspWaypoints.srv
+  GetPointCloud.srv
   GPDGraspCandidates.srv
-  ConditionalOutlierRemoval.srv
-  StatisticalOutlierRemoval.srv
-  RadiusOutlierRemoval.srv
-  VoxelGridFilter.srv
-  EuclideanClusterExtraction.srv
+  GPDGraspWaypoints.srv
+  PCLConcatenatePointCloud.srv
+  PCLConditionalOutlierRemoval.srv
+  PCLEuclideanClusterExtraction.srv
+  PCLPassthroughFilter.srv
+  PCLPlaneSegmentation.srv
+  PCLRadiusOutlierRemoval.srv
+  PCLStatisticalOutlierRemoval.srv
+  PCLVoxelGridFilter.srv
 )
 
 ## Generate actions in the 'action' folder
