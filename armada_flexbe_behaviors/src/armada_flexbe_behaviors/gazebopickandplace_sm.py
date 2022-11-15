@@ -18,7 +18,7 @@ from armada_flexbe_states.move_arm_action_state import MoveArmActionState
 from armada_flexbe_states.pcl_concatenate_pointcloud_service_state import PCLConcatenatePointCloudServiceState
 from armada_flexbe_states.pcl_euclidean_cluster_extraction_service_state import PCLEuclideanClusterExtractionServiceState
 from armada_flexbe_states.pcl_passthrough_filter_service_state import PCLPassthroughFilterServiceState
-from armada_flexbe_states.pcl_plane_segmentation_service_state import PCLPlaneSegmentationServiceState
+from armada_flexbe_states.pcl_radius_outlier_removal_service_state import PCLPlaneSegmentationServiceState
 from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
@@ -58,8 +58,8 @@ class GazeboPickAndPlaceSM(Behavior):
 		self.add_parameter('third_model_name', 'coke_can_3')
 		self.add_parameter('Cluster_cloud', 'cluster_cloud')
 		self.add_parameter('object_file_path_coke', '/home/csrobot/.gazebo/models/coke_can/model.sdf')
-		self.add_parameter('object_file_path_cube', '/home/csrobot/.gazebo/gazebo_models/demo_cube/model.sdf')
-		self.add_parameter('object_file_path', '/home/brian/.gazebo/models/coke_can/model.sdf')
+		self.add_parameter('object_file_path_cube', '/home/csrobot/.gazebo/models/coke_can/model.sdf')
+		self.add_parameter('object_file_path', '/home/csrobot/.gazebo/models/coke_can/model.sdf')
 
 		# references to used behaviors
 
@@ -129,7 +129,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:28 y:275
 			OperatableStateMachine.add('GPDGraspCandidates',
-										GPDGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic, grasp_candidates_topic=self.grasp_candidates_topic),
+										GPDGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic),
 										transitions={'continue': 'GPDGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
@@ -193,7 +193,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:453 y:52
 			OperatableStateMachine.add('PCLPassthroughFilter',
-										PCLPassthroughFilterServiceState(x_min=-1.125, x_max=-0.225, y_min=-0.6, y_max=0.6, z_min=-0.1, z_max=0.15),
+										PCLPassthroughFilterServiceState(),
 										transitions={'continue': 'ConcatenatePointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})

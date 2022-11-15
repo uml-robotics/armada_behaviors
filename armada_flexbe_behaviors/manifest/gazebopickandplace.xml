@@ -43,9 +43,9 @@
 
 		<param type="text" name="object_file_path_coke" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path_coke" hint="Sets the object_file_path_coke" />
 
-		<param type="text" name="object_file_path_cube" default="/home/csrobot/.gazebo/gazebo_models/demo_cube/model.sdf" label="object_file_path_cube" hint="Sets the object_file_path_cube" />
+		<param type="text" name="object_file_path_cube" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path_cube" hint="Sets the object_file_path_cube" />
 
-		<param type="text" name="object_file_path" default="/home/brian/.gazebo/models/coke_can/model.sdf" label="object_file_path" hint="Sets the object_file_path" />
+		<param type="text" name="object_file_path" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path" hint="Sets the object_file_path" />
 
 	</params>
 
