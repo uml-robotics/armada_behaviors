@@ -4,7 +4,7 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import VoxelGridFilter, VoxelGridFilterResponse, VoxelGridFilterRequest
+from armada_flexbe_utilities.srv import PCLVoxelGridFilter, PCLVoxelGridFilterResponse, PCLVoxelGridFilterRequest
 
 
 class PCLVoxelGridFilterServiceState(EventState):
@@ -33,7 +33,7 @@ class PCLVoxelGridFilterServiceState(EventState):
 
                 self._service_topic = '/voxelgrid_filter'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: VoxelGridFilter})
+                self._service = ProxyServiceCaller({self._service_topic: PCLVoxelGridFilter})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)

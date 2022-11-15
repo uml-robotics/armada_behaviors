@@ -10,11 +10,9 @@ from armada_flexbe_utilities.srv import GPDGraspCandidates, GPDGraspCandidatesRe
 
 class GPDGraspCandidatesServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        TODO
 
         -- combined_cloud_topic                         Topic to publish pointcloud message
-        -- grasp_candidates_topic                       Topic to subscribe for grasp candidate messages
 
         ># combined_pointcloud                          List of PointCloud2 message
         #> grasp_candidates                             List of grasp candidates message
@@ -24,14 +22,13 @@ class GPDGraspCandidatesServiceState(EventState):
 
         '''
 
-        def __init__(self, combined_cloud_topic, grasp_candidates_topic):
+        def __init__(self, combined_cloud_topic):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(GPDGraspCandidatesServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['combined_pointcloud'],
                                                        output_keys = ['grasp_candidates'])
 
                 self._combined_cloud_topic = combined_cloud_topic
-                self._grasp_candidates_topic = grasp_candidates_topic
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -43,7 +40,6 @@ class GPDGraspCandidatesServiceState(EventState):
                 self._service = ProxyServiceCaller({self._service_topic: GPDGraspCandidates})
 
                 request = GPDGraspCandidatesRequest()
-                request.grasp_candidates_topic = self._grasp_candidates_topic
                 request.combined_cloud = userdata.combined_pointcloud
 
                 try:

@@ -4,13 +4,12 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import SacSegmentation, SacSegmentationResponse, SacSegmentationRequest
+from armada_flexbe_utilities.srv import PCLPlaneSegmentation, PCLPlaneSegmentationResponse, PCLPlaneSegmentationRequest
 
 
 class PCLPlaneSegmentationServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        TODO
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message
@@ -31,9 +30,9 @@ class PCLPlaneSegmentationServiceState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/sac_segmentation'
+                self._service_topic = '/plane_segmentation'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: SacSegmentation})
+                self._service = ProxyServiceCaller({self._service_topic: PCLPlaneSegmentation})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)

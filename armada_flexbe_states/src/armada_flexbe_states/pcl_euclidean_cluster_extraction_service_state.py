@@ -4,13 +4,12 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import EuclideanClusterExtraction, EuclideanClusterExtractionResponse, EuclideanClusterExtractionRequest
+from armada_flexbe_utilities.srv import PCLEuclideanClusterExtraction, PCLEuclideanClusterExtractionResponse, PCLEuclideanClusterExtractionRequest
 
 
 class PCLEuclideanClusterExtractionServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        TODO
 
         -- param                        string          Param description
 
@@ -36,7 +35,7 @@ class PCLEuclideanClusterExtractionServiceState(EventState):
 
                 self._service_topic = '/euclidean_cluster_extraction'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: EuclideanClusterExtraction})
+                self._service = ProxyServiceCaller({self._service_topic: PCLEuclideanClusterExtraction})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)

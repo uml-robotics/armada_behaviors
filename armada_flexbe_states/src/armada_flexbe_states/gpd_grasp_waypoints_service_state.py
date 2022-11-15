@@ -9,12 +9,7 @@ from armada_flexbe_utilities.srv import GPDGraspWaypoints, GPDGraspWaypointsResp
 
 class GPDGraspWaypointsServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
-
-        -- grasp_offset                                 Topic to publish pointcloud message
-        -- pregrasp_dist                                Topic to subscribe for grasp candidate messages
-        -- postgrasp_dist                               Topic to subscribe for grasp candidate messages
+        TODO
 
         ># grasp_candidates                             List of grasp candidates message
         #> grasp_waypoints_list                         List of sets of grasp waypoints

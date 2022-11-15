@@ -4,7 +4,7 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import PointCloudPassthroughFilter, PointCloudPassthroughFilterResponse, PointCloudPassthroughFilterRequest
+from armada_flexbe_utilities.srv import PCLPassthroughFilter, PCLPassthroughFilterResponse, PCLPassthroughFilterRequest
 
 
 class PCLPassthroughFilterServiceState(EventState):
@@ -32,7 +32,7 @@ class PCLPassthroughFilterServiceState(EventState):
 
                 self._service_topic = '/passthrough_filter'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: PointCloudPassthroughFilter})
+                self._service = ProxyServiceCaller({self._service_topic: PCLPassthroughFilter})
 
                 request = PointCloudPassthroughFilterRequest()
                 request.cloud_in = userdata.pointcloud_in

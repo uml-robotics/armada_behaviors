@@ -5,7 +5,7 @@ from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 from sensor_msgs.msg import PointCloud2
 
-from armada_flexbe_utilities.srv import ConcatenatePointCloud, ConcatenatePointCloudResponse, ConcatenatePointCloudRequest
+from armada_flexbe_utilities.srv import PCLConcatenatePointCloud, PCLConcatenatePointCloudResponse, PCLConcatenatePointCloudRequest
 
 
 class PCLConcatenatePointCloudServiceState(EventState):
@@ -34,7 +34,7 @@ class PCLConcatenatePointCloudServiceState(EventState):
 
                 self._service_topic = '/concatenate_pointcloud'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: ConcatenatePointCloud})
+                self._service = ProxyServiceCaller({self._service_topic: PCLConcatenatePointCloud})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_list_in)

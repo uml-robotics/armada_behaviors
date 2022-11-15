@@ -4,10 +4,10 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import SacSegmentation, SacSegmentationResponse, SacSegmentationRequest
+from armada_flexbe_utilities.srv import PCLStatisticalOutlierRemoval, PCLStatisticalOutlierRemovalResponse, PCLStatisticalOutlierRemovalRequest
 
 
-class PCLPlaneSegmentationServiceState(EventState):
+class PCLStatisticalOutlierRemovalServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -22,7 +22,7 @@ class PCLPlaneSegmentationServiceState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(PCLPlaneSegmentationServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                super(PCLStatisticalOutlierRemovalServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_in'],
                                                        output_keys = ['pointcloud_out'])
 
@@ -31,9 +31,9 @@ class PCLPlaneSegmentationServiceState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/sac_segmentation'
+                self._service_topic = '/statistical_outlier_removal'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: SacSegmentation})
+                self._service = ProxyServiceCaller({self._service_topic: PCLStatisticalOutlierRemoval})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)

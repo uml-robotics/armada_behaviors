@@ -4,7 +4,7 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import SacSegmentation, SacSegmentationResponse, SacSegmentationRequest
+from armada_flexbe_utilities.srv import PCLConditionalOutlierRemoval, PCLConditionalOutlierRemovalResponse, PCLConditionalOutlierRemovalRequest
 
 
 class PCLConditionalOutlierRemovalServiceState(EventState):
@@ -32,7 +32,7 @@ class PCLConditionalOutlierRemovalServiceState(EventState):
 
                 self._service_topic = '/conditional_outlier_removal'
                 rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: SacSegmentation})
+                self._service = ProxyServiceCaller({self._service_topic: PCLConditionalOutlierRemoval})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
