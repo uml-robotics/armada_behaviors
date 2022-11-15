@@ -42,8 +42,8 @@ public:
    * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
    * @return Bool Service completion result.
    */
-  bool voxelGridFilter(armada_flexbe_utilities::VoxelGridFilter::Request &req,
-                       armada_flexbe_utilities::VoxelGridFilter::Response &res)
+  bool voxelGridFilter(armada_flexbe_utilities::PCLVoxelGridFilter::Request &req,
+                       armada_flexbe_utilities::PCLVoxelGridFilter::Response &res)
   {
     PointCloud<PointXYZRGB>::Ptr input_cloud(new PointCloud<PointXYZRGB>);
     PointCloud<PointXYZRGB>::Ptr filtered_cloud(new PointCloud<PointXYZRGB>);
