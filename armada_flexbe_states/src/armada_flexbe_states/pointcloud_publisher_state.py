@@ -5,8 +5,6 @@ from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyPublisher
 from sensor_msgs.msg import PointCloud2
 
-from armada_flexbe_utilities.srv import ConcatenatePointCloud, ConcatenatePointCloudResponse, ConcatenatePointCloudRequest
-
 
 class PointCloudPublisherState(EventState):
         '''
