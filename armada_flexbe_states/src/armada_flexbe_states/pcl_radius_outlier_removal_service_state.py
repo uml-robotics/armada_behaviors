@@ -9,7 +9,7 @@ from armada_flexbe_utilities.srv import PCLRadiusOutlierRemoval, PCLRadiusOutlie
 
 class PCLPlaneSegmentationServiceState(EventState):
         '''
-        TODO
+        Remove all indices from within a PointCloud that do not have at least the specified number of neighbors within a defined range (values defined within service).
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message

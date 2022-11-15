@@ -9,7 +9,7 @@ from armada_flexbe_utilities.srv import PCLEuclideanClusterExtraction, PCLEuclid
 
 class PCLEuclideanClusterExtractionServiceState(EventState):
         '''
-        TODO
+        Extract Euclidean clusters from within a given PointCloud.
 
         -- param                        string          Param description
 

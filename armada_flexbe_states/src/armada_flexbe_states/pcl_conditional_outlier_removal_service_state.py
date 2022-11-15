@@ -9,7 +9,7 @@ from armada_flexbe_utilities.srv import PCLConditionalOutlierRemoval, PCLConditi
 
 class PCLConditionalOutlierRemovalServiceState(EventState):
         '''
-        TODO
+        Remove indices within a given PointCloud that do not satisfy a set of given conditions (as defined in corresponding service).
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message

@@ -9,7 +9,7 @@ from armada_flexbe_utilities.srv import PCLPlaneSegmentation, PCLPlaneSegmentati
 
 class PCLPlaneSegmentationServiceState(EventState):
         '''
-        TODO
+        Segment out all points from within a PointCloud that support a plane model and return the resulting PointCloud.
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message

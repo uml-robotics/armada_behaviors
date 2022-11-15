@@ -9,7 +9,7 @@ from armada_flexbe_utilities.srv import PCLPassthroughFilter, PCLPassthroughFilt
 
 class PCLPassthroughFilterServiceState(EventState):
         '''
-        TODO
+        Filter a PointCloud by filtering out values outside a given range.
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message

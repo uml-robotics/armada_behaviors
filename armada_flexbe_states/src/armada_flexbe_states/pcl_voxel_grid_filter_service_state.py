@@ -9,7 +9,7 @@ from armada_flexbe_utilities.srv import PCLVoxelGridFilter, PCLVoxelGridFilterRe
 
 class PCLVoxelGridFilterServiceState(EventState):
         '''
-        TODO
+        Use a voxelized grid approach to downsample a PointCloud dataset.
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message

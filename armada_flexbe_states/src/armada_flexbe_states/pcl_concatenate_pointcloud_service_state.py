@@ -10,7 +10,7 @@ from armada_flexbe_utilities.srv import PCLConcatenatePointCloud, PCLConcatenate
 
 class PCLConcatenatePointCloudServiceState(EventState):
         '''
-        TODO
+        Concatenate two or more PointClouds contained within a list.
 
         ># pointcloud_list_in                           List of PointCloud2 messages
         #> combined_pointcloud                          Concatenated PointCloud2 message

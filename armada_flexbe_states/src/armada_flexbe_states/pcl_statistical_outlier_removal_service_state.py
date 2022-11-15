@@ -9,7 +9,7 @@ from armada_flexbe_utilities.srv import PCLStatisticalOutlierRemoval, PCLStatist
 
 class PCLStatisticalOutlierRemovalServiceState(EventState):
         '''
-        TODO
+        Use statistical analysis techniques to remove outliers from a given PointCloud.
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message
