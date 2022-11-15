@@ -9,8 +9,7 @@ from armada_flexbe_utilities.srv import PCLStatisticalOutlierRemoval, PCLStatist
 
 class PCLStatisticalOutlierRemovalServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        TODO
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
         #> pointcloud_out                               Filtered PointCloud2 message
