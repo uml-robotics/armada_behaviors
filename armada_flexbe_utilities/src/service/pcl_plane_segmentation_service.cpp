@@ -14,7 +14,7 @@ protected:
 
   ros::NodeHandle nh_;
   ros::ServiceServer planeSegmentationService;
-  double maxIterations;
+  int maxIterations;
   double distanceThreshold;
 
 public:
@@ -58,8 +58,10 @@ public:
     seg.setOptimizeCoefficients (true);
     seg.setModelType (SACMODEL_PLANE);
     seg.setMethodType (SAC_RANSAC);
-    seg.setMaxIterations (maxIterations);
-    seg.setDistanceThreshold (distanceThreshold);
+    //seg.setMaxIterations (maxIterations);
+    seg.setMaxIterations (50);
+    //seg.setDistanceThreshold (distanceThreshold);
+    seg.setDistanceThreshold (0.01);
     seg.setInputCloud (temp_cloud);
     seg.segment (*inliers_plane, *coefficients_plane);
 

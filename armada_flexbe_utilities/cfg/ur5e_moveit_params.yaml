@@ -14,6 +14,9 @@ end_effector: {
         grasp_rot_w: 1,
     },
 }
+grasp_plan: {
+    timeout_len: 10.0,
+}
 move_group: {
     planning_group: "manipulator",
     MaxVelocityScalingFactor: 1.0,
@@ -49,7 +52,7 @@ filters: {
         },
     },
     plane_segmentation: {
-        maxIterations: 1000,
+        maxIterations: 50,
         distanceThreshold: 0.01,
     },
     radius_outlier_removal: {

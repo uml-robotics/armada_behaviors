@@ -11,7 +11,7 @@ protected:
 
   ros::NodeHandle nh_;
   ros::ServiceServer getGraspCandidateService;
-  int timeout_len;
+  double timeout_len;
 
 public:
 
@@ -43,7 +43,9 @@ public:
   bool GPDGraspCandidates(armada_flexbe_utilities::GPDGraspCandidates::Request &req,
                           armada_flexbe_utilities::GPDGraspCandidates::Response &res)
   {
+    ROS_WARN("About to look for timeout length");
     nh_.getParam("/grasp_plan/timeout_len", timeout_len);
+    ROS_WARN_STREAM("Timeout length: " << timeout_len);
 
     ros::Duration timeout(timeout_len);
     boost::shared_ptr<gpd_ros::GraspConfigList const> sharedGraspConfigListPtr;

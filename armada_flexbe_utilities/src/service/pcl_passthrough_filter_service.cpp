@@ -48,12 +48,12 @@ public:
   bool passthroughFilter(armada_flexbe_utilities::PCLPassthroughFilter::Request &req,
                          armada_flexbe_utilities::PCLPassthroughFilter::Response &res)
   {
-    nh_.getParam("/filters/passthrough/x", x_min);
-    nh_.getParam("/filters/passthrough/x", x_max);
-    nh_.getParam("/filters/passthrough/y", y_min);
-    nh_.getParam("/filters/passthrough/y", y_max);
-    nh_.getParam("/filters/passthrough/z", z_min);
-    nh_.getParam("/filters/passthrough/z", z_max);
+    nh_.getParam("/filters/passthrough/x/min", x_min);
+    nh_.getParam("/filters/passthrough/x/max", x_max);
+    nh_.getParam("/filters/passthrough/y/min", y_min);
+    nh_.getParam("/filters/passthrough/y/max", y_max);
+    nh_.getParam("/filters/passthrough/z/min", z_min);
+    nh_.getParam("/filters/passthrough/z/max", z_max);
 
     PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
     fromROSMsg(req.cloud_in, *temp_cloud);
