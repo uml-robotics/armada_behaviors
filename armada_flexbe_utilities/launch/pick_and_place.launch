@@ -36,7 +36,9 @@
     <param name="rviz_topic" value="grasps_rviz" />
   </node>
 
+  <!-- previously used cfg file
   <rosparam file="$(find armada_flexbe_utilities)/cfg/ur5e_wrist_d435.yaml" />
+  -->
 
   <include file="$(find armada_flexbe_utilities)/launch/passthrough_filter.launch" unless="$(eval max_dist == '')" >
     <arg name="wrist_cam" value="$(arg camera_name)" />
