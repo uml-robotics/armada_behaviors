@@ -34,11 +34,8 @@ class PCLPassthroughFilterServiceState(EventState):
                 rospy.wait_for_service(self._service_topic)
                 self._service = ProxyServiceCaller({self._service_topic: PCLPassthroughFilter})
 
-                request = PointCloudPassthroughFilterRequest()
-                request.cloud_in = userdata.pointcloud_in
-
                 try:
-                  service_response = self._service.call(self._service_topic, request)
+                  service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
                   userdata.pointcloud_out = service_response.cloud_out
                   return 'continue'
                 except:
