@@ -180,32 +180,32 @@ class GazeboPickAndPlaceSM(Behavior):
 										remapping={'target_pose_list': 'target_pose_list'})
 
 
-		# x:115 y:405, x:404 y:181
+		# x:401 y:366, x:404 y:181
 		_sm_pclfiltercontainer_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['pointcloud_list', 'combined_pointcloud'], output_keys=['combined_pointcloud', 'pointcloud_list', 'combined_pointcloud_cluster'])
 
 		with _sm_pclfiltercontainer_3:
 			# x:30 y:40
 			OperatableStateMachine.add('ConcatenatePointCloud',
 										PCLConcatenatePointCloudServiceState(),
-										transitions={'continue': 'cluster_extraction_state', 'failed': 'failed'},
+										transitions={'continue': 'PCLPassthroughFilter', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list_in': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'pointcloud_list_out': 'pointcloud_list'})
 
-			# x:453 y:52
+			# x:43 y:146
 			OperatableStateMachine.add('PCLPassthroughFilter',
 										PCLPassthroughFilterServiceState(),
-										transitions={'continue': 'ConcatenatePointCloud', 'failed': 'failed'},
+										transitions={'continue': 'PointCloudPlanarSegmentation', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
-			# x:48 y:298
+			# x:39 y:250
 			OperatableStateMachine.add('PointCloudPlanarSegmentation',
 										PCLPlaneSegmentationServiceState(),
-										transitions={'continue': 'cluster_extraction_state', 'failed': 'failed'},
+										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
-			# x:297 y:350
+			# x:27 y:357
 			OperatableStateMachine.add('cluster_extraction_state',
 										PCLEuclideanClusterExtractionServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
