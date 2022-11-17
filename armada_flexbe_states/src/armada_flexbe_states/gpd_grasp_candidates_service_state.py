@@ -35,15 +35,15 @@ class GPDGraspCandidatesServiceState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/get_grasp_candidates'
+                self._service_topic = '/gpd_grasp_candidates'
                 rospy.wait_for_service(self._service_topic)
                 self._service = ProxyServiceCaller({self._service_topic: GPDGraspCandidates})
 
-                request = GPDGraspCandidatesRequest()
-                request.combined_cloud = userdata.combined_pointcloud
+                #request = GPDGraspCandidatesRequest()
+                #request.combined_cloud = userdata.combined_pointcloud
 
                 try:
-                  service_response = self._service.call(self._service_topic, request)
+                  service_response = self._service.call(self._service_topic, userdata.combined_pointcloud)
                   userdata.grasp_candidates = service_response.grasp_msg_list
                   return 'continue'
                 except:
