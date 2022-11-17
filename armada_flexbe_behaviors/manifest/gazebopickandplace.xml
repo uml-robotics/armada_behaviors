@@ -16,7 +16,7 @@
 	<!-- Available Parameters -->
 	<params>
 
-		<param type="text" name="model_name" default="coke_can" label="model_name" hint="Sets the model_name" />
+		<param type="text" name="model_name_three" default="coke_can_three" label="model_name_three" hint="Sets the model_name_three" />
 
 		<param type="text" name="robot_namespace" default="" label="robot_namespace" hint="Sets the robot_namespace" />
 
@@ -35,17 +35,17 @@
 
 		<param type="text" name="reference_frame" default="world" label="reference_frame" hint="Sets the reference_frame" />
 
-		<param type="text" name="second_model_name" default="coke_can_2" label="second_model_name" hint="Sets the second_model_name" />
+		<param type="text" name="model_name_two" default="coke_can_two" label="model_name_two" hint="Sets the model_name_two" />
 
-		<param type="text" name="third_model_name" default="coke_can_3" label="third_model_name" hint="Sets the third_model_name" />
+		<param type="text" name="model_name_three" default="coke_can_three" label="model_name_three" hint="Sets the model_name_three" />
 
-		<param type="text" name="Cluster_cloud" default="cluster_cloud" label="Cluster_cloud" hint="Sets the Cluster_cloud" />
+		<param type="text" name="object_file_path_one" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path_one" hint="Sets the object_file_path_one" />
 
-		<param type="text" name="object_file_path_coke" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path_coke" hint="Sets the object_file_path_coke" />
+		<param type="text" name="object_file_path_two" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path_two" hint="Sets the object_file_path_two" />
 
-		<param type="text" name="object_file_path_cube" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path_cube" hint="Sets the object_file_path_cube" />
+		<param type="text" name="model_name_one" default="coke_can_one" label="model_name_one" hint="Sets the model_name_one" />
 
-		<param type="text" name="object_file_path" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path" hint="Sets the object_file_path" />
+		<param type="text" name="object_file_path_three" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path_three" hint="Sets the object_file_path_three" />
 
 	</params>
 
