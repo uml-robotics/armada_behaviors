@@ -47,6 +47,8 @@ public:
                          armada_flexbe_utilities::PCLPlaneSegmentation::Response &res)
   {
     PointCloud<PointXYZRGB>::Ptr temp_cloud(new PointCloud<PointXYZRGB>);
+    PointCloud<PointXYZRGB>::Ptr objects_cloud(new PointCloud<PointXYZRGB>);
+    PointCloud<PointXYZRGB>::Ptr plane_cloud(new PointCloud<PointXYZRGB>);
     fromROSMsg(req.cloud_in, *temp_cloud);
 
     nh_.getParam("/filters/plane_segmentation/maxIterations", maxIterations);
@@ -63,13 +65,20 @@ public:
     seg.setInputCloud (temp_cloud);
     seg.segment (*inliers_plane, *coefficients_plane);
 
-    ExtractIndices<PointXYZRGB> extract_indices;
-    extract_indices.setInputCloud(temp_cloud);
-    extract_indices.setIndices(inliers_plane);
-    extract_indices.setNegative(true);
-    extract_indices.filter(*temp_cloud);
+    ExtractIndices<PointXYZRGB> extract_object_indices;
+    extract_object_indices.setInputCloud(temp_cloud);
+    extract_object_indices.setIndices(inliers_plane);
+    extract_object_indices.setNegative(true);
+    extract_object_indices.filter(*objects_cloud);
 
-    toROSMsg(*temp_cloud, res.cloud_out);
+    ExtractIndices<PointXYZRGB> extract_plane_indices;
+    extract_plane_indices.setInputCloud(temp_cloud);
+    extract_plane_indices.setIndices(inliers_plane);
+    extract_plane_indices.setNegative(false);
+    extract_plane_indices.filter(*plane_cloud);
+
+    toROSMsg(*objects_cloud, res.objects_cloud_out);
+    toROSMsg(*plane_cloud, res.plane_cloud_out);
     return true;
   }
 };
