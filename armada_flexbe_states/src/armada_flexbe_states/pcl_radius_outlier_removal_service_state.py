@@ -7,7 +7,7 @@ from flexbe_core.proxy import ProxyServiceCaller
 from armada_flexbe_utilities.srv import PCLRadiusOutlierRemoval, PCLRadiusOutlierRemovalResponse, PCLRadiusOutlierRemovalRequest
 
 
-class PCLPlaneSegmentationServiceState(EventState):
+class PCLRadiusOutlierRemovalServiceState(EventState):
         '''
         Remove all indices from within a PointCloud that do not have at least the specified number of neighbors within a defined range (values defined within service).
 
@@ -21,7 +21,7 @@ class PCLPlaneSegmentationServiceState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(PCLPlaneSegmentationServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                super(PCLRadiusOutlierRemovalServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_in'],
                                                        output_keys = ['pointcloud_out'])
 

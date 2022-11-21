@@ -12,8 +12,6 @@ class GPDGraspCandidatesServiceState(EventState):
         '''
         TODO
 
-        -- combined_cloud_topic                         Topic to publish pointcloud message
-
         ># combined_pointcloud                          List of PointCloud2 message
         #> grasp_candidates                             List of grasp candidates message
 
@@ -22,13 +20,11 @@ class GPDGraspCandidatesServiceState(EventState):
 
         '''
 
-        def __init__(self, combined_cloud_topic):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(GPDGraspCandidatesServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['combined_pointcloud'],
                                                        output_keys = ['grasp_candidates'])
-
-                self._combined_cloud_topic = combined_cloud_topic
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
