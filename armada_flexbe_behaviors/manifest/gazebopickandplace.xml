@@ -47,6 +47,8 @@
 
 		<param type="text" name="object_file_path_three" default="/home/csrobot/.gazebo/models/coke_can/model.sdf" label="object_file_path_three" hint="Sets the object_file_path_three" />
 
+		<param type="text" name="obstacle_cloud_topic" default="/obstacle_cloud" label="obstacle_cloud_topic" hint="Sets the obstacle_cloud_topic" />
+
 	</params>
 
 
