@@ -12,7 +12,8 @@ class PCLPlaneSegmentationServiceState(EventState):
         Segment out all points from within a PointCloud that support a plane model and return the resulting PointCloud.
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
-        #> pointcloud_out                               Filtered PointCloud2 message
+        #> object_pointcloud_out                        Filtered PointCloud2 message of target grasp objects
+        #> plane_pointcloud_out                         Filtered PointCloud2 message of workspace surface plane
 
         <= continue                                     Filtered pointcloud successfully
         <= failed                                       Something went wrong
@@ -23,7 +24,7 @@ class PCLPlaneSegmentationServiceState(EventState):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(PCLPlaneSegmentationServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_in'],
-                                                       output_keys = ['pointcloud_out'])
+                                                       output_keys = ['object_pointcloud_out', 'plane_pointcloud_out'])
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -35,7 +36,8 @@ class PCLPlaneSegmentationServiceState(EventState):
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
-                  userdata.pointcloud_out = service_response.objects_cloud_out
+                  userdata.object_pointcloud_out = service_response.objects_cloud_out
+                  userdata.plane_pointcloud_out = service_response.plane_cloud_out
                   return 'continue'
                 except:
                   return 'failed'
