@@ -32,7 +32,6 @@ class PCLConcatenatePointCloudServiceState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/concatenate_pointcloud'
                 rospy.wait_for_service(self._service_topic)
                 self._service = ProxyServiceCaller({self._service_topic: PCLConcatenatePointCloud})
 
@@ -61,7 +60,7 @@ class PCLConcatenatePointCloudServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                pass # Nothing to do in this state.
+                self._service_topic = '/concatenate_pointcloud'
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.

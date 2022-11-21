@@ -33,7 +33,6 @@ class PCLEuclideanClusterExtractionServiceState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/euclidean_cluster_extraction'
                 rospy.wait_for_service(self._service_topic)
                 self._service = ProxyServiceCaller({self._service_topic: PCLEuclideanClusterExtraction})
 
@@ -64,7 +63,7 @@ class PCLEuclideanClusterExtractionServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                pass # Add functionality here if necessary
+                self._service_topic = '/euclidean_cluster_extraction'
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.
