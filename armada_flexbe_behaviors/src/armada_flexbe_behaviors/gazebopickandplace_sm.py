@@ -17,7 +17,7 @@ from armada_flexbe_states.gripper_command_action_state import GripperCommandActi
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
 from armada_flexbe_states.pcl_concatenate_pointcloud_service_state import PCLConcatenatePointCloudServiceState
 from armada_flexbe_states.pcl_passthrough_filter_service_state import PCLPassthroughFilterServiceState
-from armada_flexbe_states.pcl_radius_outlier_removal_service_state import PCLPlaneSegmentationServiceState
+from armada_flexbe_states.pcl_plane_segmentation_service_state import PCLPlaneSegmentationServiceState
 from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
@@ -121,7 +121,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:28 y:276
 			OperatableStateMachine.add('GPDGraspCandidates',
-										GPDGraspCandidatesServiceState(combined_cloud_topic=self.concatenated_cloud_topic),
+										GPDGraspCandidatesServiceState(),
 										transitions={'continue': 'GPDGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
@@ -183,14 +183,14 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list_in': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'pointcloud_list_out': 'pointcloud_list'})
 
-			# x:43 y:146
+			# x:40 y:146
 			OperatableStateMachine.add('PCLPassthroughFilter',
 										PCLPassthroughFilterServiceState(),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+										transitions={'continue': 'PCLPlaneSegmentation', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
-			# x:39 y:250
+			# x:34 y:249
 			OperatableStateMachine.add('PCLPlaneSegmentation',
 										PCLPlaneSegmentationServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
