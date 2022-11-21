@@ -35,7 +35,7 @@ class PCLPlaneSegmentationServiceState(EventState):
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
-                  userdata.pointcloud_out = service_response.cloud_out
+                  userdata.pointcloud_out = service_response.objects_cloud_out
                   return 'continue'
                 except:
                   return 'failed'
