@@ -33,8 +33,6 @@ class DeleteModelServiceState(EventState):
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                # check/wait for delete model service to spin up
-                rospy.wait_for_service('gazebo/delete_model')
                 delete_model_srv = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
 
                 try:
@@ -60,7 +58,7 @@ class DeleteModelServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                pass # Nothing to do in this state.
+                rospy.wait_for_service('gazebo/delete_model')
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.
