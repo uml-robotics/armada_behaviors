@@ -18,6 +18,7 @@ from armada_flexbe_states.move_arm_action_state import MoveArmActionState
 from armada_flexbe_states.pcl_concatenate_pointcloud_service_state import PCLConcatenatePointCloudServiceState
 from armada_flexbe_states.pcl_passthrough_filter_service_state import PCLPassthroughFilterServiceState
 from armada_flexbe_states.pcl_plane_segmentation_service_state import PCLPlaneSegmentationServiceState
+from armada_flexbe_states.pcl_voxel_grid_filter_service_state import PCLVoxelGridFilterServiceState
 from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
@@ -97,38 +98,38 @@ class GazeboPickAndPlaceSM(Behavior):
 		
 		# [/MANUAL_CREATE]
 
-		# x:484 y:388, x:484 y:207
+		# x:468 y:396, x:469 y:139
 		_sm_solvegraspwaypointscontainer_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['combined_pointcloud', 'grasp_candidates', 'plane_pointcloud'], output_keys=['grasp_waypoints_list'])
 
 		with _sm_solvegraspwaypointscontainer_0:
-			# x:145 y:39
-			OperatableStateMachine.add('PublishObjectsPointCloud',
-										PointCloudPublisherState(topic=self.concatenated_cloud_topic),
-										transitions={'continue': 'PublishPlanePointCloud', 'failed': 'failed'},
+			# x:182 y:37
+			OperatableStateMachine.add('PublishPlanePointCloud',
+										PointCloudPublisherState(topic=self.obstacle_cloud_topic),
+										transitions={'continue': 'PublishObjectsPointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'pointcloud': 'combined_pointcloud'})
+										remapping={'pointcloud': 'plane_pointcloud'})
 
-			# x:125 y:376
+			# x:168 y:385
 			OperatableStateMachine.add('GPDGraspWaypoints',
 										GPDGraspWaypointsServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
 
-			# x:197 y:129
-			OperatableStateMachine.add('PublishPlanePointCloud',
-										PointCloudPublisherState(topic=self.obstacle_cloud_topic),
+			# x:179 y:129
+			OperatableStateMachine.add('PublishObjectsPointCloud',
+										PointCloudPublisherState(topic=self.concatenated_cloud_topic),
 										transitions={'continue': 'GPDGraspCandidates', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'pointcloud': 'plane_pointcloud'})
+										remapping={'pointcloud': 'combined_pointcloud'})
 
-			# x:59 y:201
+			# x:49 y:206
 			OperatableStateMachine.add('WaitForNodeRespawn',
 										WaitState(wait_time=self.wait_time),
 										transitions={'done': 'PublishObjectsPointCloud'},
 										autonomy={'done': Autonomy.Off})
 
-			# x:172 y:281
+			# x:167 y:285
 			OperatableStateMachine.add('GPDGraspCandidates',
 										GPDGraspCandidatesServiceState(),
 										transitions={'continue': 'GPDGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
@@ -181,7 +182,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										remapping={'target_pose_list': 'target_pose_list'})
 
 
-		# x:393 y:257, x:390 y:156
+		# x:385 y:357, x:391 y:166
 		_sm_pclfiltercontainer_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['pointcloud_list', 'combined_pointcloud'], output_keys=['combined_pointcloud', 'pointcloud_list', 'plane_pointcloud'])
 
 		with _sm_pclfiltercontainer_3:
@@ -195,16 +196,23 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:40 y:146
 			OperatableStateMachine.add('PCLPassthroughFilter',
 										PCLPassthroughFilterServiceState(),
-										transitions={'continue': 'PCLPlaneSegmentation', 'failed': 'failed'},
+										transitions={'continue': 'PCLVoxelGridFilter', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
-			# x:36 y:251
+			# x:34 y:348
 			OperatableStateMachine.add('PCLPlaneSegmentation',
 										PCLPlaneSegmentationServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'object_pointcloud_out': 'combined_pointcloud', 'plane_pointcloud_out': 'plane_pointcloud'})
+
+			# x:46 y:248
+			OperatableStateMachine.add('PCLVoxelGridFilter',
+										PCLVoxelGridFilterServiceState(),
+										transitions={'continue': 'PCLPlaneSegmentation', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
 
 		# x:314 y:377, x:318 y:116
