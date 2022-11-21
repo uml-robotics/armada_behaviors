@@ -89,6 +89,7 @@ class GazeboPickAndPlaceSM(Behavior):
 		_state_machine.userdata.gripper_initial_state = 0.0
 		_state_machine.userdata.gripper_actual_position = 0.0
 		_state_machine.userdata.dropoff_pose = ['dropoff']
+		_state_machine.userdata.plane_pointcloud = 0
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -195,7 +196,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										PCLPlaneSegmentationServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
+										remapping={'pointcloud_in': 'combined_pointcloud', 'object_pointcloud_out': 'combined_pointcloud', 'plane_pointcloud_out': 'plane_pointcloud'})
 
 
 		# x:314 y:377, x:318 y:116
