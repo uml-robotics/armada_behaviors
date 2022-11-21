@@ -64,8 +64,8 @@ filters: {
         stdDevMulThresh: 1.0,
     },
     voxel_grid: {
-        leaf_size_x: 0.01,
-        leaf_size_y: 0.01,
-        leaf_size_z: 0.01,
+        leaf_size_x: 0.005,
+        leaf_size_y: 0.005,
+        leaf_size_z: 0.005,
     },
 }
