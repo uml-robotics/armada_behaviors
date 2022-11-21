@@ -50,7 +50,7 @@ public:
 
     PointCloud<PointXYZRGB>::Ptr input_cloud (new PointCloud<PointXYZRGB>);
     sensor_msgs::PointCloud2::Ptr temp_cloud (new sensor_msgs::PointCloud2);
-    std::vector<sensor_msgs::PointCloud2> cluster_cloud_list;
+    std::vector<sensor_msgs::PointCloud2> obstacle_cloud_list_out;
     fromROSMsg(req.cloud_in, *input_cloud);
 
     search::KdTree<PointXYZRGB>::Ptr tree (new search::KdTree<PointXYZRGB>);
@@ -79,11 +79,16 @@ public:
       cloud_cluster->header.frame_id = input_cloud->header.frame_id;
 
       toROSMsg(*cloud_cluster, *temp_cloud);
-      cluster_cloud_list.push_back(*temp_cloud);
+      obstacle_cloud_list_out.push_back(*temp_cloud);
     }
 
-    // change srv res
-    res.cluster_cloud_list = cluster_cloud_list;
+    sensor_msgs::PointCloud2 target_cloud_out;
+
+    target_cloud_out = obstacle_cloud_list_out[0];
+    obstacle_cloud_list_out.erase(obstacle_cloud_list_out.begin());
+
+    res.obstacle_cloud_list_out = obstacle_cloud_list_out;
+    res.target_cloud_out = target_cloud_out;
     return true;
   }
 
