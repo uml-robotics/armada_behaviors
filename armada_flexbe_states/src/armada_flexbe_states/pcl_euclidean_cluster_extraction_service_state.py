@@ -25,7 +25,7 @@ class PCLEuclideanClusterExtractionServiceState(EventState):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(PCLEuclideanClusterExtractionServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_in'],
-                                                       output_keys = ['pointcloud_list_out'])
+                                                       output_keys = ['target_cloud_out', 'obstacle_cloud_list_out'])
 
 
         def execute(self, userdata):
@@ -38,7 +38,8 @@ class PCLEuclideanClusterExtractionServiceState(EventState):
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
-                  userdata.pointcloud_list_out = service_response.cluster_cloud
+                  userdata.target_cloud_out = service_response.target_cloud_out
+                  userdata.obstacle_cloud_list_out = service_response.obstacle_cloud_list_out
                   return 'continue'
                 except:
                   return 'failed'
