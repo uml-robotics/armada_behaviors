@@ -58,10 +58,8 @@ public:
     seg.setOptimizeCoefficients (true);
     seg.setModelType (SACMODEL_PLANE);
     seg.setMethodType (SAC_RANSAC);
-    //seg.setMaxIterations (maxIterations);
-    seg.setMaxIterations (50);
-    //seg.setDistanceThreshold (distanceThreshold);
-    seg.setDistanceThreshold (0.01);
+    seg.setMaxIterations (maxIterations);
+    seg.setDistanceThreshold (distanceThreshold);
     seg.setInputCloud (temp_cloud);
     seg.segment (*inliers_plane, *coefficients_plane);
 
@@ -78,7 +76,7 @@ public:
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "sac_segmentation_service");
+  ros::init(argc, argv, "plane_segmentation_service");
   ros::NodeHandle nh;
 
   PlaneSegmentationService planeSegmentationService = PlaneSegmentationService(nh);
