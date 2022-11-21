@@ -44,7 +44,7 @@ class PCLVoxelGridFilterServiceState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('attempting to segment planes from pointcloud...' )
+                Logger.loginfo('attempting to perform a voxel grid filter on pointcloud...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
