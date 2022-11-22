@@ -16,6 +16,7 @@ from armada_flexbe_states.gpd_grasp_waypoints_service_state import GPDGraspWaypo
 from armada_flexbe_states.gripper_command_action_state import GripperCommandActionState
 from armada_flexbe_states.move_arm_action_state import MoveArmActionState
 from armada_flexbe_states.pcl_concatenate_pointcloud_service_state import PCLConcatenatePointCloudServiceState
+from armada_flexbe_states.pcl_euclidean_cluster_extraction_service_state import PCLEuclideanClusterExtractionServiceState
 from armada_flexbe_states.pcl_passthrough_filter_service_state import PCLPassthroughFilterServiceState
 from armada_flexbe_states.pcl_plane_segmentation_service_state import PCLPlaneSegmentationServiceState
 from armada_flexbe_states.pcl_voxel_grid_filter_service_state import PCLVoxelGridFilterServiceState
@@ -91,45 +92,53 @@ class GazeboPickAndPlaceSM(Behavior):
 		_state_machine.userdata.gripper_initial_state = 0.0
 		_state_machine.userdata.gripper_actual_position = 0.0
 		_state_machine.userdata.dropoff_pose = ['dropoff']
-		_state_machine.userdata.plane_pointcloud = 0
+		_state_machine.userdata.obstacles_pointcloud_list = []
+		_state_machine.userdata.obstacles_pointcloud = 0
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
 		
 		# [/MANUAL_CREATE]
 
-		# x:468 y:396, x:469 y:139
-		_sm_solvegraspwaypointscontainer_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['combined_pointcloud', 'grasp_candidates', 'plane_pointcloud'], output_keys=['grasp_waypoints_list'])
+		# x:468 y:396, x:475 y:216
+		_sm_solvegraspwaypointscontainer_0 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['combined_pointcloud', 'grasp_candidates', 'obstacles_pointcloud_list', 'obstacles_pointcloud'], output_keys=['grasp_waypoints_list', 'obstacles_pointcloud_list'])
 
 		with _sm_solvegraspwaypointscontainer_0:
-			# x:182 y:37
-			OperatableStateMachine.add('PublishPlanePointCloud',
-										PointCloudPublisherState(topic=self.obstacle_cloud_topic),
-										transitions={'continue': 'PublishObjectsPointCloud', 'failed': 'failed'},
+			# x:152 y:26
+			OperatableStateMachine.add('PCLConcatenateObstaclesPointCloud',
+										PCLConcatenatePointCloudServiceState(),
+										transitions={'continue': 'PublishObstaclesPointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'pointcloud': 'plane_pointcloud'})
+										remapping={'pointcloud_list_in': 'obstacles_pointcloud_list', 'combined_pointcloud': 'obstacles_pointcloud', 'pointcloud_list_out': 'obstacles_pointcloud_list'})
 
-			# x:168 y:385
+			# x:167 y:468
 			OperatableStateMachine.add('GPDGraspWaypoints',
 										GPDGraspWaypointsServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
 
-			# x:179 y:129
+			# x:177 y:204
 			OperatableStateMachine.add('PublishObjectsPointCloud',
 										PointCloudPublisherState(topic=self.concatenated_cloud_topic),
 										transitions={'continue': 'GPDGraspCandidates', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud': 'combined_pointcloud'})
 
-			# x:49 y:206
+			# x:175 y:112
+			OperatableStateMachine.add('PublishObstaclesPointCloud',
+										PointCloudPublisherState(topic=self.obstacle_cloud_topic),
+										transitions={'continue': 'PublishObjectsPointCloud', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'pointcloud': 'obstacles_pointcloud'})
+
+			# x:54 y:285
 			OperatableStateMachine.add('WaitForNodeRespawn',
 										WaitState(wait_time=self.wait_time),
 										transitions={'done': 'PublishObjectsPointCloud'},
 										autonomy={'done': Autonomy.Off})
 
-			# x:167 y:285
+			# x:166 y:366
 			OperatableStateMachine.add('GPDGraspCandidates',
 										GPDGraspCandidatesServiceState(),
 										transitions={'continue': 'GPDGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
@@ -182,8 +191,8 @@ class GazeboPickAndPlaceSM(Behavior):
 										remapping={'target_pose_list': 'target_pose_list'})
 
 
-		# x:385 y:357, x:391 y:166
-		_sm_pclfiltercontainer_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['pointcloud_list', 'combined_pointcloud'], output_keys=['combined_pointcloud', 'pointcloud_list', 'plane_pointcloud'])
+		# x:373 y:466, x:391 y:166
+		_sm_pclfiltercontainer_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['pointcloud_list', 'combined_pointcloud', 'obstacles_pointcloud_list'], output_keys=['combined_pointcloud', 'pointcloud_list', 'obstacles_pointcloud_list'])
 
 		with _sm_pclfiltercontainer_3:
 			# x:30 y:40
@@ -192,6 +201,13 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'continue': 'PCLPassthroughFilter', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list_in': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'pointcloud_list_out': 'pointcloud_list'})
+
+			# x:18 y:456
+			OperatableStateMachine.add('PCLEuclideanClusterExtraction',
+										PCLEuclideanClusterExtractionServiceState(),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'pointcloud_in': 'combined_pointcloud', 'obstacles_cloud_list_in': 'obstacles_pointcloud_list', 'target_cloud_out': 'combined_pointcloud', 'obstacles_cloud_list_out': 'obstacles_pointcloud_list'})
 
 			# x:40 y:146
 			OperatableStateMachine.add('PCLPassthroughFilter',
@@ -203,9 +219,9 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:34 y:348
 			OperatableStateMachine.add('PCLPlaneSegmentation',
 										PCLPlaneSegmentationServiceState(),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+										transitions={'continue': 'PCLEuclideanClusterExtraction', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'pointcloud_in': 'combined_pointcloud', 'object_pointcloud_out': 'combined_pointcloud', 'plane_pointcloud_out': 'plane_pointcloud'})
+										remapping={'pointcloud_in': 'combined_pointcloud', 'obstacles_cloud_list_in': 'obstacles_pointcloud_list', 'objects_cloud_out': 'combined_pointcloud', 'obstacles_cloud_list_out': 'obstacles_pointcloud_list'})
 
 			# x:46 y:248
 			OperatableStateMachine.add('PCLVoxelGridFilter',
@@ -360,7 +376,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										_sm_pclfiltercontainer_3,
 										transitions={'finished': 'SolveGraspWaypointsContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'plane_pointcloud': 'plane_pointcloud'})
+										remapping={'pointcloud_list': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'obstacles_pointcloud_list': 'obstacles_pointcloud_list'})
 
 			# x:61 y:533
 			OperatableStateMachine.add('RetreatContainer',
@@ -381,7 +397,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										_sm_solvegraspwaypointscontainer_0,
 										transitions={'finished': 'ApproachContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates', 'plane_pointcloud': 'plane_pointcloud', 'grasp_waypoints_list': 'grasp_waypoints_list'})
+										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates', 'obstacles_pointcloud_list': 'obstacles_pointcloud_list', 'obstacles_pointcloud': 'obstacles_pointcloud', 'grasp_waypoints_list': 'grasp_waypoints_list'})
 
 			# x:58 y:437
 			OperatableStateMachine.add('ApproachContainer',
