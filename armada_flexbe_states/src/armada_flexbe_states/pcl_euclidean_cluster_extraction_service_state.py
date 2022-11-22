@@ -24,22 +24,24 @@ class PCLEuclideanClusterExtractionServiceState(EventState):
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(PCLEuclideanClusterExtractionServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = ['pointcloud_in'],
-                                                       output_keys = ['target_cloud_out', 'obstacle_cloud_list_out'])
+                                                       input_keys = ['pointcloud_in', 'obstacles_cloud_list_in'],
+                                                       output_keys = ['target_cloud_out', 'obstacles_cloud_list_out'])
 
+                self._service_topic = '/euclidean_cluster_extraction'
+                self._service = ProxyServiceCaller({self._service_topic: PCLEuclideanClusterExtraction})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: PCLEuclideanClusterExtraction})
-
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
                   userdata.target_cloud_out = service_response.target_cloud_out
-                  userdata.obstacle_cloud_list_out = service_response.obstacle_cloud_list_out
+                  temp_cloud_list = []
+                  temp_cloud_list.extend(userdata.obstacles_cloud_list_in)
+                  temp_cloud_list.extend(service_response.obstacle_cloud_list_out)
+                  userdata.obstacles_cloud_list_out = temp_cloud_list
                   return 'continue'
                 except:
                   return 'failed'
@@ -51,7 +53,7 @@ class PCLEuclideanClusterExtractionServiceState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                pass # Add functionality here if necessary
+                Logger.loginfo('attempting to extract object clusters...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
@@ -64,7 +66,7 @@ class PCLEuclideanClusterExtractionServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                self._service_topic = '/euclidean_cluster_extraction'
+                rospy.wait_for_service(self._service_topic)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.

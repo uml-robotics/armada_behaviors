@@ -12,7 +12,7 @@ class PCLPlaneSegmentationServiceState(EventState):
         Segment out all points from within a PointCloud that support a plane model and return the resulting PointCloud.
 
         ># pointcloud_in                                Unfiltered PointCloud2 message
-        #> object_pointcloud_out                        Filtered PointCloud2 message of target grasp objects
+        #> objects_pointcloud_out                        Filtered PointCloud2 message of target grasp objects
         #> plane_pointcloud_out                         Filtered PointCloud2 message of workspace surface plane
 
         <= continue                                     Filtered pointcloud successfully
@@ -23,21 +23,24 @@ class PCLPlaneSegmentationServiceState(EventState):
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(PCLPlaneSegmentationServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = ['pointcloud_in'],
-                                                       output_keys = ['object_pointcloud_out', 'plane_pointcloud_out'])
+                                                       input_keys = ['pointcloud_in', 'obstacles_cloud_list_in'],
+                                                       output_keys = ['objects_cloud_out', 'obstacles_cloud_list_out'])
+
+                self._service_topic = '/plane_segmentation'
+                self._service = ProxyServiceCaller({self._service_topic: PCLPlaneSegmentation})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: PCLPlaneSegmentation})
-
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
-                  userdata.object_pointcloud_out = service_response.objects_cloud_out
-                  userdata.plane_pointcloud_out = service_response.plane_cloud_out
+                  userdata.objects_cloud_out = service_response.objects_cloud_out
+                  temp_cloud_list = []
+                  temp_cloud_list.extend(userdata.obstacles_cloud_list_in)
+                  temp_cloud_list.append(service_response.plane_cloud_out)
+                  userdata.obstacles_cloud_list_out = temp_cloud_list
                   return 'continue'
                 except:
                   return 'failed'
@@ -59,7 +62,7 @@ class PCLPlaneSegmentationServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                self._service_topic = '/plane_segmentation'
+                rospy.wait_for_service(self._service_topic)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.
