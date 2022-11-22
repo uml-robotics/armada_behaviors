@@ -30,14 +30,14 @@ class GetPointCloudServiceState(EventState):
                                                        output_keys = ['pointcloud_list'])
 
                 self._camera_topic = camera_topic
+                self._service_topic = '/get_pointcloud'
+                self._service = ProxyServiceCaller({self._service_topic: GetPointCloud})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/get_pointcloud'
-                self._service = ProxyServiceCaller({self._service_topic: GetPointCloud})
                 response = GetPointCloudResponse()
 
                 try:
@@ -64,7 +64,7 @@ class GetPointCloudServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                rospy.wait_for_service('/get_pointcloud')
+                rospy.wait_for_service(self._service_topic)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.

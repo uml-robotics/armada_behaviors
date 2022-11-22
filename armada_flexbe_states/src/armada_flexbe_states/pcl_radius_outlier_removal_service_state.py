@@ -25,13 +25,13 @@ class PCLRadiusOutlierRemovalServiceState(EventState):
                                                        input_keys = ['pointcloud_in'],
                                                        output_keys = ['pointcloud_out'])
 
+                self._service_topic = '/radius_outlier_removal'
+                self._service = ProxyServiceCaller({self._service_topic: PCLRadiusOutlierRemoval})
+
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
-
-                rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: PCLRadiusOutlierRemoval})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
@@ -44,7 +44,7 @@ class PCLRadiusOutlierRemovalServiceState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('attempting to segment planes from pointcloud...' )
+                Logger.loginfo('attempting to remove outliers from pointcloud...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
@@ -57,7 +57,7 @@ class PCLRadiusOutlierRemovalServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                self._service_topic = '/radius_outlier_removal'
+                rospy.wait_for_service(self._service_topic)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.

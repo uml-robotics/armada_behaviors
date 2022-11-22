@@ -25,13 +25,13 @@ class PCLVoxelGridFilterServiceState(EventState):
                                                                             input_keys = ['pointcloud_in'],
                                                                             output_keys = ['pointcloud_out'])
 
+                self._service_topic = '/voxelgrid_filter'
+                self._service = ProxyServiceCaller({self._service_topic: PCLVoxelGridFilter})
+
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
-
-                rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: PCLVoxelGridFilter})
 
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
@@ -57,7 +57,7 @@ class PCLVoxelGridFilterServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                self._service_topic = '/voxelgrid_filter'
+                rospy.wait_for_service(self._service_topic)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.
