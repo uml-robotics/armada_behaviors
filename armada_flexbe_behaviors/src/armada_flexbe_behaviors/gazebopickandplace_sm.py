@@ -9,6 +9,7 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from armada_flexbe_states.approach_commander_state import ApproachCommanderState
+from armada_flexbe_states.clear_octomap_service_state import ClearOctomapServiceState
 from armada_flexbe_states.delete_model_service_state import DeleteModelServiceState
 from armada_flexbe_states.get_pointcloud_service_state import GetPointCloudServiceState
 from armada_flexbe_states.gpd_grasp_candidates_service_state import GPDGraspCandidatesServiceState
@@ -75,7 +76,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 
 	def create(self):
-		# x:360 y:665, x:367 y:351
+		# x:355 y:633, x:367 y:351
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.wait_pose = ['wait']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
@@ -330,6 +331,12 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'finished': 'GripperCommandInit', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
+			# x:759 y:341
+			OperatableStateMachine.add('ClearOctomap',
+										ClearOctomapServiceState(),
+										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
 			# x:48 y:617
 			OperatableStateMachine.add('DeleteObjectContainer',
 										_sm_deleteobjectcontainer_5,
@@ -346,7 +353,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:551 y:536
 			OperatableStateMachine.add('GripperCommandOpen',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
-										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
+										transitions={'continue': 'ClearOctomap', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
