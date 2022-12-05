@@ -61,7 +61,7 @@
       <arg name="kinematics_config" value="$(arg kinematics_config)"/>
       <arg name="robot_description_file" value="$(arg robot_description_file)" unless="$(eval wrist_cam == '')"/>
       <arg name="limited" value="false"/>
-      <arg name="sim_workstation" value="true"/>
+      <arg name="sim_workstation" value="$(arg sim_workstation)"/>
       <arg name="robot_make" value="$(arg robot_make)" />
       <arg name="robot_model" value="$(arg robot_model)" />
       <arg name="gripper_make" value="$(arg gripper_make)" />
@@ -72,7 +72,7 @@
 
   <group if="$(eval robot_ip == '')">
     <include file="$(find armada_gazebo)/$(arg robot_make)/launch/gazebo_$(arg robot_make).launch">
-      <arg name="sim_workstation" value="true"/>
+      <arg name="sim_workstation" value="$(arg sim_workstation)"/>
       <arg name="robot_make" value="$(arg robot_make)" />
       <arg name="robot_model" value="$(arg robot_model)" />
       <arg name="gripper_make" value="$(arg gripper_make)" />
