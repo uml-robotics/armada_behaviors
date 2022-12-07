@@ -5,9 +5,9 @@
 	<executable package_path="armada_flexbe_behaviors.pickandplace_sm" class="PickAndPlaceSM" />
 	<tagstring></tagstring>
 	<author>Brian Flynn</author>
-	<date>Tue Nov 8 2022</date>
+	<date>Wed Dec 7 2022</date>
 	<description>
-		Perform a pick and place option with a real robot arm and object(s).
+		Perform a pick and place option with a real robot arm and objects.
 	</description>
 
 
@@ -28,6 +28,8 @@
 		<param type="text" name="gripper_topic" default="/r2f85_gripper_command" label="gripper_topic" hint="Sets the gripper_topic" />
 
 		<param type="text" name="grasp_candidates_topic" default="/detect_grasps/clustered_grasps" label="grasp_candidates_topic" hint="Sets the grasp_candidates_topic" />
+
+		<param type="text" name="obstacle_cloud_topic" default="/obstacle_cloud" label="obstacle_cloud_topic" hint="Sets the obstacle_cloud_topic" />
 
 	</params>
 
