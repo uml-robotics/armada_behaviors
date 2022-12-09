@@ -20,7 +20,6 @@ from armada_flexbe_states.pcl_concatenate_pointcloud_service_state import PCLCon
 from armada_flexbe_states.pcl_euclidean_cluster_extraction_service_state import PCLEuclideanClusterExtractionServiceState
 from armada_flexbe_states.pcl_passthrough_filter_service_state import PCLPassthroughFilterServiceState
 from armada_flexbe_states.pcl_plane_segmentation_service_state import PCLPlaneSegmentationServiceState
-from armada_flexbe_states.pcl_voxel_grid_filter_service_state import PCLVoxelGridFilterServiceState
 from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
@@ -192,7 +191,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										remapping={'target_pose_list': 'target_pose_list'})
 
 
-		# x:373 y:466, x:391 y:166
+		# x:386 y:409, x:391 y:166
 		_sm_pclfiltercontainer_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['pointcloud_list', 'combined_pointcloud', 'obstacles_pointcloud_list'], output_keys=['combined_pointcloud', 'pointcloud_list', 'obstacles_pointcloud_list'])
 
 		with _sm_pclfiltercontainer_3:
@@ -203,7 +202,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list_in': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'pointcloud_list_out': 'pointcloud_list'})
 
-			# x:18 y:456
+			# x:15 y:398
 			OperatableStateMachine.add('PCLEuclideanClusterExtraction',
 										PCLEuclideanClusterExtractionServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
@@ -217,19 +216,12 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
-			# x:34 y:348
+			# x:33 y:271
 			OperatableStateMachine.add('PCLPlaneSegmentation',
 										PCLPlaneSegmentationServiceState(),
 										transitions={'continue': 'PCLEuclideanClusterExtraction', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'obstacles_cloud_list_in': 'obstacles_pointcloud_list', 'objects_cloud_out': 'combined_pointcloud', 'obstacles_cloud_list_out': 'obstacles_pointcloud_list'})
-
-			# x:109 y:244
-			OperatableStateMachine.add('PCLVoxelGridFilter',
-										PCLVoxelGridFilterServiceState(),
-										transitions={'continue': 'PCLPlaneSegmentation', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
 
 		# x:314 y:377, x:318 y:116
