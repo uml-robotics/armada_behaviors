@@ -39,7 +39,7 @@ Created on Mon Apr 11 2022
 '''
 class GazeboPickAndPlaceSM(Behavior):
 	'''
-	Perform a pick and place option with a simulated robot arm and a simulated object, spawned in a semi-random location within the usable workspace. For testing and behavior/functionality proofing.
+	Perform a pick and place option with a simulated robot arm and simulated objects, spawned in a semi-random location within the usable workspace. For testing and behavior/functionality proofing.
 	'''
 
 
@@ -213,7 +213,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:40 y:146
 			OperatableStateMachine.add('PCLPassthroughFilter',
 										PCLPassthroughFilterServiceState(),
-										transitions={'continue': 'PCLVoxelGridFilter', 'failed': 'failed'},
+										transitions={'continue': 'PCLPlaneSegmentation', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
@@ -224,7 +224,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'obstacles_cloud_list_in': 'obstacles_pointcloud_list', 'objects_cloud_out': 'combined_pointcloud', 'obstacles_cloud_list_out': 'obstacles_pointcloud_list'})
 
-			# x:46 y:248
+			# x:109 y:244
 			OperatableStateMachine.add('PCLVoxelGridFilter',
 										PCLVoxelGridFilterServiceState(),
 										transitions={'continue': 'PCLPlaneSegmentation', 'failed': 'failed'},
