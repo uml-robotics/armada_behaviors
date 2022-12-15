@@ -1,7 +1,0 @@
-filters: {
-    euclidean_cluster_extraction: {
-        clusterTolerance: 0.02,
-        minClusterSize: 100,
-        maxClusterSize: 25000,
-    },
-}
