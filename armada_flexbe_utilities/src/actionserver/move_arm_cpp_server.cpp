@@ -15,6 +15,12 @@ class CartesianPlanningCPPAction
 {
 protected:
 
+  struct object_dimensions {
+    double x_len;
+    double y_len;
+    double z_len;
+  };
+
   ros::NodeHandle nh_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::CartesianMoveAction> CartesianMoveServer_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::NamedPoseMoveAction> MoveToNamedPoseServer_;
@@ -30,6 +36,7 @@ protected:
   PlanningScenePtr PlanningScenePtr_;
   double jump_threshold_;
   double eef_step_;
+  object_dimensions table;
 
 public:
 
@@ -139,11 +146,14 @@ public:
    *
    * Add a large platform/box as a collision object to represent the robot's work surface for robot safety
    *
-   * @param[in] object_size int[] x y and z dimensions for work surface collision object
+   * @param[in] empty std_msgs/Empty empty data for initiating action
    */
   void spawnTableCollision(const armada_flexbe_utilities::SpawnTableCollisionGoalConstPtr &goal)
   {
-    // do things
+    nh_.getParam("/collision/table/x", table.x_len);
+    nh_.getParam("/collision/table/y", table.y_len);
+    nh_.getParam("/collision/table/z", table.z_len);
+
     moveit_msgs::CollisionObject collision_surface;
     collision_surface.header.frame_id = MoveGroupPtr_->getPlanningFrame();
 
@@ -154,24 +164,28 @@ public:
     shape_msgs::SolidPrimitive primitive;
     primitive.type = primitive.BOX;
     primitive.dimensions.resize(3);
-    primitive.dimensions[primitive.BOX_X] = 0.1;
-    primitive.dimensions[primitive.BOX_Y] = 1.5;
-    primitive.dimensions[primitive.BOX_Z] = 0.5;
+    primitive.dimensions[primitive.BOX_X] = table.x_len;
+    primitive.dimensions[primitive.BOX_Y] = table.y_len;
+    primitive.dimensions[primitive.BOX_Z] = table.z_len;
 
     // Define a pose for the box (specified relative to frame_id)
-    geometry_msgs::Pose box_pose;
-    box_pose.orientation.w = 1.0;
-    box_pose.position.x = 0.5;
-    box_pose.position.y = 0.0;
-    box_pose.position.z = 0.25;
+    geometry_msgs::Pose table_pose;
+    table_pose.orientation.w = 1.0;
+    table_pose.position.x = 0.0;
+    table_pose.position.y = 0.0;
+    double table_offset = table.z_len / 2;
+    table_pose.position.z = 0 - table_offset;
 
     collision_surface.primitives.push_back(primitive);
-    collision_surface.primitive_poses.push_back(box_pose);
+    collision_surface.primitive_poses.push_back(table_pose);
     collision_surface.operation = collision_surface.ADD;
 
     std::vector<moveit_msgs::CollisionObject> collision_objects;
     collision_objects.push_back(collision_surface);
     PlanningScenePtr_->addCollisionObjects(collision_objects);
+
+    spawn_table_collision_result_.execution_success = 1;
+    SpawnTableCollisionServer_.setSucceeded(spawn_table_collision_result_);
   }
 
 };
