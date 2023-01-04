@@ -57,6 +57,7 @@ add_action_files(
   FILES
   CartesianMove.action
   NamedPoseMove.action
+  SpawnTableCollision.action
 )
 
 ## Generate added msg and srv with any dependencies listed here

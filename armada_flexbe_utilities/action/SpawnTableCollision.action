@@ -1,0 +1,10 @@
+#goal definition
+float32 x_len
+float32 y_len
+float32 z_len
+---
+# Define the result
+bool spawn_success
+---
+# Define a feedback message
+bool spawn_success

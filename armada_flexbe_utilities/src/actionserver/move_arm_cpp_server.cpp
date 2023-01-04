@@ -3,9 +3,13 @@
 #include <actionlib/server/simple_action_server.h>
 #include <armada_flexbe_utilities/CartesianMoveAction.h>
 #include <armada_flexbe_utilities/NamedPoseMoveAction.h>
+#include <armada_flexbe_utilities/SpawnTableCollisionAction.h>
 #include <moveit/move_group_interface/move_group_interface.h>
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
+#include <moveit_msgs/CollisionObject.h>
 
 typedef boost::shared_ptr<moveit::planning_interface::MoveGroupInterface> MoveGroupPtr;
+typedef boost::shared_ptr<moveit::planning_interface::PlanningSceneInterface> PlanningScenePtr;
 
 class CartesianPlanningCPPAction
 {
@@ -14,12 +18,16 @@ protected:
   ros::NodeHandle nh_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::CartesianMoveAction> CartesianMoveServer_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::NamedPoseMoveAction> MoveToNamedPoseServer_;
+  actionlib::SimpleActionServer<armada_flexbe_utilities::SpawnTableCollisionAction> SpawnTableCollisionServer_;
   armada_flexbe_utilities::CartesianMoveFeedback cartesian_move_feedback_;
   armada_flexbe_utilities::CartesianMoveResult cartesian_move_result_;
   armada_flexbe_utilities::NamedPoseMoveFeedback named_pose_move_feedback_;
   armada_flexbe_utilities::NamedPoseMoveResult named_pose_move_result_;
+  armada_flexbe_utilities::SpawnTableCollisionFeedback spawn_table_collision_feedback_;
+  armada_flexbe_utilities::SpawnTableCollisionResult spawn_table_collision_result_;
   std::string planning_group_;
   MoveGroupPtr MoveGroupPtr_;
+  PlanningScenePtr PlanningScenePtr_;
   double jump_threshold_;
   double eef_step_;
 
@@ -35,12 +43,14 @@ public:
   CartesianPlanningCPPAction(ros::NodeHandle nh) :
     nh_(nh),
     CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&CartesianPlanningCPPAction::executeCartesianPlan, this, _1), false),
-    MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false)
+    MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false),
+    SpawnTableCollisionServer_(nh, "spawn_table_collision", boost::bind(&CartesianPlanningCPPAction::spawnTableCollision, this, _1), false)
   {
     nh.getParam("/move_group/planning_group", planning_group_);
 
     CartesianMoveServer_.start();
     MoveToNamedPoseServer_.start();
+    SpawnTableCollisionServer_.start();
     MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group_));
   }
 
@@ -122,6 +132,46 @@ public:
     }
     named_pose_move_result_.execution_success = 1;
     MoveToNamedPoseServer_.setSucceeded(named_pose_move_result_);
+  }
+
+  /**
+   * Spawn collision object as 'floor' to avoid table obstacle
+   *
+   * Add a large platform/box as a collision object to represent the robot's work surface for robot safety
+   *
+   * @param[in] object_size int[] x y and z dimensions for work surface collision object
+   */
+  void spawnTableCollision(const armada_flexbe_utilities::SpawnTableCollisionGoalConstPtr &goal)
+  {
+    // do things
+    moveit_msgs::CollisionObject collision_surface;
+    collision_surface.header.frame_id = MoveGroupPtr_->getPlanningFrame();
+
+    // The id of the object is used to identify it.
+    collision_surface.id = "box1";
+
+    // Define a box to add to the world.
+    shape_msgs::SolidPrimitive primitive;
+    primitive.type = primitive.BOX;
+    primitive.dimensions.resize(3);
+    primitive.dimensions[primitive.BOX_X] = 0.1;
+    primitive.dimensions[primitive.BOX_Y] = 1.5;
+    primitive.dimensions[primitive.BOX_Z] = 0.5;
+
+    // Define a pose for the box (specified relative to frame_id)
+    geometry_msgs::Pose box_pose;
+    box_pose.orientation.w = 1.0;
+    box_pose.position.x = 0.5;
+    box_pose.position.y = 0.0;
+    box_pose.position.z = 0.25;
+
+    collision_surface.primitives.push_back(primitive);
+    collision_surface.primitive_poses.push_back(box_pose);
+    collision_surface.operation = collision_surface.ADD;
+
+    std::vector<moveit_msgs::CollisionObject> collision_objects;
+    collision_objects.push_back(collision_surface);
+    PlanningScenePtr_->addCollisionObjects(collision_objects);
   }
 
 };
