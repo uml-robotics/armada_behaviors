@@ -1,0 +1,71 @@
+reference_frame: {
+    global_frame: "base_link",
+    robot_frame: "base_link",
+}
+#-M_PI/4 - M_PI/16 for ur5e robot and robotiq 2f 85 gripper
+end_effector: {
+    gripper_offset: -0.04,
+    approach_dist: 0.10,
+    retreat_dist: 0.10,
+    grasping: {
+        grasp_rot_x: 0,
+        grasp_rot_y: 0,
+        grasp_rot_z: -0.981747704,
+        grasp_rot_w: 1,
+    },
+}
+grasp_plan: {
+    timeout_len: 10.0,
+}
+move_group: {
+    planning_group: "arm",
+    MaxVelocityScalingFactor: 1.0,
+    GoalPositionTolerance: 0.001,
+    GoalOrientationTolerance: 0.002,
+    setPlannerId: "RRTConnect",
+    jump_threshold: 5.0,
+    eef_step: 0.01,
+}
+filters: {
+    euclidean_cluster_extraction: {
+        clusterTolerance: 0.02,
+        minClusterSize: 100,
+        maxClusterSize: 25000,
+    },
+    conditional_outlier_removal: {
+        field: "z",
+        min: 0.0,
+        max: 0.8,
+    },
+    passthrough: {
+        x: {
+            min: -1,
+            max: 1,
+        },
+        y: {
+            min: -0.4,
+            max: 0.4,
+        },
+        z: {
+            min: -1,
+            max: 1,
+        },
+    },
+    plane_segmentation: {
+        maxIterations: 50,
+        distanceThreshold: 0.01,
+    },
+    radius_outlier_removal: {
+        searchRadius: 0.8,
+        minNeighborRadius: 2,
+    },
+    statistical_outlier_removal: {
+        meanK: 50,
+        stdDevMulThresh: 1.0,
+    },
+    voxel_grid: {
+        leaf_size_x: 0.01,
+        leaf_size_y: 0.01,
+        leaf_size_z: 0.01,
+    },
+}
