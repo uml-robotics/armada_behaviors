@@ -17,11 +17,12 @@ class ClearOctomapServiceState(EventState):
 
         '''
 
-        def __init__(self):
+        def __init__(self, robot_namespace):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(ClearOctomapServiceState, self).__init__(outcomes = ['continue', 'failed'])
 
-                self._service_topic = '/clear_octomap'
+                self._robot_namespace = robot_namespace
+                self._service_topic = self._robot_namespace + '/clear_octomap'
                 self._service = ProxyServiceCaller({self._service_topic: Empty})
 
         def execute(self, userdata):
@@ -31,7 +32,7 @@ class ClearOctomapServiceState(EventState):
 
                 try:
                   #service_response = self._service.call(self._service_topic, )
-                  clear_octomap = rospy.ServiceProxy('/clear_octomap', Empty)
+                  clear_octomap = rospy.ServiceProxy(self._service_topic, Empty)
                   clear_octomap()
                   return 'continue'
                 except:

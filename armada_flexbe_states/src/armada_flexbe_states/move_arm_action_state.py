@@ -17,14 +17,14 @@ class MoveArmActionState(EventState):
 
         '''
 
-        def __init__(self):
+        def __init__(self, robot_namespace):
                 # See example_state.py for basic explanations.
                 super(MoveArmActionState, self).__init__(outcomes = ['finished', 'failed'],
                                                          input_keys = ['target_pose_list'])
-
+                self._robot_namespace = robot_namespace
                 # Store the action server topics for convenience
-                self._cartesian_move_action_topic = 'execute_cartesian_plan'
-                self._named_pose_move_action_topic = 'move_to_named_pose'
+                self._cartesian_move_action_topic = self._robot_namespace + '/execute_cartesian_plan'
+                self._named_pose_move_action_topic = self._robot_namespace + '/move_to_named_pose'
                 self._topic = ''
                 self._client = ProxyActionClient({self._cartesian_move_action_topic: CartesianMoveAction})
                 self._client = ProxyActionClient({self._named_pose_move_action_topic: NamedPoseMoveAction})
