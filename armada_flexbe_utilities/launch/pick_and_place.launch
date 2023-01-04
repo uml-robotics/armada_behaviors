@@ -9,7 +9,7 @@
   <arg name="wrist_cam" default="d435_millibar" />
   <arg name="camera_name" default="camera_wrist" />
   <arg name="max_dist" default="2" doc="default passthrough filter is active, supply no arg on command line to turn off entirely" />
-  <arg name="serial_no" default="843112074121" doc="Serial number of 1st device" />
+  <arg name="serial_no" default="" doc="Serial number of realsense camera device" />
   <arg name="robot_make" default="universal_robot" />
   <arg name="robot_model" default="ur5e" />
   <arg name="gripper_make" default="robotiq" />
