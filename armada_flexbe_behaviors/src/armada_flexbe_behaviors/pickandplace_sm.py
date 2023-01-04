@@ -46,11 +46,12 @@ class PickAndPlaceSM(Behavior):
 
 		# parameters of this behavior
 		self.add_parameter('wait_time', 2)
-		self.add_parameter('camera_topic', '/camera_wrist/depth_registered/points')
+		self.add_parameter('camera_topic', '/camera/depth_registered/points')
 		self.add_parameter('concatenated_cloud_topic', '/combined_cloud')
-		self.add_parameter('gripper_topic', '/r2f85_gripper_command')
+		self.add_parameter('gripper_topic', 'r2f85_gripper_command')
 		self.add_parameter('grasp_candidates_topic', '/detect_grasps/clustered_grasps')
 		self.add_parameter('obstacle_cloud_topic', '/obstacle_cloud')
+		self.add_parameter('robot_namespace', '/my_gen3')
 
 		# references to used behaviors
 
@@ -66,7 +67,7 @@ class PickAndPlaceSM(Behavior):
 	def create(self):
 		# x:355 y:633, x:367 y:351
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
-		_state_machine.userdata.wait_pose = ['wait']
+		_state_machine.userdata.wait_pose = ['home']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
 		_state_machine.userdata.target_pose = ['']
 		_state_machine.userdata.current_snapshot_step = 0
@@ -80,7 +81,7 @@ class PickAndPlaceSM(Behavior):
 		_state_machine.userdata.gripper_target_position = 0.0
 		_state_machine.userdata.gripper_initial_state = 0.0
 		_state_machine.userdata.gripper_actual_position = 0.0
-		_state_machine.userdata.dropoff_pose = ['dropoff']
+		_state_machine.userdata.dropoff_pose = ['home']
 		_state_machine.userdata.obstacles_pointcloud_list = []
 		_state_machine.userdata.obstacles_pointcloud = 0
 
@@ -148,7 +149,7 @@ class PickAndPlaceSM(Behavior):
 
 			# x:158 y:192
 			OperatableStateMachine.add('MoveToSnapshotPose',
-										MoveArmActionState(),
+										MoveArmActionState(robot_namespace=self.robot_namespace),
 										transitions={'finished': 'GetPointCloud', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose'})
@@ -174,7 +175,7 @@ class PickAndPlaceSM(Behavior):
 
 			# x:84 y:182
 			OperatableStateMachine.add('MoveArmRetreat',
-										MoveArmActionState(),
+										MoveArmActionState(robot_namespace=self.robot_namespace),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose_list'})
@@ -235,12 +236,12 @@ class PickAndPlaceSM(Behavior):
 			OperatableStateMachine.add('GripperClose',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
 			# x:30 y:176
 			OperatableStateMachine.add('MoveArmGrasp',
-										MoveArmActionState(),
+										MoveArmActionState(robot_namespace=self.robot_namespace),
 										transitions={'finished': 'GripperClose', 'failed': 'GraspStepIterator'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose_list'})
@@ -252,12 +253,12 @@ class PickAndPlaceSM(Behavior):
 			OperatableStateMachine.add('GripperCommandInit',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
 										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
 			# x:759 y:341
 			OperatableStateMachine.add('ClearOctomap',
-										ClearOctomapServiceState(),
+										ClearOctomapServiceState(robot_namespace=self.robot_namespace),
 										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
@@ -265,26 +266,26 @@ class PickAndPlaceSM(Behavior):
 			OperatableStateMachine.add('GripperCommandOpen',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
 										transitions={'continue': 'ClearOctomap', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
+										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
 			# x:554 y:406
 			OperatableStateMachine.add('MoveArmPostGrasp',
-										MoveArmActionState(),
+										MoveArmActionState(robot_namespace=self.robot_namespace),
 										transitions={'finished': 'GripperCommandOpen', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'dropoff_pose'})
 
 			# x:548 y:240
 			OperatableStateMachine.add('MoveArmPostSnapshot',
-										MoveArmActionState(),
+										MoveArmActionState(robot_namespace=self.robot_namespace),
 										transitions={'finished': 'PCLFilterContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
 			# x:551 y:161
 			OperatableStateMachine.add('MoveArmPreSnapshot',
-										MoveArmActionState(),
+										MoveArmActionState(robot_namespace=self.robot_namespace),
 										transitions={'finished': 'SnapshotContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
