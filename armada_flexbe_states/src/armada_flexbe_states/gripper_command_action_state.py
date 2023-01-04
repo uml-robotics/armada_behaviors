@@ -75,6 +75,8 @@ class GripperCommandActionState(EventState):
 
                         else:
                                 return 'failed'
+                else:
+                        pass
 
                 # If the action has not yet finished, no outcome will be returned and the state stays active.
 
