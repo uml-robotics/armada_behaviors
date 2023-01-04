@@ -2,7 +2,7 @@
 std_msgs/Empty goal
 ---
 # Define the result
-bool spawn_success
+bool execution_success
 ---
 # Define a feedback message
-bool spawn_success
+float64 plan_success
