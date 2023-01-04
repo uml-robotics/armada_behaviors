@@ -76,10 +76,8 @@ class GripperCommandActionState(EventState):
                         else:
                                 return 'failed'
                 else:
+                        # do nothing yet
                         pass
-
-                # If the action has not yet finished, no outcome will be returned and the state stays active.
-
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
