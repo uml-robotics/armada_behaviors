@@ -37,6 +37,9 @@ public:
   SpawnTableCollisionService(ros::NodeHandle nh) :
     nh_(nh)
   {
+    nh.getParam("/move_group/planning_group", planning_group_);
+    MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group_));
+
     spawnTableCollisionService = nh.advertiseService("spawn_table_collision", &SpawnTableCollisionService::spawnTableObstacle, this);
   }
 
