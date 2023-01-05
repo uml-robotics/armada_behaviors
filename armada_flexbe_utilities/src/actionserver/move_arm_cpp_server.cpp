@@ -3,7 +3,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <armada_flexbe_utilities/CartesianMoveAction.h>
 #include <armada_flexbe_utilities/NamedPoseMoveAction.h>
-#include <armada_flexbe_utilities/SpawnTableCollisionAction.h>
+#include "armada_flexbe_utilities/SpawnTableCollision.h"
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_msgs/CollisionObject.h>
@@ -24,13 +24,11 @@ protected:
   ros::NodeHandle nh_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::CartesianMoveAction> CartesianMoveServer_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::NamedPoseMoveAction> MoveToNamedPoseServer_;
-  actionlib::SimpleActionServer<armada_flexbe_utilities::SpawnTableCollisionAction> SpawnTableCollisionServer_;
   armada_flexbe_utilities::CartesianMoveFeedback cartesian_move_feedback_;
   armada_flexbe_utilities::CartesianMoveResult cartesian_move_result_;
   armada_flexbe_utilities::NamedPoseMoveFeedback named_pose_move_feedback_;
   armada_flexbe_utilities::NamedPoseMoveResult named_pose_move_result_;
-  armada_flexbe_utilities::SpawnTableCollisionFeedback spawn_table_collision_feedback_;
-  armada_flexbe_utilities::SpawnTableCollisionResult spawn_table_collision_result_;
+  ros::ServiceServer spawnTableCollisionService;
   std::string planning_group_;
   MoveGroupPtr MoveGroupPtr_;
   PlanningScenePtr PlanningScenePtr_;
@@ -50,15 +48,14 @@ public:
   CartesianPlanningCPPAction(ros::NodeHandle nh) :
     nh_(nh),
     CartesianMoveServer_(nh, "execute_cartesian_plan", boost::bind(&CartesianPlanningCPPAction::executeCartesianPlan, this, _1), false),
-    MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false),
-    SpawnTableCollisionServer_(nh, "spawn_table_collision", boost::bind(&CartesianPlanningCPPAction::spawnTableCollision, this, _1), false)
+    MoveToNamedPoseServer_(nh, "move_to_named_pose", boost::bind(&CartesianPlanningCPPAction::moveToNamedPose, this, _1), false)
   {
     nh.getParam("/move_group/planning_group", planning_group_);
 
     CartesianMoveServer_.start();
     MoveToNamedPoseServer_.start();
-    SpawnTableCollisionServer_.start();
     MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group_));
+    spawnTableCollisionService = nh.advertiseService("spawn_table_collision", &CartesianPlanningCPPAction::spawnTableObstacle, this);
   }
 
   /**
@@ -146,9 +143,11 @@ public:
    *
    * Add a large platform/box as a collision object to represent the robot's work surface for robot safety
    *
-   * @param[in] empty std_msgs/Empty empty data for initiating action
+   * @param[in] req empty std_msgs/Empty empty data for initiating service
+   * @return Bool Service completion result.
    */
-  void spawnTableCollision(const armada_flexbe_utilities::SpawnTableCollisionGoalConstPtr &goal)
+  bool spawnTableObstacle(armada_flexbe_utilities::SpawnTableCollision::Request &req,
+                          armada_flexbe_utilities::SpawnTableCollision::Response &res)
   {
     nh_.getParam("/collision/table/x", table.x_len);
     nh_.getParam("/collision/table/y", table.y_len);
@@ -184,8 +183,8 @@ public:
     collision_objects.push_back(collision_surface);
     PlanningScenePtr_->addCollisionObjects(collision_objects);
 
-    spawn_table_collision_result_.execution_success = 1;
-    SpawnTableCollisionServer_.setSucceeded(spawn_table_collision_result_);
+    res.success = 1;
+    return true;
   }
 
 };
