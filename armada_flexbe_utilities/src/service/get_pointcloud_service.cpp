@@ -19,21 +19,22 @@ using namespace pcl;
 bool getPointCloud(armada_flexbe_utilities::GetPointCloud::Request &req,
                    armada_flexbe_utilities::GetPointCloud::Response &res)
 {
-  ros::Duration timeout(5);
+  tf::StampedTransform transform;
+  tf::TransformListener listener;
+
+  ros::Duration timeout(3);
+  sensor_msgs::PointCloud2ConstPtr pointcloud2_msg_dummy = ros::topic::waitForMessage<sensor_msgs::PointCloud2>(req.camera_topic, timeout);
   sensor_msgs::PointCloud2ConstPtr pointcloud2_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>(req.camera_topic, timeout);
+  ros::Time stamp = ros::Time(0);
 
   PointCloud<PointXYZRGB> temp_transform_cloud;
   fromROSMsg(*pointcloud2_msg, temp_transform_cloud);
-
-  ros::Time stamp = ros::Time(0);
-  tf::StampedTransform transform;
-  tf::TransformListener listener;
 
   pcl_conversions::toPCL(stamp, temp_transform_cloud.header.stamp);
 
   try
   {
-    listener.waitForTransform("base_link", temp_transform_cloud.header.frame_id, stamp, ros::Duration(5.0));
+    listener.waitForTransform("base_link", temp_transform_cloud.header.frame_id, stamp, timeout);
     listener.lookupTransform("base_link", temp_transform_cloud.header.frame_id, stamp, transform);
   } catch (tf::TransformException err)
   {
