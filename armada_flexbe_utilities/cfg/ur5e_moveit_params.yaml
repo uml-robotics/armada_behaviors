@@ -1,3 +1,4 @@
+robot_namespace: ""
 camera_topic: "/camera_wrist/depth_registered/points"
 reference_frame: {
     global_frame: "world",
@@ -14,6 +15,8 @@ end_effector: {
         grasp_rot_z: -0.981747704,
         grasp_rot_w: 1,
     },
+    command_topic: "/r2f85_gripper_command",
+    max_close_val: 0.85,
 }
 grasp_plan: {
     timeout_len: 10.0,

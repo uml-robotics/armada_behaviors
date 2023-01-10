@@ -1,3 +1,4 @@
+robot_namespace: "/my_gen3"
 camera_topic: "/camera/depth_registered/points"
 reference_frame: {
     global_frame: "base_link",
@@ -14,6 +15,8 @@ end_effector: {
         grasp_rot_z: -0.981747704,
         grasp_rot_w: 1,
     },
+    command_topic: "/my_gen3/robotiq_2f_85_gripper_controller/gripper_cmd",
+    max_close_val: 0.8,
 }
 grasp_plan: {
     timeout_len: 10.0,
