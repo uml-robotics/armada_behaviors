@@ -67,7 +67,7 @@ class PickAndPlaceSM(Behavior):
 	def create(self):
 		# x:355 y:633, x:367 y:351
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
-		_state_machine.userdata.wait_pose = ['home']
+		_state_machine.userdata.wait_pose = ['above']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
 		_state_machine.userdata.target_pose = ['']
 		_state_machine.userdata.current_snapshot_step = 0
@@ -81,7 +81,7 @@ class PickAndPlaceSM(Behavior):
 		_state_machine.userdata.gripper_target_position = 0.0
 		_state_machine.userdata.gripper_initial_state = 0.0
 		_state_machine.userdata.gripper_actual_position = 0.0
-		_state_machine.userdata.dropoff_pose = ['home']
+		_state_machine.userdata.dropoff_pose = ['above']
 		_state_machine.userdata.obstacles_pointcloud_list = []
 		_state_machine.userdata.obstacles_pointcloud = 0
 
@@ -265,7 +265,7 @@ class PickAndPlaceSM(Behavior):
 			# x:551 y:536
 			OperatableStateMachine.add('GripperCommandOpen',
 										GripperCommandActionState(gripper_topic=self.gripper_topic),
-										transitions={'continue': 'ClearOctomap', 'failed': 'failed'},
+										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
 										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
 
