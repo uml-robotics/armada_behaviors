@@ -1,3 +1,4 @@
+camera_topic: "/camera_wrist/depth_registered/points"
 reference_frame: {
     global_frame: "world",
     robot_frame: "base_link",
