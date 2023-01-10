@@ -41,7 +41,7 @@ public:
   bool getPointCloud(armada_flexbe_utilities::GetPointCloud::Request &req,
                      armada_flexbe_utilities::GetPointCloud::Response &res)
   {
-    nh_.getParam("/collision/table/dimension/x", camera_topic);
+    nh_.getParam("/camera_topic", camera_topic);
 
     tf::StampedTransform transform;
     tf::TransformListener listener;
