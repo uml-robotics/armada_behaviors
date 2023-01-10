@@ -77,6 +77,8 @@
     </include>
   </group>
 
+  <include file="$(find flexbe_app)/launch/flexbe_full.launch" />
+
   <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
   <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" />
   <node name="gpd_grasp_candidates_service" pkg="armada_flexbe_utilities" type="gpd_grasp_candidates_service" output="screen" />
