@@ -4,12 +4,12 @@ reference_frame: {
 }
 #-M_PI/4 - M_PI/16 for ur5e robot and robotiq 2f 85 gripper
 end_effector: {
-    gripper_offset: -0.04,
+    gripper_offset: 0.0,
     approach_dist: 0.10,
     retreat_dist: 0.10,
     grasping: {
         grasp_rot_x: 0,
-        grasp_rot_y: 0,
+        grasp_rot_y: 0.19634954084,
         grasp_rot_z: -0.981747704,
         grasp_rot_w: 1,
     },
@@ -28,9 +28,16 @@ move_group: {
 }
 collision: {
     table: {
-        x: 1.0,
-        y: 1.0,
-        z: 0.10,
+        dimension: {
+            x: 2.0,
+            y: 2.0,
+            z: 0.20,
+        },
+        pose: {
+            x: 0.0,
+            y: 0.0,
+            z: -0.12,
+        },
     },
 }
 filters: {
@@ -46,7 +53,7 @@ filters: {
     },
     passthrough: {
         x: {
-            min: -1,
+            min: 0,
             max: 1,
         },
         y: {
