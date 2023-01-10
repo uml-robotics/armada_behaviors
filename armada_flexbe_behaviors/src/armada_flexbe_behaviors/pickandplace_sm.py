@@ -46,12 +46,8 @@ class PickAndPlaceSM(Behavior):
 
 		# parameters of this behavior
 		self.add_parameter('wait_time', 2)
-		self.add_parameter('camera_topic', '/camera/depth_registered/points')
-		self.add_parameter('concatenated_cloud_topic', '/combined_cloud')
-		self.add_parameter('gripper_topic', 'r2f85_gripper_command')
-		self.add_parameter('grasp_candidates_topic', '/detect_grasps/clustered_grasps')
 		self.add_parameter('obstacle_cloud_topic', '/obstacle_cloud')
-		self.add_parameter('robot_namespace', '/my_gen3')
+		self.add_parameter('concatenated_cloud_topic', 'combined_cloud')
 
 		# references to used behaviors
 
@@ -77,10 +73,6 @@ class PickAndPlaceSM(Behavior):
 		_state_machine.userdata.grasp_waypoints_list = []
 		_state_machine.userdata.grasp_attempt = 0
 		_state_machine.userdata.grasp_state = 'approach'
-		_state_machine.userdata.gripper_state = 'open'
-		_state_machine.userdata.gripper_target_position = 0.0
-		_state_machine.userdata.gripper_initial_state = 0.0
-		_state_machine.userdata.gripper_actual_position = 0.0
 		_state_machine.userdata.dropoff_pose = ['above']
 		_state_machine.userdata.obstacles_pointcloud_list = []
 		_state_machine.userdata.obstacles_pointcloud = 0
@@ -149,14 +141,14 @@ class PickAndPlaceSM(Behavior):
 
 			# x:158 y:192
 			OperatableStateMachine.add('MoveToSnapshotPose',
-										MoveArmActionState(robot_namespace=self.robot_namespace),
+										MoveArmActionState(),
 										transitions={'finished': 'GetPointCloud', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose'})
 
 			# x:23 y:346
 			OperatableStateMachine.add('GetPointCloud',
-										GetPointCloudServiceState(camera_topic=self.camera_topic),
+										GetPointCloudServiceState(),
 										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list': 'pointcloud_list'})
@@ -175,7 +167,7 @@ class PickAndPlaceSM(Behavior):
 
 			# x:84 y:182
 			OperatableStateMachine.add('MoveArmRetreat',
-										MoveArmActionState(robot_namespace=self.robot_namespace),
+										MoveArmActionState(),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose_list'})
@@ -215,7 +207,7 @@ class PickAndPlaceSM(Behavior):
 
 
 		# x:203 y:421, x:475 y:110
-		_sm_approachcontainer_4 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['grasp_waypoints_list', 'gripper_target_position', 'gripper_actual_position', 'gripper_initial_state', 'grasp_attempt', 'gripper_state'], output_keys=['grasp_attempt', 'gripper_actual_position', 'gripper_state'])
+		_sm_approachcontainer_4 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['grasp_waypoints_list', 'grasp_attempt'], output_keys=['grasp_attempt'])
 
 		with _sm_approachcontainer_4:
 			# x:30 y:40
@@ -223,7 +215,7 @@ class PickAndPlaceSM(Behavior):
 										ApproachCommanderState(),
 										transitions={'continue': 'MoveArmGrasp', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'grasp_task_candidates': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt', 'target_pose_list': 'target_pose_list', 'gripper_target_position': 'gripper_target_position'})
+										remapping={'grasp_task_candidates': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt', 'target_pose_list': 'target_pose_list'})
 
 			# x:212 y:116
 			OperatableStateMachine.add('GraspStepIterator',
@@ -234,14 +226,13 @@ class PickAndPlaceSM(Behavior):
 
 			# x:140 y:274
 			OperatableStateMachine.add('GripperClose',
-										GripperCommandActionState(gripper_topic=self.gripper_topic),
+										GripperCommandActionState(gripper_target_position=1),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
-										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
+										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full})
 
 			# x:30 y:176
 			OperatableStateMachine.add('MoveArmGrasp',
-										MoveArmActionState(robot_namespace=self.robot_namespace),
+										MoveArmActionState(),
 										transitions={'finished': 'GripperClose', 'failed': 'GraspStepIterator'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose_list'})
@@ -249,44 +240,36 @@ class PickAndPlaceSM(Behavior):
 
 
 		with _state_machine:
-			# x:49 y:60
-			OperatableStateMachine.add('GripperCommandInit',
-										GripperCommandActionState(gripper_topic=self.gripper_topic),
-										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
-										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
+			# x:551 y:161
+			OperatableStateMachine.add('MoveArmPreSnapshot',
+										MoveArmActionState(),
+										transitions={'finished': 'SnapshotContainer', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'target_pose_list': 'wait_pose'})
 
 			# x:759 y:341
 			OperatableStateMachine.add('ClearOctomap',
-										ClearOctomapServiceState(robot_namespace=self.robot_namespace),
+										ClearOctomapServiceState(),
 										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:551 y:536
 			OperatableStateMachine.add('GripperCommandOpen',
-										GripperCommandActionState(gripper_topic=self.gripper_topic),
+										GripperCommandActionState(gripper_target_position=0),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full},
-										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
+										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full})
 
 			# x:554 y:406
 			OperatableStateMachine.add('MoveArmPostGrasp',
-										MoveArmActionState(robot_namespace=self.robot_namespace),
+										MoveArmActionState(),
 										transitions={'finished': 'GripperCommandOpen', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'dropoff_pose'})
 
 			# x:548 y:240
 			OperatableStateMachine.add('MoveArmPostSnapshot',
-										MoveArmActionState(robot_namespace=self.robot_namespace),
+										MoveArmActionState(),
 										transitions={'finished': 'PCLFilterContainer', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'target_pose_list': 'wait_pose'})
-
-			# x:551 y:161
-			OperatableStateMachine.add('MoveArmPreSnapshot',
-										MoveArmActionState(robot_namespace=self.robot_namespace),
-										transitions={'finished': 'SnapshotContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
@@ -323,7 +306,7 @@ class PickAndPlaceSM(Behavior):
 										_sm_approachcontainer_4,
 										transitions={'finished': 'RetreatContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'grasp_waypoints_list': 'grasp_waypoints_list', 'gripper_target_position': 'gripper_target_position', 'gripper_actual_position': 'gripper_actual_position', 'gripper_initial_state': 'gripper_initial_state', 'grasp_attempt': 'grasp_attempt', 'gripper_state': 'gripper_state'})
+										remapping={'grasp_waypoints_list': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt'})
 
 
 		return _state_machine
