@@ -24,7 +24,7 @@ class ApproachCommanderState(EventState):
           # See example_state.py for basic explanations.
           super(ApproachCommanderState, self).__init__(outcomes = ['continue', 'failed'],
                                                    input_keys = ['grasp_task_candidates', 'grasp_attempt'],
-                                                   output_keys = ['target_pose_list', 'gripper_target_position', 'grasp_attempt'])
+                                                   output_keys = ['target_pose_list', 'grasp_attempt'])
 
   def execute(self, userdata):
           # This method is called periodically while the state is active.
@@ -39,7 +39,6 @@ class ApproachCommanderState(EventState):
           if userdata.grasp_attempt < list_size:
             userdata.target_pose_list.append(userdata.grasp_task_candidates[userdata.grasp_attempt].pre)
             userdata.target_pose_list.append(userdata.grasp_task_candidates[userdata.grasp_attempt].target)
-            userdata.gripper_target_position = 0.4
             return 'continue'
           else:
             return 'failed'

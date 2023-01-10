@@ -7,7 +7,7 @@ from sensor_msgs.msg import PointCloud2
 
 from armada_flexbe_utilities.srv import GetPointCloud, GetPointCloudResponse, GetPointCloudRequest
 from armada_flexbe_utilities.srv import PCLVoxelGridFilter, PCLVoxelGridFilterResponse, PCLVoxelGridFilterRequest
-
+from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 
 class GetPointCloudServiceState(EventState):
         '''
@@ -24,13 +24,12 @@ class GetPointCloudServiceState(EventState):
 
         '''
 
-        def __init__(self, camera_topic):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(GetPointCloudServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_list'],
                                                        output_keys = ['pointcloud_list'])
 
-                self._camera_topic = camera_topic
                 self._service_topic = '/get_pointcloud'
                 self._service = ProxyServiceCaller({self._service_topic: GetPointCloud})
 
@@ -45,7 +44,7 @@ class GetPointCloudServiceState(EventState):
                 response = GetPointCloudResponse()
 
                 try:
-                    get_response = self._service.call(self._service_topic, self._camera_topic)
+                    get_response = self._service.call(self._service_topic, Empty)
                     filter_response = self._service.call(self._service_topic_two, get_response.cloud_out)
                     userdata.pointcloud_list.append(filter_response.cloud_out)
                     return "continue"

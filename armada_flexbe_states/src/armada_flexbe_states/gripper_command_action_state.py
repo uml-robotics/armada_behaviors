@@ -1,5 +1,5 @@
-
 #!/usr/bin/env python
+import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient
 
@@ -23,13 +23,13 @@ class GripperCommandActionState(EventState):
 
         '''
 
-        def __init__(self, gripper_topic):
+        def __init__(self, gripper_target_position):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(GripperCommandActionState, self).__init__(outcomes = ['continue', 'failed'],
-                                                        input_keys = ['gripper_target_position', 'gripper_initial_state', 'gripper_actual_position'],
-                                                        output_keys = ['gripper_actual_position', 'gripper_state'])
+                super(GripperCommandActionState, self).__init__(outcomes = ['continue', 'failed'],)
 
-                self._topic = gripper_topic
+                self._gripper_target_position = gripper_target_position
+                self._max_close_val = rospy.get_param("/end_effector/max_close_val")
+                self._topic = rospy.get_param("/end_effector/command_topic")
                 self._client = ProxyActionClient({self._topic: GripperCommandAction})
 
                 # It may happen that the action client fails to send the action goal.
@@ -54,7 +54,7 @@ class GripperCommandActionState(EventState):
                 # It is primarily used to start actions which are associated with this state.
 
                 goal = GripperCommandGoal()
-                goal.command.position = userdata.gripper_target_position
+                goal.command.position = self._gripper_target_position * self._max_close_val
 
                 # Send the goal.
                 self._error = False # make sure to reset the error state since a previous state execution might have failed

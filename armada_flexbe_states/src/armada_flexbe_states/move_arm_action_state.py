@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import rospy
+
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient
 
@@ -17,12 +19,12 @@ class MoveArmActionState(EventState):
 
         '''
 
-        def __init__(self, robot_namespace):
+        def __init__(self):
                 # See example_state.py for basic explanations.
                 super(MoveArmActionState, self).__init__(outcomes = ['finished', 'failed'],
                                                          input_keys = ['target_pose_list'])
-                self._robot_namespace = robot_namespace
-                # Store the action server topics for convenience
+
+                self._robot_namespace = rospy.get_param("/robot_namespace")
                 self._cartesian_move_action_topic = self._robot_namespace + '/execute_cartesian_plan'
                 self._named_pose_move_action_topic = self._robot_namespace + '/move_to_named_pose'
                 self._topic = ''
