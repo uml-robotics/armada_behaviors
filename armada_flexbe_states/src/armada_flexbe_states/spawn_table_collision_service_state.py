@@ -2,27 +2,26 @@
 import rospy
 
 from flexbe_core import EventState, Logger
+from flexbe_core.proxy import ProxyServiceCaller
+
+from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 
 class SpawnTableCollisionServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-        -- camera_topic                 string          The desired camera_topic
-
-        ># pointcloud_list                              List of PointCloud2 messages
-        #> pointcloud_list                              List of PointCloud2 messages
-
-        <= continue                                     retrieved the pointcloud successfully
+        <= continue                                     spawned work surface collision successfully
         <= failed                                       something went wrong
 
         '''
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(SpawnTableCollisionServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = [],
-                                                       output_keys = [])
+                super(SpawnTableCollisionServiceState, self).__init__(outcomes = ['continue', 'failed'])
+
+                self._service_topic = '/spawn_table_collision'
+                self._service = ProxyServiceCaller({self._service_topic: Empty})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -30,7 +29,8 @@ class SpawnTableCollisionServiceState(EventState):
                 # If no outcome is returned, the state will stay active.
 
                 try:
-                    userdata.pointcloud_list.append(userdata.pointcloud_in)
+                    spawn_table_collision = rospy.ServiceProxy(self._service_topic, Empty)
+                    spawn_table_collision()
                     return "continue"
                 except:
                     return "failed"
@@ -39,7 +39,7 @@ class SpawnTableCollisionServiceState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('appending pointcloud to list...' )
+                Logger.loginfo('attempting to spawn work surface collision...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
@@ -52,7 +52,7 @@ class SpawnTableCollisionServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                pass # Nothing to do in this state.
+                rospy.wait_for_service(self._service_topic)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.
