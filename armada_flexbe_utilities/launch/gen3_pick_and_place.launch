@@ -39,6 +39,7 @@
 
   <group ns="$(arg namespace)">
     <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
+    <!-- <node name="spawn_table_collision_service" pkg="armada_flexbe_utilities" type="spawn_table_collision_service" output="screen" /> -->
   </group>
 
   <include file="$(find flexbe_app)/launch/flexbe_full.launch" />
