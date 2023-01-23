@@ -16,7 +16,8 @@ end_effector: {
         grasp_rot_w: 1,
     },
     command_topic: "/r2f85_gripper_command",
-    max_close_val: 0.85,
+    # max_close_val: 0.85,
+    max_close_val: 0.9,
 }
 grasp_plan: {
     timeout_len: 10.0,
@@ -40,7 +41,7 @@ collision: {
         pose: {
             x: 0.0,
             y: 0.0,
-            z: 0.75,
+            z: 0.74,
         },
     },
 }
@@ -65,7 +66,7 @@ filters: {
             max: 0.6,
         },
         z: {
-            min: -0.1,
+            min: 0.02,
             max: 0.15,
         },
     },
