@@ -4,7 +4,8 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
+from armada_flexbe_utilities.srv import SpawnTableCollision, SpawnTableCollisionResponse, SpawnTableCollisionRequest
+from std_msgs.msg import Empty
 
 class SpawnTableCollisionServiceState(EventState):
         '''
@@ -20,8 +21,9 @@ class SpawnTableCollisionServiceState(EventState):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(SpawnTableCollisionServiceState, self).__init__(outcomes = ['continue', 'failed'])
 
-                self._service_topic = '/spawn_table_collision'
-                self._service = ProxyServiceCaller({self._service_topic: Empty})
+                self._robot_namespace = rospy.get_param("/robot_namespace")
+                self._service_topic = self._robot_namespace + '/spawn_table_collision'
+                self._service = ProxyServiceCaller({self._service_topic: SpawnTableCollision})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -29,8 +31,8 @@ class SpawnTableCollisionServiceState(EventState):
                 # If no outcome is returned, the state will stay active.
 
                 try:
-                    spawn_table_collision = rospy.ServiceProxy(self._service_topic, Empty)
-                    spawn_table_collision()
+                    empty = Empty()
+                    service_response = self._service.call(self._service_topic, empty)
                     return "continue"
                 except:
                     return "failed"
