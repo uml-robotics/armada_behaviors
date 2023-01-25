@@ -1,4 +1,5 @@
-#include <ros/ros.h>
+﻿#include <ros/ros.h>
+#include <XmlRpcValue.h>
 #include <geometry_msgs/Pose.h>
 #include <actionlib/server/simple_action_server.h>
 #include <armada_flexbe_utilities/CartesianMoveAction.h>
@@ -15,15 +16,6 @@ class CartesianPlanningCPPAction
 {
 protected:
 
-  struct object_dimensions {
-    double x_len;
-    double y_len;
-    double z_len;
-    double x_pos;
-    double y_pos;
-    double z_pos;
-  };
-
   ros::NodeHandle nh_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::CartesianMoveAction> CartesianMoveServer_;
   actionlib::SimpleActionServer<armada_flexbe_utilities::NamedPoseMoveAction> MoveToNamedPoseServer_;
@@ -37,7 +29,6 @@ protected:
   PlanningScenePtr PlanningScenePtr_;
   double jump_threshold_;
   double eef_step_;
-  object_dimensions table;
 
 public:
 
@@ -153,33 +144,43 @@ public:
   bool spawnTableObstacle(armada_flexbe_utilities::SpawnTableCollision::Request &req,
                           armada_flexbe_utilities::SpawnTableCollision::Response &res)
   {
-    nh_.getParam("/collision/table/dimension/x", table.x_len);
-    nh_.getParam("/collision/table/dimension/y", table.y_len);
-    nh_.getParam("/collision/table/dimension/z", table.z_len);
-    nh_.getParam("/collision/table/pose/x", table.x_pos);
-    nh_.getParam("/collision/table/pose/y", table.y_pos);
-    nh_.getParam("/collision/table/pose/z", table.z_pos);
+
+    XmlRpc::XmlRpcValue collision_object_list;
+    if( !nh_.getParam("/collision_list", collision_object_list) )
+        ROS_ERROR("Still failed...");
+    ROS_ASSERT(collision_object_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+    int collision_objects_list_size = collision_object_list.size();
 
     std::vector<moveit_msgs::CollisionObject> collision_objects;
-    collision_objects.resize(1);
+    collision_objects.resize(collision_objects_list_size);
 
-    collision_objects[0].id = "box1";
-    collision_objects[0].header.frame_id = MoveGroupPtr_->getPlanningFrame();
+    for (unsigned long i = 0; i < collision_objects_list_size; i++) {
 
-    collision_objects[0].primitives.resize(1);
-    collision_objects[0].primitives[0].type = collision_objects[0].primitives[0].BOX;
-    collision_objects[0].primitives[0].dimensions.resize(3);
-    collision_objects[0].primitives[0].dimensions[0] = table.x_len;
-    collision_objects[0].primitives[0].dimensions[1] = table.y_len;
-    collision_objects[0].primitives[0].dimensions[2] = table.z_len;
+      XmlRpc::XmlRpcValue collision_object = collision_object_list[i];
 
-    collision_objects[0].primitive_poses.resize(1);
-    collision_objects[0].primitive_poses[0].position.x = table.x_pos;
-    collision_objects[0].primitive_poses[0].position.y = table.y_pos;
-    collision_objects[0].primitive_poses[0].position.z = table.z_pos;
-    collision_objects[0].primitive_poses[0].orientation.w = 1.0;
+      std::string id = collision_object["id"];
+      XmlRpc::XmlRpcValue size = collision_object["size"];
+      XmlRpc::XmlRpcValue pose = collision_object["pose"];
 
-    collision_objects[0].operation = collision_objects[0].ADD;
+      collision_objects[i].id = id;
+      collision_objects[i].header.frame_id = MoveGroupPtr_->getPlanningFrame();
+
+      collision_objects[i].primitives.resize(1);
+      collision_objects[i].primitives[0].type = collision_objects[i].primitives[0].BOX;
+      collision_objects[i].primitives[0].dimensions.resize(3);
+      collision_objects[i].primitives[0].dimensions[0] = size[0];
+      collision_objects[i].primitives[0].dimensions[1] = size[1];
+      collision_objects[i].primitives[0].dimensions[2] = size[2];
+
+      collision_objects[i].primitive_poses.resize(1);
+      collision_objects[i].primitive_poses[0].position.x = pose[0];
+      collision_objects[i].primitive_poses[0].position.y = pose[1];
+      collision_objects[i].primitive_poses[0].position.z = pose[2];
+      collision_objects[i].primitive_poses[0].orientation.w = 1.0;
+
+      collision_objects[i].operation = collision_objects[i].ADD;
+    }
 
     PlanningScenePtr_->addCollisionObjects(collision_objects);
 
