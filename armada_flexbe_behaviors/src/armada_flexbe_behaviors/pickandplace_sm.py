@@ -22,6 +22,7 @@ from armada_flexbe_states.pcl_plane_segmentation_service_state import PCLPlaneSe
 from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
+from armada_flexbe_states.spawn_table_collision_service_state import SpawnTableCollisionServiceState
 from flexbe_practice_states.step_iterator_state import stepIteratorState
 from flexbe_states.wait_state import WaitState
 # Additional imports can be added inside the following tags
@@ -61,7 +62,7 @@ class PickAndPlaceSM(Behavior):
 
 
 	def create(self):
-		# x:355 y:633, x:367 y:351
+		# x:349 y:633, x:367 y:351
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.wait_pose = ['above']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
@@ -73,7 +74,7 @@ class PickAndPlaceSM(Behavior):
 		_state_machine.userdata.grasp_waypoints_list = []
 		_state_machine.userdata.grasp_attempt = 0
 		_state_machine.userdata.grasp_state = 'approach'
-		_state_machine.userdata.dropoff_pose = ['above']
+		_state_machine.userdata.dropoff_pose = ['dropoff']
 		_state_machine.userdata.obstacles_pointcloud_list = []
 		_state_machine.userdata.obstacles_pointcloud = 0
 
@@ -173,7 +174,7 @@ class PickAndPlaceSM(Behavior):
 										remapping={'target_pose_list': 'target_pose_list'})
 
 
-		# x:389 y:384, x:391 y:166
+		# x:389 y:384, x:415 y:158
 		_sm_pclfiltercontainer_3 = OperatableStateMachine(outcomes=['finished', 'failed'], input_keys=['pointcloud_list', 'combined_pointcloud', 'obstacles_pointcloud_list'], output_keys=['combined_pointcloud', 'pointcloud_list', 'obstacles_pointcloud_list'])
 
 		with _sm_pclfiltercontainer_3:
@@ -228,7 +229,7 @@ class PickAndPlaceSM(Behavior):
 			OperatableStateMachine.add('GripperClose',
 										GripperCommandActionState(gripper_target_position=1),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full})
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:30 y:176
 			OperatableStateMachine.add('MoveArmGrasp',
@@ -240,12 +241,11 @@ class PickAndPlaceSM(Behavior):
 
 
 		with _state_machine:
-			# x:551 y:161
-			OperatableStateMachine.add('MoveArmPreSnapshot',
-										MoveArmActionState(),
-										transitions={'finished': 'SnapshotContainer', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'target_pose_list': 'wait_pose'})
+			# x:39 y:73
+			OperatableStateMachine.add('SpawnTableCollision',
+										SpawnTableCollisionServiceState(),
+										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:759 y:341
 			OperatableStateMachine.add('ClearOctomap',
@@ -253,23 +253,44 @@ class PickAndPlaceSM(Behavior):
 										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:551 y:536
+			# x:528 y:563
 			OperatableStateMachine.add('GripperCommandOpen',
 										GripperCommandActionState(gripper_target_position=0),
-										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Full, 'failed': Autonomy.Full})
+										transitions={'continue': 'MoveArmHome', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:554 y:406
-			OperatableStateMachine.add('MoveArmPostGrasp',
+			# x:546 y:481
+			OperatableStateMachine.add('MoveArmDropoff',
 										MoveArmActionState(),
 										transitions={'finished': 'GripperCommandOpen', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'dropoff_pose'})
 
+			# x:549 y:648
+			OperatableStateMachine.add('MoveArmHome',
+										MoveArmActionState(),
+										transitions={'finished': 'finished', 'failed': 'finished'},
+										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'target_pose_list': 'wait_pose'})
+
+			# x:545 y:401
+			OperatableStateMachine.add('MoveArmPostGrasp',
+										MoveArmActionState(),
+										transitions={'finished': 'MoveArmDropoff', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'target_pose_list': 'wait_pose'})
+
 			# x:548 y:240
 			OperatableStateMachine.add('MoveArmPostSnapshot',
 										MoveArmActionState(),
 										transitions={'finished': 'PCLFilterContainer', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'target_pose_list': 'wait_pose'})
+
+			# x:551 y:161
+			OperatableStateMachine.add('MoveArmPreSnapshot',
+										MoveArmActionState(),
+										transitions={'finished': 'SnapshotContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
