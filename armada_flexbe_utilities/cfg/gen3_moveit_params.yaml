@@ -33,10 +33,10 @@ move_group: {
 collision_list:
     - id: table
       size: [2.0, 2.0, 0.2]
-      pose: [0.0, 0.0, 0.74]
-    - id: riser
-      size: [0.25, 0.25, 0.2]
-      pose: [0.0, 0.0, 0.84]
+      pose: [0.0, 0.0, -0.12]
+    #- id: riser
+    #  size: [0.25, 0.25, 0.2]
+    #  pose: [0.0, 0.0, 0.84]
 filters: {
     euclidean_cluster_extraction: {
         clusterTolerance: 0.02,
@@ -55,10 +55,10 @@ filters: {
         },
         y: {
             min: -0.6,
-            max: 0.6,
+            max: 0.2,
         },
         z: {
-            min: 0.01,
+            min: 0.00,
             max: 1,
         },
     },

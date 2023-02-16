@@ -39,7 +39,6 @@
 
   <group ns="$(arg namespace)">
     <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
-    <!-- <node name="spawn_table_collision_service" pkg="armada_flexbe_utilities" type="spawn_table_collision_service" output="screen" /> -->
   </group>
 
   <include file="$(find flexbe_app)/launch/flexbe_full.launch" />
@@ -56,5 +55,7 @@
   <node name="pcl_statistical_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_statistical_outlier_removal_service" output="screen" respawn="true"/>
   <node name="pcl_conditional_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_conditional_outlier_removal_service" output="screen" respawn="true"/>
   <node name="r2f85_control_server" pkg="armada_bringup" type="r2f85_control_server" respawn="true"/>
+  <!-- <node name="spawn_table_collision_service" pkg="armada_flexbe_utilities" type="spawn_table_collision_service" output="screen" /> -->
+
 
 </launch>
