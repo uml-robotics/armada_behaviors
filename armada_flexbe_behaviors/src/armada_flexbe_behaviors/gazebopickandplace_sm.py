@@ -166,7 +166,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:23 y:346
 			OperatableStateMachine.add('GetPointCloud',
-										GetPointCloudServiceState(camera_topic=self.camera_topic),
+										GetPointCloudServiceState(),
 										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list': 'pointcloud_list'})
@@ -291,7 +291,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										ApproachCommanderState(),
 										transitions={'continue': 'MoveArmGrasp', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'grasp_task_candidates': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt', 'target_pose_list': 'target_pose_list', 'gripper_target_position': 'gripper_target_position'})
+										remapping={'grasp_task_candidates': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt', 'target_pose_list': 'target_pose_list'})
 
 			# x:212 y:116
 			OperatableStateMachine.add('GraspStepIterator',
@@ -302,10 +302,9 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:140 y:274
 			OperatableStateMachine.add('GripperClose',
-										GripperCommandActionState(gripper_topic=self.gripper_topic),
+										GripperCommandActionState(gripper_target_position=0.0),
 										transitions={'continue': 'finished', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:30 y:176
 			OperatableStateMachine.add('MoveArmGrasp',
@@ -337,17 +336,15 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:539 y:61
 			OperatableStateMachine.add('GripperCommandInit',
-										GripperCommandActionState(gripper_topic=self.gripper_topic),
+										GripperCommandActionState(gripper_target_position=0.0),
 										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:551 y:536
 			OperatableStateMachine.add('GripperCommandOpen',
-										GripperCommandActionState(gripper_topic=self.gripper_topic),
+										GripperCommandActionState(gripper_target_position=0.0),
 										transitions={'continue': 'ClearOctomap', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'gripper_target_position': 'gripper_target_position', 'gripper_initial_state': 'gripper_initial_state', 'gripper_actual_position': 'gripper_actual_position', 'gripper_state': 'gripper_state'})
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:554 y:406
 			OperatableStateMachine.add('MoveArmPostGrasp',
