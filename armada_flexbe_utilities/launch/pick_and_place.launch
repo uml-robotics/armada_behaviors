@@ -18,9 +18,6 @@
   <arg name="namespace" default="" />
   <arg name="gpd_cloud_topic" default="/combined_cloud" />
 
-  <!-- Load specific robot params, create a new yaml file for each robot config and call in launch command -->
-  <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg robot_model)_moveit_params.yaml" />
-
   <!-- GPD (this should be separated after testing + add matching GQCNN launch files***)-->
   <node name="detect_grasps" pkg="gpd_ros" type="detect_grasps" respawn="true">
     <!-- If sequential importance sampling is used (default: false) -->
@@ -42,6 +39,9 @@
   </include>
 
   <group unless="$(eval robot_ip == '')" >
+    <!-- Load specific robot params, create a new yaml file for each robot config and call in launch command -->
+    <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg robot_model)_moveit_params.yaml" />
+
     <include file="$(find armada_bringup)/$(arg gripper_make)/launch/$(arg gripper_model)_action_server.launch">
         <arg name="gripper_ip" value="$(arg gripper_ip)"/>
       </include>
@@ -67,6 +67,9 @@
   </group>
 
   <group if="$(eval robot_ip == '')">
+    <!-- Load specific robot params, create a new yaml file for each robot config and call in launch command -->
+    <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg robot_model)_sim_moveit_params.yaml" />
+
     <include file="$(find armada_gazebo)/$(arg robot_make)/launch/gazebo_$(arg robot_make).launch">
       <arg name="sim_workstation" value="$(arg sim_workstation)"/>
       <arg name="robot_make" value="$(arg robot_make)" />
@@ -79,18 +82,18 @@
 
   <include file="$(find flexbe_app)/launch/flexbe_full.launch" />
 
-  <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
-  <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" />
-  <node name="gpd_grasp_candidates_service" pkg="armada_flexbe_utilities" type="gpd_grasp_candidates_service" output="screen" />
-  <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" />
-  <node name="pcl_concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="pcl_concatenate_pointcloud_service" output="screen" />
-  <node name="pcl_conditional_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_conditional_outlier_removal_service" output="screen" />
-  <node name="pcl_euclidean_cluster_extraction_service" pkg="armada_flexbe_utilities" type="pcl_euclidean_cluster_extraction_service" output="screen" />
-  <node name="pcl_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pcl_passthrough_filter_service" output="screen" />
-  <node name="pcl_plane_segmentation_service" pkg="armada_flexbe_utilities" type="pcl_plane_segmentation_service" output="screen" />
-  <node name="pcl_radius_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_radius_outlier_removal_service" output="screen" />
-  <node name="pcl_statistical_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_statistical_outlier_removal_service" output="screen" />
-  <node name="pcl_voxel_grid_filter_service" pkg="armada_flexbe_utilities" type="pcl_voxel_grid_filter_service" output="screen" />
-  <node name="spawn_table_collision_service" pkg="armada_flexbe_utilities" type="spawn_table_collision_service" output="screen" />
+  <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" respawn="true"/>
+  <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" respawn="true"/>
+  <node name="gpd_grasp_candidates_service" pkg="armada_flexbe_utilities" type="gpd_grasp_candidates_service" output="screen" respawn="true"/>
+  <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" respawn="true"/>
+  <node name="pcl_concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="pcl_concatenate_pointcloud_service" output="screen" respawn="true"/>
+  <node name="pcl_conditional_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_conditional_outlier_removal_service" output="screen" respawn="true"/>
+  <node name="pcl_euclidean_cluster_extraction_service" pkg="armada_flexbe_utilities" type="pcl_euclidean_cluster_extraction_service" output="screen" respawn="true"/>
+  <node name="pcl_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pcl_passthrough_filter_service" output="screen" respawn="true"/>
+  <node name="pcl_plane_segmentation_service" pkg="armada_flexbe_utilities" type="pcl_plane_segmentation_service" output="screen" respawn="true"/>
+  <node name="pcl_radius_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_radius_outlier_removal_service" output="screen" respawn="true"/>
+  <node name="pcl_statistical_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_statistical_outlier_removal_service" output="screen" respawn="true"/>
+  <node name="pcl_voxel_grid_filter_service" pkg="armada_flexbe_utilities" type="pcl_voxel_grid_filter_service" output="screen" respawn="true"/>
+  <node name="spawn_table_collision_service" pkg="armada_flexbe_utilities" type="spawn_table_collision_service" output="screen" respawn="true"/>
 
 </launch>
