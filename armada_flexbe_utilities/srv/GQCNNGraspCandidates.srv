@@ -1,0 +1,3 @@
+sensor_msgs/PointCloud2 combined_cloud
+---
+gqcnn/GQCNNGrasp grasp_info
