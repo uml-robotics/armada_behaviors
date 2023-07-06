@@ -5,7 +5,7 @@
   <arg name="robot_ip" default="" doc="If no robot_ip is given, the robot will be brought up in Gazebo (simulation)"/>
   <arg name="gripper_ip" default="" />
   <arg name="limited" default="" />
-  <arg name="sim_workstation" default="" />
+  <arg name="sim_workstation" default="true" />
   <arg name="wrist_cam" default="d435_millibar" />
   <arg name="camera_name" default="camera_wrist" />
   <arg name="max_dist" default="2" doc="default passthrough filter is active, supply no arg on command line to turn off entirely" />
@@ -48,7 +48,7 @@
 
     <!-- Launch realsense camera nodes with actual camera (serial number typically on back of device) -->
     <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
-      <arg name="serial_no" value="$(arg serial_no)" unless="$(eval serial_no == '')"/>
+      <arg name="serial_no" value="$(arg serial_no)" unless="$(eval serial_no == '')" />
       <arg name="camera" value="$(arg camera_name)" />
     </include>
 
