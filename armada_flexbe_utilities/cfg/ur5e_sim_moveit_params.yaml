@@ -17,7 +17,7 @@ end_effector: {
     },
     command_topic: "/r2f85_gripper_controller/gripper_cmd",
     # max_close_val: 0.85,
-    max_close_val: 0.9,
+    max_close_val: 0.75,
 }
 grasp_plan: {
     timeout_len: 10.0,
