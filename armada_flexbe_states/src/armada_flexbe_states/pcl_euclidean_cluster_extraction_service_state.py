@@ -4,13 +4,12 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import EuclideanClusterExtraction, EuclideanClusterExtractionResponse, EuclideanClusterExtractionRequest
+from armada_flexbe_utilities.srv import PCLEuclideanClusterExtraction, PCLEuclideanClusterExtractionResponse, PCLEuclideanClusterExtractionRequest
 
 
-class EuclideanClusterExtractionServiceState(EventState):
+class PCLEuclideanClusterExtractionServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        Extract Euclidean clusters from within a given PointCloud.
 
         -- param                        string          Param description
 
@@ -24,23 +23,25 @@ class EuclideanClusterExtractionServiceState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(EuclideanClusterExtractionServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = ['pointcloud_in'],
-                                                       output_keys = ['pointcloud_list_out'])
+                super(PCLEuclideanClusterExtractionServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                                                       input_keys = ['pointcloud_in', 'obstacles_cloud_list_in'],
+                                                       output_keys = ['target_cloud_out', 'obstacles_cloud_list_out'])
 
+                self._service_topic = '/euclidean_cluster_extraction'
+                self._service = ProxyServiceCaller({self._service_topic: PCLEuclideanClusterExtraction})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/euclidean_cluster_extraction'
-                rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: EuclideanClusterExtraction})
-
                 try:
                   service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
-                  userdata.pointcloud_list_out = service_response.cluster_cloud
+                  userdata.target_cloud_out = service_response.target_cloud_out
+                  temp_cloud_list = []
+                  temp_cloud_list.extend(userdata.obstacles_cloud_list_in)
+                  temp_cloud_list.extend(service_response.obstacle_cloud_list_out)
+                  userdata.obstacles_cloud_list_out = temp_cloud_list
                   return 'continue'
                 except:
                   return 'failed'
@@ -52,7 +53,7 @@ class EuclideanClusterExtractionServiceState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                pass # Add functionality here if necessary
+                Logger.loginfo('attempting to extract object clusters...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
@@ -65,7 +66,7 @@ class EuclideanClusterExtractionServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                pass # Add functionality here if necessary
+                rospy.wait_for_service(self._service_topic)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.

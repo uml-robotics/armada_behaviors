@@ -5,11 +5,11 @@
   <arg name="robot_ip" default="" doc="If no robot_ip is given, the robot will be brought up in Gazebo (simulation)"/>
   <arg name="gripper_ip" default="" />
   <arg name="limited" default="" />
-  <arg name="sim_workstation" default="" />
+  <arg name="sim_workstation" default="true" />
   <arg name="wrist_cam" default="d435_millibar" />
   <arg name="camera_name" default="camera_wrist" />
   <arg name="max_dist" default="2" doc="default passthrough filter is active, supply no arg on command line to turn off entirely" />
-  <arg name="serial_no" default="843112074121" doc="Serial number of 1st device" />
+  <arg name="serial_no" default="" doc="Serial number of realsense camera device" />
   <arg name="robot_make" default="universal_robot" />
   <arg name="robot_model" default="ur5e" />
   <arg name="gripper_make" default="robotiq" />
@@ -17,9 +17,6 @@
   <arg name="robot_description_file" default="$(find armada_description)/$(arg robot_make)/urdf/$(arg robot_model)_robot_$(arg wrist_cam)_$(arg gripper_model)_workstation.urdf.xacro" />
   <arg name="namespace" default="" />
   <arg name="gpd_cloud_topic" default="/combined_cloud" />
-
-  <!-- Load specific robot params, create a new yaml file for each robot config and call in launch command -->
-  <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg robot_model)_moveit_params.yaml" />
 
   <!-- GPD (this should be separated after testing + add matching GQCNN launch files***)-->
   <node name="detect_grasps" pkg="gpd_ros" type="detect_grasps" respawn="true">
@@ -31,12 +28,10 @@
     <!-- (optional) The ROS topic that the samples come from (default: an empty string) -->
     <param name="samples_topic" value="" />
     <!-- Filepath to the configuration file for GPD -->
-    <param name="config_file" value="/home/csrobot/catkin_ws/src/gpd/cfg/ros_eigen_params.cfg" />
+    <param name="config_file" value="$(env HOME)/catkin_ws/src/gpd/cfg/ros_eigen_params.cfg" />
     <!-- <param name="config_file" value="$(find armada_flexbe_utilities)/cfg/ros_vino_params.cfg" /> -->
     <param name="rviz_topic" value="grasps_rviz" />
   </node>
-
-  <rosparam file="$(find armada_flexbe_utilities)/cfg/ur5e_wrist_d435.yaml" />
 
   <include file="$(find armada_flexbe_utilities)/launch/passthrough_filter.launch" unless="$(eval max_dist == '')" >
     <arg name="wrist_cam" value="$(arg camera_name)" />
@@ -44,13 +39,16 @@
   </include>
 
   <group unless="$(eval robot_ip == '')" >
+    <!-- Load specific robot params, create a new yaml file for each robot config and call in launch command -->
+    <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg robot_model)_moveit_params.yaml" />
+
     <include file="$(find armada_bringup)/$(arg gripper_make)/launch/$(arg gripper_model)_action_server.launch">
         <arg name="gripper_ip" value="$(arg gripper_ip)"/>
       </include>
 
     <!-- Launch realsense camera nodes with actual camera (serial number typically on back of device) -->
     <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
-      <arg name="serial_no" value="$(arg serial_no)" unless="$(eval serial_no == '')"/>
+      <arg name="serial_no" value="$(arg serial_no)" unless="$(eval serial_no == '')" />
       <arg name="camera" value="$(arg camera_name)" />
     </include>
 
@@ -59,7 +57,7 @@
       <arg name="kinematics_config" value="$(arg kinematics_config)"/>
       <arg name="robot_description_file" value="$(arg robot_description_file)" unless="$(eval wrist_cam == '')"/>
       <arg name="limited" value="false"/>
-      <arg name="sim_workstation" value="true"/>
+      <arg name="sim_workstation" value="$(arg sim_workstation)"/>
       <arg name="robot_make" value="$(arg robot_make)" />
       <arg name="robot_model" value="$(arg robot_model)" />
       <arg name="gripper_make" value="$(arg gripper_make)" />
@@ -69,8 +67,11 @@
   </group>
 
   <group if="$(eval robot_ip == '')">
+    <!-- Load specific robot params, create a new yaml file for each robot config and call in launch command -->
+    <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg robot_model)_sim_moveit_params.yaml" />
+
     <include file="$(find armada_gazebo)/$(arg robot_make)/launch/gazebo_$(arg robot_make).launch">
-      <arg name="sim_workstation" value="true"/>
+      <arg name="sim_workstation" value="$(arg sim_workstation)"/>
       <arg name="robot_make" value="$(arg robot_make)" />
       <arg name="robot_model" value="$(arg robot_model)" />
       <arg name="gripper_make" value="$(arg gripper_make)" />
@@ -79,14 +80,20 @@
     </include>
   </group>
 
-  <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
-  <node name="get_grasp_candidates_service" pkg="armada_flexbe_utilities" type="get_grasp_candidates_service" output="screen" />
-  <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" />
-  <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" />
-  <node name="pcl_concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="pcl_concatenate_pointcloud_service" output="screen" />
-  <node name="pcl_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pcl_passthrough_filter_service" output="screen" />
-  <node name="pcl_plane_segmentation_service" pkg="armada_flexbe_utilities" type="pcl_plane_segmentation_service" output="screen" />
-  <node name="pcl_voxel_grid_filter_service" pkg="armada_flexbe_utilities" type="pcl_voxel_grid_filter_service" output="screen" />
-  <node name="euclidean_cluster_extraction_service" pkg="armada_flexbe_utilities" type="euclidean_cluster_extraction_service" output="screen" />
+  <include file="$(find flexbe_app)/launch/flexbe_full.launch" />
+
+  <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" respawn="true"/>
+  <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" respawn="true"/>
+  <node name="gpd_grasp_candidates_service" pkg="armada_flexbe_utilities" type="gpd_grasp_candidates_service" output="screen" respawn="true"/>
+  <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" respawn="true"/>
+  <node name="pcl_concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="pcl_concatenate_pointcloud_service" output="screen" respawn="true"/>
+  <node name="pcl_conditional_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_conditional_outlier_removal_service" output="screen" respawn="true"/>
+  <node name="pcl_euclidean_cluster_extraction_service" pkg="armada_flexbe_utilities" type="pcl_euclidean_cluster_extraction_service" output="screen" respawn="true"/>
+  <node name="pcl_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pcl_passthrough_filter_service" output="screen" respawn="true"/>
+  <node name="pcl_plane_segmentation_service" pkg="armada_flexbe_utilities" type="pcl_plane_segmentation_service" output="screen" respawn="true"/>
+  <node name="pcl_radius_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_radius_outlier_removal_service" output="screen" respawn="true"/>
+  <node name="pcl_statistical_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_statistical_outlier_removal_service" output="screen" respawn="true"/>
+  <node name="pcl_voxel_grid_filter_service" pkg="armada_flexbe_utilities" type="pcl_voxel_grid_filter_service" output="screen" respawn="true"/>
+  <node name="spawn_table_collision_service" pkg="armada_flexbe_utilities" type="spawn_table_collision_service" output="screen" respawn="true"/>
 
 </launch>

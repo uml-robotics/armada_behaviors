@@ -4,29 +4,29 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from gazebo_msgs.srv import DeleteModel
-from geometry_msgs.msg import Pose
+from armada_flexbe_utilities.srv import PCLPassthroughFilter, PCLPassthroughFilterResponse, PCLPassthroughFilterRequest
 
 
-class DeleteModelServiceState(EventState):
+class PCLPassthroughFilterServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        Filter a PointCloud by filtering out values outside a given range.
 
-        -- model_name 	string          Name of the model to be deleted from the scene.
+        ># pointcloud_in                                Unfiltered PointCloud2 message
+        #> pointcloud_out                               Filtered PointCloud2 message
 
-        <= continue                     Deleted object.
-        <= failed                       Something went wrong.
+        <= continue                                     Filtered pointcloud successfully
+        <= failed                                       Something went wrong
 
         '''
 
-        def __init__(self, model_name):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(DeleteModelServiceState, self).__init__(outcomes = ['continue', 'failed'])
+                super(PCLPassthroughFilterServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                                                       input_keys = ['pointcloud_in'],
+                                                       output_keys = ['pointcloud_out'])
 
-                self._model_name = model_name
-                self._service_topic = 'gazebo/delete_model'
-                self._service = ProxyServiceCaller({self._service_topic: DeleteModel})
+                self._service_topic = '/passthrough_filter'
+                self._service = ProxyServiceCaller({self._service_topic: PCLPassthroughFilter})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -34,8 +34,8 @@ class DeleteModelServiceState(EventState):
                 # If no outcome is returned, the state will stay active.
 
                 try:
-                  #delete_model_srv(self._model_name)
-                  service_response = self._service.call(self._service_topic, self._model_name)
+                  service_response = self._service.call(self._service_topic, userdata.pointcloud_in)
+                  userdata.pointcloud_out = service_response.cloud_out
                   return 'continue'
                 except:
                   return 'failed'
@@ -44,7 +44,7 @@ class DeleteModelServiceState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('attempting to delete object...' )
+                Logger.loginfo('attempting to filter pointcloud...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.

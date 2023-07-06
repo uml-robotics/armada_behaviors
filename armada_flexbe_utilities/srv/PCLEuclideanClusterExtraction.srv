@@ -1,0 +1,4 @@
+sensor_msgs/PointCloud2 cloud_in
+---
+sensor_msgs/PointCloud2 target_cloud_out
+sensor_msgs/PointCloud2[] obstacle_cloud_list_out

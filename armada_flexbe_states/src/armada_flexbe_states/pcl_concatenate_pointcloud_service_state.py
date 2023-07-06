@@ -3,30 +3,32 @@ import rospy
 
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
+from sensor_msgs.msg import PointCloud2
 
-from gazebo_msgs.srv import DeleteModel
-from geometry_msgs.msg import Pose
+from armada_flexbe_utilities.srv import PCLConcatenatePointCloud, PCLConcatenatePointCloudResponse, PCLConcatenatePointCloudRequest
 
 
-class DeleteModelServiceState(EventState):
+class PCLConcatenatePointCloudServiceState(EventState):
         '''
-        Example for a state to demonstrate which functionality is available for state implementation.
-        This example lets the behavior wait until the given target_time has passed since the behavior has been started.
+        Concatenate two or more PointClouds contained within a list.
 
-        -- model_name 	string          Name of the model to be deleted from the scene.
+        ># pointcloud_list_in                           List of PointCloud2 messages
+        #> combined_pointcloud                          Concatenated PointCloud2 message
+        #> pointcloud_list_out                          List of PointCloud2 messages
 
-        <= continue                     Deleted object.
-        <= failed                       Something went wrong.
+        <= continue                                     Concatenated pointclouds successfully
+        <= failed                                       Something went wrong
 
         '''
 
-        def __init__(self, model_name):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(DeleteModelServiceState, self).__init__(outcomes = ['continue', 'failed'])
+                super(PCLConcatenatePointCloudServiceState, self).__init__(outcomes = ['continue', 'failed'],
+                                                       input_keys = ['pointcloud_list_in'],
+                                                       output_keys = ['combined_pointcloud', 'pointcloud_list_out'])
 
-                self._model_name = model_name
-                self._service_topic = 'gazebo/delete_model'
-                self._service = ProxyServiceCaller({self._service_topic: DeleteModel})
+                self._service_topic = '/concatenate_pointcloud'
+                self._service = ProxyServiceCaller({self._service_topic: PCLConcatenatePointCloud})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -34,8 +36,9 @@ class DeleteModelServiceState(EventState):
                 # If no outcome is returned, the state will stay active.
 
                 try:
-                  #delete_model_srv(self._model_name)
-                  service_response = self._service.call(self._service_topic, self._model_name)
+                  service_response = self._service.call(self._service_topic, userdata.pointcloud_list_in)
+                  userdata.combined_pointcloud = service_response.cloud_out
+                  userdata.pointcloud_list_out = []
                   return 'continue'
                 except:
                   return 'failed'
@@ -44,7 +47,7 @@ class DeleteModelServiceState(EventState):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('attempting to delete object...' )
+                Logger.loginfo('attempting to concatenate pointcloud...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.

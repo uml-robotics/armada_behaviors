@@ -4,10 +4,6 @@
   <arg name="wrist_cam" default="" />
   <arg name="max_dist" default="0.5" />
 
-  <!-- This transforms each resulting pointcloud into a global reference frame -->
-  <node name="$(arg wrist_cam)_tf2" pkg="tf" type="static_transform_publisher"
-    args="0.0175 0.0 0.025 0.0 -1.57 -1.57 /d435 /$(arg wrist_cam)_link 100" />
-
   <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
 
   <node pkg="nodelet" type="nodelet" name="$(anon x_passthrough)" args="load pcl/PassThrough pcl_manager" output="screen">

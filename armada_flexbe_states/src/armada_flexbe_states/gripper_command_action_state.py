@@ -1,5 +1,5 @@
-
 #!/usr/bin/env python
+import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient
 
@@ -23,15 +23,13 @@ class GripperCommandActionState(EventState):
 
         '''
 
-        def __init__(self, gripper_topic):
+        def __init__(self, gripper_target_position):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(GripperCommandActionState, self).__init__(outcomes = ['continue', 'failed'],
-                                                        input_keys = ['gripper_target_position', 'gripper_initial_state', 'gripper_actual_position'],
-                                                        output_keys = ['gripper_actual_position', 'gripper_state'])
+                super(GripperCommandActionState, self).__init__(outcomes = ['continue', 'failed'],)
 
-                self._initial_position = 0
-
-                self._topic = gripper_topic
+                self._gripper_target_position = gripper_target_position
+                self._max_close_val = rospy.get_param("/end_effector/max_close_val")
+                self._topic = rospy.get_param("/end_effector/command_topic")
                 self._client = ProxyActionClient({self._topic: GripperCommandAction})
 
                 # It may happen that the action client fails to send the action goal.
@@ -44,48 +42,19 @@ class GripperCommandActionState(EventState):
                 if self._error:
                         return 'failed'
 
-                self._initial_position = userdata.gripper_actual_position
-
                 # Check if the action has been finished or stalled
                 if self._client.has_result(self._topic):
-                        result = self._client.get_result(self._topic)
-                        reached_goal = result.reached_goal
-                        stalled = result.stalled
-
-                        # Based on the result, decide which outcome to trigger.
-                        if reached_goal == 1:
-                                userdata.gripper_actual_position = result.position
-                                if result.position > self._initial_position:
-                                  userdata.gripper_state = 'closed'
-                                elif result.position < self._initial_position:
-                                  userdata.gripper_state = 'open'
-                                else:
-                                  userdata.gripper_state = userdata.gripper_initial_state
-                                return 'continue'
-
-                        elif stalled == 1:
-                                userdata.gripper_actual_position = result.position
-                                if result.position > self._initial_position:
-                                  userdata.gripper_state = 'closed'
-                                elif result.position < self._initial_position:
-                                  userdata.gripper_state = 'open'
-                                else:
-                                  userdata.gripper_state = userdata.gripper_initial_state
-                                return 'continue'
-
-                        else:
-                                return 'failed'
-
-                # If the action has not yet finished, no outcome will be returned and the state stays active.
-
+                        return 'continue'
+                else:
+                        # do nothing yet
+                        pass
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
                 goal = GripperCommandGoal()
-                goal.command.position = userdata.gripper_target_position
-                goal.command.max_effort = 1.0
+                goal.command.position = self._gripper_target_position * self._max_close_val
 
                 # Send the goal.
                 self._error = False # make sure to reset the error state since a previous state execution might have failed

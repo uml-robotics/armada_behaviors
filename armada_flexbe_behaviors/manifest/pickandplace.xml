@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="PickAndPlace">
+
+	<executable package_path="armada_flexbe_behaviors.pickandplace_sm" class="PickAndPlaceSM" />
+	<tagstring></tagstring>
+	<author>Brian Flynn</author>
+	<date>Wed Dec 7 2022</date>
+	<description>
+		Perform a pick and place option with a real robot arm and objects.
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="wait_time" default="2" label="wait_time" hint="Sets the wait_time">
+			<min value="0" />
+			<max value="5" />
+		</param>
+
+		<param type="text" name="obstacle_cloud_topic" default="/obstacle_cloud" label="obstacle_cloud_topic" hint="Sets the obstacle_cloud_topic" />
+
+		<param type="text" name="concatenated_cloud_topic" default="combined_cloud" label="concatenated_cloud_topic" hint="Sets the concatenated_cloud_topic" />
+
+	</params>
+
+
+</behavior>

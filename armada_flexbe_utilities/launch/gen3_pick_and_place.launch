@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="robot_ip" default="10.10.10.43" doc="If no robot_ip is given, the robot will be brought up in Gazebo (simulation)"/>
+  <arg name="namespace" default="my_gen3" />
+  <arg name="camera_name" default="camera" />
+  <arg name="robot_make" default="kinova" />
+  <arg name="robot_model" default="gen3" />
+  <arg name="gripper" default="robotiq_2f_85" />
+  <arg name="max_dist" default="2" doc="default passthrough filter is active, supply no arg on command line to turn off entirely" />
+  <arg name="gpd_cloud_topic" default="/combined_cloud" />
+
+  <!-- Load specific robot params, create a new yaml file for each robot config and call in launch command -->
+  <rosparam file="$(find armada_flexbe_utilities)/cfg/$(arg robot_model)_moveit_params.yaml" />
+
+  <!-- GPD (this should be separated after testing + add matching GQCNN launch files***)-->
+  <node name="detect_grasps" pkg="gpd_ros" type="detect_grasps" respawn="true">
+    <param name="use_importance_sampling" value="false" />
+    <param name="cloud_type" value="0" /> <!-- 0: PointCloud2, 1: CloudIndexed, 2: CloudSamples -->
+    <param name="cloud_topic" value="$(eval '/' + arg('gpd_cloud_topic'))" />
+    <param name="config_file" value="$(env HOME)/catkin_ws/src/gpd/cfg/ros_eigen_params.cfg" />
+    <param name="rviz_topic" value="grasps_rviz" />
+  </node>
+
+  <include file="$(find armada_flexbe_utilities)/launch/passthrough_filter.launch" unless="$(eval max_dist == '')" >
+    <arg name="wrist_cam" value="$(arg camera_name)" />
+    <arg name="max_dist" value="$(arg max_dist)" />
+  </include>
+
+    <!-- Launch realsense camera nodes with actual camera (serial number typically on back of device) -->
+  <include file="$(find kinova_vision)/launch/kinova_vision_rgbd.launch">
+    <arg name="device" value="$(arg robot_ip)" />
+  </include>
+
+  <include file="$(find kortex_driver)/launch/kortex_driver.launch">
+    <arg name="ip_address" value="$(arg robot_ip)"/>
+    <arg name="gripper" value="$(arg gripper)"/>
+  </include>
+
+  <group ns="$(arg namespace)">
+    <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" />
+  </group>
+
+  <include file="$(find flexbe_app)/launch/flexbe_full.launch" />
+
+  <node name="pcl_concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="pcl_concatenate_pointcloud_service" output="screen" respawn="true"/>
+  <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" respawn="true"/>
+  <node name="gpd_grasp_candidates_service" pkg="armada_flexbe_utilities" type="gpd_grasp_candidates_service" output="screen" respawn="true"/>
+  <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" respawn="true"/>
+  <node name="pcl_voxel_grid_filter_service" pkg="armada_flexbe_utilities" type="pcl_voxel_grid_filter_service" output="screen" />
+  <node name="pcl_euclidean_cluster_extraction_service" pkg="armada_flexbe_utilities" type="pcl_euclidean_cluster_extraction_service" output="screen" respawn="true"/>
+  <node name="pcl_passthrough_filter_service" pkg="armada_flexbe_utilities" type="pcl_passthrough_filter_service" output="screen" respawn="true"/>
+  <node name="pcl_plane_segmentation_service" pkg="armada_flexbe_utilities" type="pcl_plane_segmentation_service" output="screen" respawn="true"/>
+  <node name="pcl_radius_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_radius_outlier_removal_service" output="screen" />
+  <node name="pcl_statistical_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_statistical_outlier_removal_service" output="screen" respawn="true"/>
+  <node name="pcl_conditional_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_conditional_outlier_removal_service" output="screen" respawn="true"/>
+  <node name="r2f85_control_server" pkg="armada_bringup" type="r2f85_control_server" respawn="true"/>
+  <!-- <node name="spawn_table_collision_service" pkg="armada_flexbe_utilities" type="spawn_table_collision_service" output="screen" /> -->
+
+
+</launch>

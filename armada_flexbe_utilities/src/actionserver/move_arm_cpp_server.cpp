@@ -1,11 +1,16 @@
-#include <ros/ros.h>
+﻿#include <ros/ros.h>
+#include <XmlRpcValue.h>
 #include <geometry_msgs/Pose.h>
 #include <actionlib/server/simple_action_server.h>
 #include <armada_flexbe_utilities/CartesianMoveAction.h>
 #include <armada_flexbe_utilities/NamedPoseMoveAction.h>
+#include "armada_flexbe_utilities/SpawnTableCollision.h"
 #include <moveit/move_group_interface/move_group_interface.h>
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
+#include <moveit_msgs/CollisionObject.h>
 
 typedef boost::shared_ptr<moveit::planning_interface::MoveGroupInterface> MoveGroupPtr;
+typedef boost::shared_ptr<moveit::planning_interface::PlanningSceneInterface> PlanningScenePtr;
 
 class CartesianPlanningCPPAction
 {
@@ -18,8 +23,10 @@ protected:
   armada_flexbe_utilities::CartesianMoveResult cartesian_move_result_;
   armada_flexbe_utilities::NamedPoseMoveFeedback named_pose_move_feedback_;
   armada_flexbe_utilities::NamedPoseMoveResult named_pose_move_result_;
+  ros::ServiceServer spawnTableCollisionService;
   std::string planning_group_;
   MoveGroupPtr MoveGroupPtr_;
+  PlanningScenePtr PlanningScenePtr_;
   double jump_threshold_;
   double eef_step_;
 
@@ -42,6 +49,8 @@ public:
     CartesianMoveServer_.start();
     MoveToNamedPoseServer_.start();
     MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group_));
+    PlanningScenePtr_ = PlanningScenePtr(new moveit::planning_interface::PlanningSceneInterface);
+    spawnTableCollisionService = nh.advertiseService("spawn_table_collision", &CartesianPlanningCPPAction::spawnTableObstacle, this);
   }
 
   /**
@@ -122,6 +131,61 @@ public:
     }
     named_pose_move_result_.execution_success = 1;
     MoveToNamedPoseServer_.setSucceeded(named_pose_move_result_);
+  }
+
+  /**
+   * Spawn collision object as 'floor' to avoid table obstacle
+   *
+   * Add a large platform/box as a collision object to represent the robot's work surface for robot safety
+   *
+   * @param[in] req empty std_msgs/Empty empty data for initiating service
+   * @return Bool Service completion result.
+   */
+  bool spawnTableObstacle(armada_flexbe_utilities::SpawnTableCollision::Request &req,
+                          armada_flexbe_utilities::SpawnTableCollision::Response &res)
+  {
+
+    XmlRpc::XmlRpcValue collision_object_list;
+    if( !nh_.getParam("/collision_list", collision_object_list) )
+        ROS_ERROR("Still failed...");
+    ROS_ASSERT(collision_object_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+    int collision_objects_list_size = collision_object_list.size();
+
+    std::vector<moveit_msgs::CollisionObject> collision_objects;
+    collision_objects.resize(collision_objects_list_size);
+
+    for (unsigned long i = 0; i < collision_objects_list_size; i++) {
+
+      XmlRpc::XmlRpcValue collision_object = collision_object_list[i];
+
+      std::string id = collision_object["id"];
+      XmlRpc::XmlRpcValue size = collision_object["size"];
+      XmlRpc::XmlRpcValue pose = collision_object["pose"];
+
+      collision_objects[i].id = id;
+      collision_objects[i].header.frame_id = MoveGroupPtr_->getPlanningFrame();
+
+      collision_objects[i].primitives.resize(1);
+      collision_objects[i].primitives[0].type = collision_objects[i].primitives[0].BOX;
+      collision_objects[i].primitives[0].dimensions.resize(3);
+      collision_objects[i].primitives[0].dimensions[0] = size[0];
+      collision_objects[i].primitives[0].dimensions[1] = size[1];
+      collision_objects[i].primitives[0].dimensions[2] = size[2];
+
+      collision_objects[i].primitive_poses.resize(1);
+      collision_objects[i].primitive_poses[0].position.x = pose[0];
+      collision_objects[i].primitive_poses[0].position.y = pose[1];
+      collision_objects[i].primitive_poses[0].position.z = pose[2];
+      collision_objects[i].primitive_poses[0].orientation.w = 1.0;
+
+      collision_objects[i].operation = collision_objects[i].ADD;
+    }
+
+    PlanningScenePtr_->addCollisionObjects(collision_objects);
+
+    res.success = 1;
+    return true;
   }
 
 };

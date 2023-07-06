@@ -1,0 +1,4 @@
+sensor_msgs/PointCloud2 cloud_in
+---
+sensor_msgs/PointCloud2 objects_cloud_out
+sensor_msgs/PointCloud2 plane_cloud_out

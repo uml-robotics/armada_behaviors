@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "armada_flexbe_utilities/ConcatenatePointCloud.h"
+#include "armada_flexbe_utilities/PCLConcatenatePointCloud.h"
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 
@@ -14,8 +14,8 @@ using namespace pcl;
  * @param[out] res sensor_msgs/PointCloud2 A PointCloud2 message.
  * @return Bool Service completion result.
  */
-bool concatenatePointCloud(armada_flexbe_utilities::ConcatenatePointCloud::Request &req,
-                           armada_flexbe_utilities::ConcatenatePointCloud::Response &res)
+bool concatenatePointCloud(armada_flexbe_utilities::PCLConcatenatePointCloud::Request &req,
+                           armada_flexbe_utilities::PCLConcatenatePointCloud::Response &res)
 {
   unsigned int cloud_list_size = req.cloud_list_in.size();
   PointCloud<PointXYZRGB> cloud_array[cloud_list_size];

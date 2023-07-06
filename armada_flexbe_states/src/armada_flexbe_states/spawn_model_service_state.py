@@ -55,8 +55,6 @@ class SpawnModelServiceState(EventState):
                 xml_file = open(self._object_file_path,'r')
                 model_xml = xml_file.read()
 
-                # check/wait for spawn model service to spin up
-                rospy.wait_for_service('gazebo/spawn_sdf_model')
                 spawn_model_srv = rospy.ServiceProxy('gazebo/spawn_sdf_model', SpawnModel)
 
                 try:
@@ -83,7 +81,7 @@ class SpawnModelServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                pass # Nothing to do in this state.
+                rospy.wait_for_service('gazebo/spawn_sdf_model')
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.

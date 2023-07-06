@@ -3,63 +3,46 @@ import rospy
 
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
-from sensor_msgs.msg import PointCloud2
 
-from armada_flexbe_utilities.srv import GetGraspCandidates, GetGraspCandidatesResponse, GetGraspCandidatesRequest
+from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 
 
-class GetGraspCandidatesServiceState(EventState):
+class ClearOctomapServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
 
-        -- combined_cloud_topic                         Topic to publish pointcloud message
-        -- grasp_candidates_topic                       Topic to subscribe for grasp candidate messages
-
-        ># combined_pointcloud                          List of PointCloud2 message
-        #> grasp_candidates                             List of grasp candidates message
-
-        <= continue                                     Retrieved grasp candidates
-        <= failed                                       Something went wrong
+        <= continue                                     cleared octomap successfully
+        <= failed                                       something went wrong
 
         '''
 
-        def __init__(self, combined_cloud_topic, grasp_candidates_topic):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(GetGraspCandidatesServiceState, self).__init__(outcomes = ['continue', 'failed'],
-                                                       input_keys = ['combined_pointcloud'],
-                                                       output_keys = ['grasp_candidates'])
+                super(ClearOctomapServiceState, self).__init__(outcomes = ['continue', 'failed'])
 
-                self._combined_cloud_topic = combined_cloud_topic
-                self._grasp_candidates_topic = grasp_candidates_topic
+                self._robot_namespace = rospy.get_param("/robot_namespace")
+                self._service_topic = self._robot_namespace + '/clear_octomap'
+                self._service = ProxyServiceCaller({self._service_topic: Empty})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                self._service_topic = '/get_grasp_candidates'
-                rospy.wait_for_service(self._service_topic)
-                self._service = ProxyServiceCaller({self._service_topic: GetGraspCandidates})
-
-                request = GetGraspCandidatesRequest()
-                request.grasp_candidates_topic = self._grasp_candidates_topic
-                request.combined_cloud = userdata.combined_pointcloud
-
                 try:
-                  service_response = self._service.call(self._service_topic, request)
-                  userdata.grasp_candidates = service_response.grasp_msg_list
+                  #service_response = self._service.call(self._service_topic, )
+                  clear_octomap = rospy.ServiceProxy(self._service_topic, Empty)
+                  clear_octomap()
                   return 'continue'
                 except:
                   return 'failed'
-
-                return 'continue'
 
         def on_enter(self, userdata):
                 # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
                 # It is primarily used to start actions which are associated with this state.
 
-                Logger.loginfo('attempting to get grasp candidates...' )
+                Logger.loginfo('attempting to clear octomap...' )
 
         def on_exit(self, userdata):
                 # This method is called when an outcome is returned and another state gets active.
@@ -72,7 +55,7 @@ class GetGraspCandidatesServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                pass # Nothing to do in this state.
+                rospy.wait_for_service(self._service_topic)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.

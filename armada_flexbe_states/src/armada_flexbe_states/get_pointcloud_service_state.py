@@ -6,7 +6,8 @@ from flexbe_core.proxy import ProxyServiceCaller
 from sensor_msgs.msg import PointCloud2
 
 from armada_flexbe_utilities.srv import GetPointCloud, GetPointCloudResponse, GetPointCloudRequest
-
+from armada_flexbe_utilities.srv import PCLVoxelGridFilter, PCLVoxelGridFilterResponse, PCLVoxelGridFilterRequest
+from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 
 class GetPointCloudServiceState(EventState):
         '''
@@ -23,27 +24,29 @@ class GetPointCloudServiceState(EventState):
 
         '''
 
-        def __init__(self, camera_topic):
+        def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(GetPointCloudServiceState, self).__init__(outcomes = ['continue', 'failed'],
                                                        input_keys = ['pointcloud_list'],
                                                        output_keys = ['pointcloud_list'])
 
-                self._camera_topic = camera_topic
+                self._service_topic = '/get_pointcloud'
+                self._service = ProxyServiceCaller({self._service_topic: GetPointCloud})
+
+                self._service_topic_two = '/voxelgrid_filter'
+                self._service_two = ProxyServiceCaller({self._service_topic_two: PCLVoxelGridFilter})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                rospy.wait_for_service('/get_pointcloud')
-                self._service_topic = '/get_pointcloud'
-                self._service = ProxyServiceCaller({self._service_topic: GetPointCloud})
                 response = GetPointCloudResponse()
 
                 try:
-                    response = self._service.call(self._service_topic, self._camera_topic)
-                    userdata.pointcloud_list.append(response.cloud_out)
+                    get_response = self._service.call(self._service_topic, Empty)
+                    filter_response = self._service.call(self._service_topic_two, get_response.cloud_out)
+                    userdata.pointcloud_list.append(filter_response.cloud_out)
                     return "continue"
                 except:
                     return "failed"
@@ -65,7 +68,8 @@ class GetPointCloudServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                pass # Nothing to do in this state.
+                rospy.wait_for_service(self._service_topic)
+                rospy.wait_for_service(self._service_topic_two)
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.
