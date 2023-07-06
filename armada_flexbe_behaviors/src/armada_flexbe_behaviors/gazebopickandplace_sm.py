@@ -75,7 +75,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 
 	def create(self):
-		# x:355 y:633, x:367 y:351
+		# x:939 y:483, x:367 y:351
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
 		_state_machine.userdata.wait_pose = ['wait']
 		_state_machine.userdata.snapshot_pose_list = ['above','robot_left','robot_right']
@@ -224,7 +224,7 @@ class GazeboPickAndPlaceSM(Behavior):
 										remapping={'pointcloud_in': 'combined_pointcloud', 'obstacles_cloud_list_in': 'obstacles_pointcloud_list', 'objects_cloud_out': 'combined_pointcloud', 'obstacles_cloud_list_out': 'obstacles_pointcloud_list'})
 
 
-		# x:314 y:377, x:318 y:116
+		# x:80 y:537, x:318 y:116
 		_sm_initobjectcontainer_4 = OperatableStateMachine(outcomes=['finished', 'failed'])
 
 		with _sm_initobjectcontainer_4:
@@ -255,7 +255,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:34 y:371
 			OperatableStateMachine.add('SpawnObject3',
 										SpawnModelServiceState(model_name=self.model_name_three, object_file_path=self.object_file_path_three, robot_namespace=self.robot_namespace, reference_frame=self.reference_frame),
-										transitions={'continue': 'finished', 'failed': 'failed'},
+										transitions={'continue': 'ClearOctomap', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:33 y:187
@@ -264,8 +264,14 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'continue': 'SpawnObject1', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
+			# x:30 y:431
+			OperatableStateMachine.add('ClearOctomap',
+										ClearOctomapServiceState(),
+										transitions={'continue': 'finished', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
-		# x:101 y:305, x:306 y:166
+
+		# x:76 y:384, x:306 y:166
 		_sm_deleteobjectcontainer_5 = OperatableStateMachine(outcomes=['finished', 'failed'])
 
 		with _sm_deleteobjectcontainer_5:
@@ -278,6 +284,12 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:41 y:156
 			OperatableStateMachine.add('DeleteModel',
 										DeleteModelServiceState(model_name=self.model_name_one),
+										transitions={'continue': 'ClearOctomap', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
+			# x:37 y:250
+			OperatableStateMachine.add('ClearOctomap',
+										ClearOctomapServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
@@ -302,7 +314,7 @@ class GazeboPickAndPlaceSM(Behavior):
 
 			# x:140 y:274
 			OperatableStateMachine.add('GripperClose',
-										GripperCommandActionState(gripper_target_position=0.0),
+										GripperCommandActionState(gripper_target_position=1.0),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
@@ -322,16 +334,10 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'finished': 'GripperCommandInit', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
-			# x:759 y:341
-			OperatableStateMachine.add('ClearOctomap',
-										ClearOctomapServiceState(),
-										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
-										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
-
-			# x:48 y:617
+			# x:752 y:322
 			OperatableStateMachine.add('DeleteObjectContainer',
 										_sm_deleteobjectcontainer_5,
-										transitions={'finished': 'finished', 'failed': 'failed'},
+										transitions={'finished': 'GripperCommandInit', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 			# x:539 y:61
@@ -343,7 +349,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:551 y:536
 			OperatableStateMachine.add('GripperCommandOpen',
 										GripperCommandActionState(gripper_target_position=0.0),
-										transitions={'continue': 'ClearOctomap', 'failed': 'failed'},
+										transitions={'continue': 'DeleteObjectContainer', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:554 y:406
