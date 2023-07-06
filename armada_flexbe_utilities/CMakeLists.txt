@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning
   moveit_ros_planning_interface
   gpd_ros
+  #gqcnn
   tf
   pcl_conversions
   pcl_ros
@@ -42,6 +43,7 @@ add_service_files(
   GetPointCloud.srv
   GPDGraspCandidates.srv
   GPDGraspWaypoints.srv
+  #GQCNNGraspCandidates.srv
   PCLConcatenatePointCloud.srv
   PCLConditionalOutlierRemoval.srv
   PCLEuclideanClusterExtraction.srv
@@ -69,6 +71,7 @@ generate_messages(
   control_msgs
   actionlib_msgs
   gpd_ros
+  #gqcnn
 )
 
 catkin_package(
@@ -84,6 +87,7 @@ include_directories(
 add_executable(move_arm_cpp_server src/actionserver/move_arm_cpp_server.cpp)
 add_executable(gpd_grasp_candidates_service src/service/gpd_grasp_candidates_service.cpp)
 add_executable(gpd_grasp_waypoint_service src/service/gpd_grasp_waypoint_service.cpp)
+#add_executable(gqcnn_grasp_candidates_service src/service/gqcnn_grasp_candidates_service.cpp)
 add_executable(basic_grasp_waypoint_service src/service/basic_grasp_waypoint_service.cpp)
 add_executable(get_pointcloud_service src/service/get_pointcloud_service.cpp)
 add_executable(pcl_concatenate_pointcloud_service src/service/pcl_concatenate_pointcloud_service.cpp)
@@ -99,6 +103,7 @@ add_executable(spawn_table_collision_service src/service/spawn_table_collision_s
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
 target_link_libraries(gpd_grasp_candidates_service ${catkin_LIBRARIES})
 target_link_libraries(gpd_grasp_waypoint_service ${catkin_LIBRARIES})
+#target_link_libraries(gqcnn_grasp_candidates_service ${catkin_LIBRARIES})
 target_link_libraries(basic_grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(get_pointcloud_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_concatenate_pointcloud_service ${catkin_LIBRARIES})
@@ -114,6 +119,7 @@ target_link_libraries(spawn_table_collision_service ${catkin_LIBRARIES})
 add_dependencies(move_arm_cpp_server armada_flexbe_utilities_gencpp)
 add_dependencies(gpd_grasp_candidates_service armada_flexbe_utilities_gencpp)
 add_dependencies(gpd_grasp_waypoint_service armada_flexbe_utilities_gencpp)
+#add_dependencies(gqcnn_grasp_candidates_service armada_flexbe_utilities_gencpp)
 add_dependencies(basic_grasp_waypoint_service armada_flexbe_utilities_gencpp)
 add_dependencies(get_pointcloud_service armada_flexbe_utilities_gencpp)
 add_dependencies(pcl_concatenate_pointcloud_service armada_flexbe_utilities_gencpp)
