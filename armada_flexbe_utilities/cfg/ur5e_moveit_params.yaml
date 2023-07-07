@@ -15,7 +15,7 @@ end_effector: {
         grasp_rot_z: -0.981747704,
         grasp_rot_w: 1,
     },
-    command_topic: "/r2f85_gripper_command",
+    command_topic: "/r2f85_gripper_controller/gripper_cmd",
     # max_close_val: 0.85,
     max_close_val: 0.9,
 }
