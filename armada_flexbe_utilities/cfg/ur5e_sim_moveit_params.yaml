@@ -20,7 +20,7 @@ end_effector: {
     max_close_val: 0.75,
 }
 sim_objects: {
-    pose: {
+    position: {
         x_min: 0.5125,
         x_max: 0.6125,
         y_min: -0.2000,
