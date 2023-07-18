@@ -6,7 +6,7 @@ reference_frame: {
 }
 #-M_PI/4 - M_PI/16 for ur5e robot and robotiq 2f 85 gripper
 end_effector: {
-    gripper_offset: -0.04,
+    gripper_offset: 0.00,
     approach_dist: 0.10,
     retreat_dist: 0.10,
     grasping: {
@@ -18,6 +18,23 @@ end_effector: {
     command_topic: "/r2f85_gripper_controller/gripper_cmd",
     # max_close_val: 0.85,
     max_close_val: 0.75,
+}
+sim_objects: {
+    pose: {
+        x_min: 0.5125,
+        x_max: 0.6125,
+        y_min: -0.2000,
+        y_max: 0.0000,
+        z: 1.2,
+    },
+    orientation: {
+        roll_min: 0.0,
+        roll_max: 0.0,
+        pitch_min: 0.0,
+        pitch_max: 0.0,
+        yaw_min: 0.0,
+        yaw_max: 0.0,
+    },
 }
 grasp_plan: {
     timeout_len: 10.0,
