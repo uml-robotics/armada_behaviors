@@ -35,7 +35,7 @@ class SpawnModelServiceState(EventState):
                 self._object_pose_x_max = rospy.get_param("/sim_objects/position/x_max")
                 self._object_pose_y_min = rospy.get_param("/sim_objects/position/y_min")
                 self._object_pose_y_max = rospy.get_param("/sim_objects/position/y_max")
-                self._object_pose_z = rospy.get_param("/sim_objects/position/pose_z")
+                self._object_pose_z = rospy.get_param("/sim_objects/position/z")
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
