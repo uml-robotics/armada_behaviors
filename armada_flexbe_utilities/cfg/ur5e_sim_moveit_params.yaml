@@ -1,12 +1,12 @@
 robot_namespace: ""
-camera_topic: "/camera_wrist/depth/points"
+camera_topic: "/camera_wrist/depth_registered/z_filtered/points/"
 reference_frame: {
     global_frame: "world",
     robot_frame: "base_link",
 }
 #-M_PI/4 - M_PI/16 for ur5e robot and robotiq 2f 85 gripper
 end_effector: {
-    gripper_offset: 0.00,
+    gripper_offset: -0.03,
     approach_dist: 0.10,
     retreat_dist: 0.10,
     grasping: {
@@ -57,8 +57,8 @@ collision_list:
     #  pose: [0.0, 0.0, 0.84]
 filters: {
     euclidean_cluster_extraction: {
-        clusterTolerance: 0.02,
-        minClusterSize: 100,
+        clusterTolerance: 0.01,
+        minClusterSize: 10,
         maxClusterSize: 25000,
     },
     conditional_outlier_removal: {
@@ -93,8 +93,8 @@ filters: {
         stdDevMulThresh: 1.0,
     },
     voxel_grid: {
-        leaf_size_x: 0.01,
-        leaf_size_y: 0.01,
-        leaf_size_z: 0.01,
+        leaf_size_x: 0.008,
+        leaf_size_y: 0.008,
+        leaf_size_z: 0.008,
     },
 }
