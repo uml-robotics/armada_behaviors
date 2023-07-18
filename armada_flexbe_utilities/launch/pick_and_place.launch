@@ -6,7 +6,8 @@
   <arg name="gripper_ip" default="" />
   <arg name="limited" default="" />
   <arg name="sim_workstation" default="true" />
-  <arg name="wrist_cam" default="d435_millibar" />
+  <arg name="wrist_cam" default="d435" />
+  <arg name="quick_changer" default="millibar" />
   <arg name="camera_name" default="camera_wrist" />
   <arg name="max_dist" default="2" doc="default passthrough filter is active, supply no arg on command line to turn off entirely" />
   <arg name="serial_no" default="" doc="Serial number of realsense camera device" />
@@ -63,6 +64,7 @@
       <arg name="gripper_make" value="$(arg gripper_make)" />
       <arg name="gripper_model" value="$(arg gripper_model)" />
       <arg name="wrist_cam" value="$(arg wrist_cam)"/>
+      <arg name="quick_changer" value="$(arg quick_changer)" />
     </include>
   </group>
 
@@ -77,6 +79,7 @@
       <arg name="gripper_make" value="$(arg gripper_make)" />
       <arg name="gripper_model" value="$(arg gripper_model)" />
       <arg name="wrist_cam" value="$(arg wrist_cam)"/>
+      <arg name="quick_changer" value="$(arg quick_changer)" />
     </include>
   </group>
 
