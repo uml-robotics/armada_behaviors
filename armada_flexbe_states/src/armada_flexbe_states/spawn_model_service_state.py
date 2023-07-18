@@ -31,17 +31,19 @@ class SpawnModelServiceState(EventState):
                 self._object_file_path = object_file_path
                 self._robot_namespace = robot_namespace
                 self._reference_frame = reference_frame
+                self._object_pose_x_min = rospy.get_param("/sim_objects/object_pose_x_min")
+                self._object_pose_x_max = rospy.get_param("/sim_objects/object_pose_x_max")
+                self._object_pose_y_min = rospy.get_param("/sim_objects/object_pose_y_min")
+                self._object_pose_y_max = rospy.get_param("/sim_objects/object_pose_y_max")
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
                 # Main purpose is to check state conditions and trigger a corresponding outcome.
                 # If no outcome is returned, the state will stay active.
 
-                # define [x,y,z] position within certain, predefined bounds
-                pose_x_list = [-0.1, -0.1, 0.1, 0.1, 0.0]
-                pose_y_list = [-0.2, -0.2, 0.0, 0.0, -0.1]
-                pose_x = round(random.uniform(-00.10, 00.10), 2)
-                pose_y = round(random.uniform(-00.20, 00.00), 2)
+                # generate "random" [x,y,z] spawn coordinates within predefined bounds
+                pose_x = round(random.uniform(self._object_pose_x_min, self._object_pose_x_max), 2)
+                pose_y = round(random.uniform(self._object_pose_y_min, self._object_pose_y_max), 2)
                 pose_z = 1.2
 
                 # turn xyz coordinates into a Pose msg
