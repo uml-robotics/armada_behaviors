@@ -25,7 +25,7 @@ sim_objects: {
         x_max: 0.6125,
         y_min: -0.2000,
         y_max: 0.0000,
-        z: 1.2,
+        z: 1.1,
     },
     orientation: {
         roll_min: 0.0,
@@ -57,7 +57,7 @@ collision_list:
     #  pose: [0.0, 0.0, 0.84]
 filters: {
     euclidean_cluster_extraction: {
-        clusterTolerance: 0.01,
+        clusterTolerance: 0.02,
         minClusterSize: 10,
         maxClusterSize: 25000,
     },
@@ -76,7 +76,7 @@ filters: {
             max: 1.5,
         },
         z: {
-            min: 0.0,
+            min: -0.2,
             max: 1,
         },
     },
