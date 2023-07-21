@@ -97,6 +97,6 @@
   <node name="pcl_radius_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_radius_outlier_removal_service" output="screen" respawn="true"/>
   <node name="pcl_statistical_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_statistical_outlier_removal_service" output="screen" respawn="true"/>
   <node name="pcl_voxel_grid_filter_service" pkg="armada_flexbe_utilities" type="pcl_voxel_grid_filter_service" output="screen" respawn="true"/>
-  <node name="spawn_table_collision_service" pkg="armada_flexbe_utilities" type="spawn_table_collision_service" output="screen" respawn="true"/>
+  <node name="spawn_collision_service" pkg="armada_flexbe_utilities" type="spawn_collision_service" output="screen" respawn="true"/>
 
 </launch>
