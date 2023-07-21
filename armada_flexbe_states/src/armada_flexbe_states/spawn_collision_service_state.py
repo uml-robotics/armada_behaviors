@@ -4,10 +4,10 @@ import rospy
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyServiceCaller
 
-from armada_flexbe_utilities.srv import SpawnTableCollision, SpawnTableCollisionResponse, SpawnTableCollisionRequest
+from armada_flexbe_utilities.srv import SpawnCollision
 from std_msgs.msg import Empty
 
-class SpawnTableCollisionServiceState(EventState):
+class SpawnCollisionServiceState(EventState):
         '''
         Example for a state to demonstrate which functionality is available for state implementation.
         This example lets the behavior wait until the given target_time has passed since the behavior has been started.
@@ -19,11 +19,11 @@ class SpawnTableCollisionServiceState(EventState):
 
         def __init__(self):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
-                super(SpawnTableCollisionServiceState, self).__init__(outcomes = ['continue', 'failed'])
+                super(SpawnCollisionServiceState, self).__init__(outcomes = ['continue', 'failed'])
 
                 self._robot_namespace = rospy.get_param("/robot_namespace")
-                self._service_topic = self._robot_namespace + '/spawn_table_collision'
-                self._service = ProxyServiceCaller({self._service_topic: SpawnTableCollision})
+                self._service_topic = self._robot_namespace + '/spawn_collision'
+                self._service = ProxyServiceCaller({self._service_topic: SpawnCollision})
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
