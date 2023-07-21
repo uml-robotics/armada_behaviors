@@ -6,7 +6,7 @@ reference_frame: {
 }
 #-M_PI/4 - M_PI/16 for ur5e robot and robotiq 2f 85 gripper
 end_effector: {
-    gripper_offset: -0.03,
+    gripper_offset: -0.02,
     approach_dist: 0.10,
     retreat_dist: 0.10,
     grasping: {
@@ -50,14 +50,17 @@ move_group: {
 }
 collision_list:
     - id: table
+      position: [0.0, 0.0, -0.1]
+      # orientation will be in radians
+      orientation: [0.0, 0.0, 0.0]
       size: [2.0, 2.0, 0.2]
-      pose: [0.0, 0.0, 0.74]
-    #- id: riser
-    #  size: [0.25, 0.25, 0.2]
-    #  pose: [0.0, 0.0, 0.84]
+    - id: rear_wall
+      orientation: [0.0, 0.0, 0.0]
+      position: [1.1, 0.0, 1.0]
+      size: [0.2, 2.0, 2.0]
 filters: {
     euclidean_cluster_extraction: {
-        clusterTolerance: 0.02,
+        clusterTolerance: 0.008,
         minClusterSize: 10,
         maxClusterSize: 25000,
     },
