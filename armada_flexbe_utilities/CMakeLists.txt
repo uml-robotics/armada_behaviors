@@ -27,6 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   message_generation
   robotiq_2f_gripper_control
+  #XmlRpcValue
 )
 
 ## Generate messages in the 'msg' folder
@@ -52,7 +53,7 @@ add_service_files(
   PCLRadiusOutlierRemoval.srv
   PCLStatisticalOutlierRemoval.srv
   PCLVoxelGridFilter.srv
-  SpawnTableCollision.srv
+  SpawnCollision.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -60,7 +61,6 @@ add_action_files(
   FILES
   CartesianMove.action
   NamedPoseMove.action
-  SpawnTableCollision.action
 )
 
 ## Generate added msg and srv with any dependencies listed here
@@ -98,7 +98,7 @@ add_executable(pcl_radius_outlier_removal_service src/service/pcl_radius_outlier
 add_executable(pcl_statistical_outlier_removal_service src/service/pcl_statistical_outlier_removal_service.cpp)
 add_executable(pcl_voxel_grid_filter_service src/service/pcl_voxel_grid_filter_service.cpp)
 add_executable(pcl_euclidean_cluster_extraction_service src/service/pcl_euclidean_cluster_extraction_service.cpp)
-add_executable(spawn_table_collision_service src/service/spawn_table_collision_service.cpp)
+add_executable(spawn_collision_service src/service/spawn_collision_service.cpp)
 
 target_link_libraries(move_arm_cpp_server ${catkin_LIBRARIES})
 target_link_libraries(gpd_grasp_candidates_service ${catkin_LIBRARIES})
@@ -114,7 +114,7 @@ target_link_libraries(pcl_radius_outlier_removal_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_statistical_outlier_removal_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_voxel_grid_filter_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_euclidean_cluster_extraction_service ${catkin_LIBRARIES})
-target_link_libraries(spawn_table_collision_service ${catkin_LIBRARIES})
+target_link_libraries(spawn_collision_service ${catkin_LIBRARIES})
 
 add_dependencies(move_arm_cpp_server armada_flexbe_utilities_gencpp)
 add_dependencies(gpd_grasp_candidates_service armada_flexbe_utilities_gencpp)
@@ -130,4 +130,4 @@ add_dependencies(pcl_radius_outlier_removal_service armada_flexbe_utilities_genc
 add_dependencies(pcl_statistical_outlier_removal_service armada_flexbe_utilities_gencpp)
 add_dependencies(pcl_voxel_grid_filter_service armada_flexbe_utilities_gencpp)
 add_dependencies(pcl_euclidean_cluster_extraction_service armada_flexbe_utilities_gencpp)
-add_dependencies(spawn_table_collision_service armada_flexbe_utilities_gencpp)
+add_dependencies(spawn_collision_service armada_flexbe_utilities_gencpp)
