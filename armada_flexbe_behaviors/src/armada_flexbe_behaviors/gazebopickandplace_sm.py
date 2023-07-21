@@ -24,6 +24,7 @@ from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherS
 from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
 from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
 from armada_flexbe_states.spawn_model_service_state import SpawnModelServiceState
+from armada_flexbe_states.spawn_collision_service_state import SpawnCollisionServiceState
 from flexbe_practice_states.step_iterator_state import stepIteratorState
 from flexbe_states.wait_state import WaitState
 # Additional imports can be added inside the following tags
@@ -328,7 +329,7 @@ class GazeboPickAndPlaceSM(Behavior):
 			# x:59 y:56
 			OperatableStateMachine.add('InitObjectContainer',
 										_sm_initobjectcontainer_4,
-										transitions={'finished': 'GripperCommandInit', 'failed': 'failed'},
+										transitions={'finished': 'SpawnCollision', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 			# x:752 y:322
@@ -397,6 +398,12 @@ class GazeboPickAndPlaceSM(Behavior):
 										transitions={'finished': 'ApproachContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates', 'obstacles_pointcloud_list': 'obstacles_pointcloud_list', 'obstacles_pointcloud': 'obstacles_pointcloud', 'grasp_waypoints_list': 'grasp_waypoints_list'})
+
+			# x:291 y:23
+			OperatableStateMachine.add('SpawnCollision',
+										SpawnCollisionServiceState(),
+										transitions={'continue': 'GripperCommandInit', 'failed': 'failed'},
+										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:58 y:437
 			OperatableStateMachine.add('ApproachContainer',
