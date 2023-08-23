@@ -52,9 +52,12 @@ public:
   bool calculateGraspWaypoints(armada_flexbe_utilities::GPDGraspWaypoints::Request &req,
                                armada_flexbe_utilities::GPDGraspWaypoints::Response &res)
   {
+    // These should be defined in a parameter file as static for a robot/gripper configuration but modifiable per robot
     nh_.getParam("/end_effector/gripper_offset", gripper_offset);
     nh_.getParam("/end_effector/approach_dist", approach_dist);
     nh_.getParam("/end_effector/retreat_dist", retreat_dist);
+    // These parameters describe the rotation of the gripper about the wrist (different from the urdf expectations) for proper transformations
+    // seems to be a common enough occurance but need to look into more deeply for more permanent solution
     nh_.getParam("/end_effector/grasping/grasp_rot_x", grasp_rot_x);
     nh_.getParam("/end_effector/grasping/grasp_rot_y", grasp_rot_y);
     nh_.getParam("/end_effector/grasping/grasp_rot_z", grasp_rot_z);
