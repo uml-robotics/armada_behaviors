@@ -121,7 +121,7 @@ public:
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "gen_grasp_waypoints_service");
+  ros::init(argc, argv, "grasp_waypoints_service");
   ros::NodeHandle nh;
 
   GPDGraspWaypointservice graspWaypointService = GPDGraspWaypointservice(nh);
