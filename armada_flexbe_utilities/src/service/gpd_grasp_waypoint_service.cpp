@@ -62,9 +62,6 @@ public:
     nh_.getParam("/reference_frame/global_frame", global_frame);
     nh_.getParam("/reference_frame/robot_frame", robot_frame);
 
-    std::vector<armada_flexbe_utilities::GraspPoses> grasp_poses_vect;
-    armada_flexbe_utilities::GraspPosesList msg;
-
     unsigned long candidates_list_size = req.grasp_msg_list.grasps.size();
     for (unsigned long i = 0; i < candidates_list_size; ++i) {
       res.grasp_poses_list.poses.push_back(calculateGraspPoses(req.grasp_msg_list.grasps[i]));
