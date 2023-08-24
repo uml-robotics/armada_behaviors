@@ -4,6 +4,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <armada_flexbe_utilities/CartesianMoveAction.h>
 #include <armada_flexbe_utilities/NamedPoseMoveAction.h>
+#include <armada_flexbe_utilities/ShakeTest.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_msgs/CollisionObject.h>
@@ -23,6 +24,7 @@ protected:
   armada_flexbe_utilities::NamedPoseMoveFeedback named_pose_move_feedback_;
   armada_flexbe_utilities::NamedPoseMoveResult named_pose_move_result_;
   ros::ServiceServer spawnCollisionService;
+  ros::ServiceServer shakeTestService;
   std::string planning_group_;
   MoveGroupPtr MoveGroupPtr_;
   PlanningScenePtr PlanningScenePtr_;
@@ -49,6 +51,9 @@ public:
     MoveToNamedPoseServer_.start();
     MoveGroupPtr_ = MoveGroupPtr(new moveit::planning_interface::MoveGroupInterface(planning_group_));
     PlanningScenePtr_ = PlanningScenePtr(new moveit::planning_interface::PlanningSceneInterface);
+
+    // This should be moved to its own c++ file later, testing in this action server
+    shakeTestService = nh.advertiseService("shake_test", &CartesianPlanningCPPAction::shakeTest, this);
   }
 
   /**
@@ -136,13 +141,41 @@ public:
    * 
    * Rotate certain links to predefined positions 
   */
- void performBenchmarkingShakeTest()
+ bool shakeTest(armada_flexbe_utilities::ShakeTest::Request &req,
+                                   armada_flexbe_utilities::ShakeTest::Response &res)
  {
   // this is going to be a service
   // this should eventually have its own service file
-  MoveGroupPtr_->setJointValueTarget("joint", 1.5708);
+
+  // Rotate the wrist_3_joint
+  MoveGroupPtr_->setJointValueTarget("wrist_3_joint", 0.785398);
+  MoveGroupPtr_->move();
+
+  MoveGroupPtr_->setJointValueTarget("wrist_3_joint", -0.785398);
+  MoveGroupPtr_->move();
+
+  MoveGroupPtr_->setJointValueTarget("wrist_3_joint", 0.0);
+  MoveGroupPtr_->move();
+
+  // Rotate the wrist_2_joint
+  MoveGroupPtr_->setJointValueTarget("wrist_2_joint", 2.35619);
+  MoveGroupPtr_->move();
+
+  MoveGroupPtr_->setJointValueTarget("wrist_2_joint", 0.785398);
+  MoveGroupPtr_->move();
+
+  MoveGroupPtr_->setJointValueTarget("wrist_2_joint", 2.35619);
+  MoveGroupPtr_->move();
+
+  MoveGroupPtr_->setJointValueTarget("wrist_2_joint", 0.785398);
+  MoveGroupPtr_->move();
+
+  MoveGroupPtr_->setJointValueTarget("wrist_2_joint", 1.5708);
   MoveGroupPtr_->move();
   // do this in order for each joint that needs to move, then the test is complete
+
+  res.success = 1;
+  return true;
  }
 
 };
