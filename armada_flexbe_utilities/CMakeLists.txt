@@ -54,6 +54,7 @@ add_service_files(
   PCLRadiusOutlierRemoval.srv
   PCLStatisticalOutlierRemoval.srv
   PCLVoxelGridFilter.srv
+  ShakeTest.srv
   SpawnCollision.srv
 )
 
