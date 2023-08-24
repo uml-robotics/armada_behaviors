@@ -88,7 +88,8 @@
   <node name="move_arm_cpp_server" pkg="armada_flexbe_utilities" type="move_arm_cpp_server" output="screen" respawn="true"/>
   <node name="get_pointcloud_service" pkg="armada_flexbe_utilities" type="get_pointcloud_service" output="screen" respawn="true"/>
   <node name="gpd_grasp_candidates_service" pkg="armada_flexbe_utilities" type="gpd_grasp_candidates_service" output="screen" respawn="true"/>
-  <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" respawn="true"/>
+  <!-- <node name="gpd_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="gpd_grasp_waypoint_service" output="screen" respawn="true"/> -->
+  <node name="grasp_waypoint_service" pkg="armada_flexbe_utilities" type="grasp_waypoint_service" output="screen" respawn="true"/>
   <node name="pcl_concatenate_pointcloud_service" pkg="armada_flexbe_utilities" type="pcl_concatenate_pointcloud_service" output="screen" respawn="true"/>
   <node name="pcl_conditional_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_conditional_outlier_removal_service" output="screen" respawn="true"/>
   <node name="pcl_euclidean_cluster_extraction_service" pkg="armada_flexbe_utilities" type="pcl_euclidean_cluster_extraction_service" output="screen" respawn="true"/>
@@ -98,5 +99,6 @@
   <node name="pcl_statistical_outlier_removal_service" pkg="armada_flexbe_utilities" type="pcl_statistical_outlier_removal_service" output="screen" respawn="true"/>
   <node name="pcl_voxel_grid_filter_service" pkg="armada_flexbe_utilities" type="pcl_voxel_grid_filter_service" output="screen" respawn="true"/>
   <node name="spawn_collision_service" pkg="armada_flexbe_utilities" type="spawn_collision_service" output="screen" respawn="true"/>
+  <node name="basic_grasp_waypoint_service" pkg="armada_flexbe_utilities" type="basic_grasp_waypoint_service" output="screen" respawn="true"/>
 
 </launch>
