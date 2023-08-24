@@ -1,0 +1,3 @@
+geometry_msgs/Pose[] pose_list
+---
+armada_flexbe_utilities/GraspPosesList grasp_poses_list
