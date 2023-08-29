@@ -9,11 +9,16 @@ end_effector: {
     gripper_offset: 0.00,
     approach_dist: 0.10,
     retreat_dist: 0.10,
-    grasping: {
+    grasping_gpd: {
         grasp_rot_x: 0,
         grasp_rot_y: 0.39269908169 ,
         grasp_rot_z: -0.981747704,
         grasp_rot_w: 1,
+    },
+    grasping: {
+        grasp_rot_x: 0,
+        grasp_rot_y: 0 ,
+        grasp_rot_z: -0.785398,
     },
     command_topic: "/r2f85_gripper_controller/gripper_cmd",
     # max_close_val: 0.85,

@@ -61,7 +61,6 @@ public:
     nh_.getParam("/end_effector/grasping/grasp_rot_x", grasp_rot_x);
     nh_.getParam("/end_effector/grasping/grasp_rot_y", grasp_rot_y);
     nh_.getParam("/end_effector/grasping/grasp_rot_z", grasp_rot_z);
-    nh_.getParam("/end_effector/grasping/grasp_rot_w", grasp_rot_w);
     nh_.getParam("/reference_frame/global_frame", global_frame);
     nh_.getParam("/reference_frame/robot_frame", robot_frame);
 
@@ -87,7 +86,7 @@ public:
   {
     armada_flexbe_utilities::GraspPoses grasp_poses;
 
-    tf::Vector3 tr_grasp_base(pose.position.x, pose.position.y, pose.position.z);
+    tf::Vector3 tr_grasp_base(pose.position.x, pose.position.y - 0.04, pose.position.z);
     tf::Quaternion rot_grasp_base(pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
     tf::Transform tf_grasp_base(rot_grasp_base, tr_grasp_base);
     tf::StampedTransform tf_base_odom;
@@ -100,7 +99,9 @@ public:
       ROS_ERROR("%s", err.what());
     }
 
-    tf::Transform tf_grasp_odom_(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0, 0, -gripper_offset));
+    tf::Quaternion gripper_rot_base;
+    gripper_rot_base.setRPY(grasp_rot_x, grasp_rot_y, grasp_rot_z);
+    tf::Transform tf_grasp_odom_(gripper_rot_base, tf::Vector3(0, 0, -gripper_offset));
     tf::Transform tf_grasp_odom = tf_base_odom * tf_grasp_base * tf_grasp_odom_;
     tf::poseTFToMsg(tf_grasp_odom, grasp_poses.target);
 
