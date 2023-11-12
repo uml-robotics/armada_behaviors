@@ -7,7 +7,6 @@ from sensor_msgs.msg import PointCloud2
 
 from armada_flexbe_utilities.srv import GPDGraspCandidates, GPDGraspCandidatesResponse, GPDGraspCandidatesRequest
 
-
 class GPDGraspCandidatesServiceState(EventState):
         '''
         TODO
@@ -65,4 +64,3 @@ class GPDGraspCandidatesServiceState(EventState):
                 # Use this event to clean up things like claimed resources.
 
                 pass # Nothing to do in this state.
-

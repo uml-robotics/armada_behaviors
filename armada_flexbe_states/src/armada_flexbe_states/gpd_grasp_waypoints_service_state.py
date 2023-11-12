@@ -6,7 +6,6 @@ from flexbe_core.proxy import ProxyServiceCaller
 
 from armada_flexbe_utilities.srv import GPDGraspWaypoints, GPDGraspWaypointsResponse, GPDGraspWaypointsRequest
 
-
 class GPDGraspWaypointsServiceState(EventState):
         '''
         TODO
