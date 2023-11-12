@@ -4,9 +4,12 @@ reference_frame: {
     global_frame: "world",
     robot_frame: "base_link",
 }
+data_logging: {
+    obs_scene: "Robot JVC and Realsense",
+}
 #-M_PI/4 - M_PI/16 for ur5e robot and robotiq 2f 85 gripper
 end_effector: {
-    gripper_offset: 0.00,
+    gripper_offset: 0.0135, # can be set to 0.0135 for shallow objects
     approach_dist: 0.10,
     retreat_dist: 0.10,
     grasping_gpd: {
@@ -18,11 +21,12 @@ end_effector: {
     grasping: {
         grasp_rot_x: 0,
         grasp_rot_y: 0 ,
-        grasp_rot_z: -0.785398,
+        grasp_rot_z: -1.5708,
     },
     command_topic: "/r2f85_gripper_controller/gripper_cmd",
     # max_close_val: 0.85,
     max_close_val: 0.9,
+    gripper_status_topic: "/Robotiq2FGripperRobotInput",
 }
 grasp_plan: {
     timeout_len: 10.0,
