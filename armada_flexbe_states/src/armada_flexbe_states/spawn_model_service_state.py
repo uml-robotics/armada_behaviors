@@ -22,7 +22,7 @@ class SpawnModelServiceState(EventState):
 
         '''
 
-        def __init__(self, model_name, object_file_path, robot_namespace, reference_frame):
+        def __init__(self, model_name, object_file_path, robot_namespace, reference_frame, simulation_bool):
                 # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
                 super(SpawnModelServiceState, self).__init__(outcomes = ['continue', 'failed'])
 
@@ -36,6 +36,7 @@ class SpawnModelServiceState(EventState):
                 self._object_pose_y_min = rospy.get_param("/sim_objects/position/y_min")
                 self._object_pose_y_max = rospy.get_param("/sim_objects/position/y_max")
                 self._object_pose_z = rospy.get_param("/sim_objects/position/pose_z")
+                self._simulation = simulation_bool
 
         def execute(self, userdata):
                 # This method is called periodically while the state is active.
@@ -84,7 +85,8 @@ class SpawnModelServiceState(EventState):
                 # If possible, it is generally better to initialize used resources in the constructor
                 # because if anything failed, the behavior would not even be started.
 
-                rospy.wait_for_service('gazebo/spawn_sdf_model')
+                if self._simulation:
+                        rospy.wait_for_service('gazebo/spawn_sdf_model')
 
         def on_stop(self):
                 # This method is called whenever the behavior stops execution, also if it is cancelled.
