@@ -116,7 +116,6 @@ public:
 
     return grasp_poses;
   }
-
 };
 
 int main(int argc, char **argv)

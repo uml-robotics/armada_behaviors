@@ -142,7 +142,7 @@ public:
    * Rotate certain links to predefined positions 
   */
  bool shakeTest(armada_flexbe_utilities::ShakeTest::Request &req,
-                                   armada_flexbe_utilities::ShakeTest::Response &res)
+                armada_flexbe_utilities::ShakeTest::Response &res)
  {
   // this is going to be a service
   // this should eventually have its own service file
