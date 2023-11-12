@@ -12,6 +12,7 @@
 
 
 	<!-- Contained Behaviors -->
+	<contains name="gpd_get_grasp_waypoints" />
 
 	<!-- Available Parameters -->
 	<params>

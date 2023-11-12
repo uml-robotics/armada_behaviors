@@ -8,21 +8,22 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from armada_flexbe_states.approach_commander_state import ApproachCommanderState
-from armada_flexbe_states.clear_octomap_service_state import ClearOctomapServiceState
-from armada_flexbe_states.get_pointcloud_service_state import GetPointCloudServiceState
-from armada_flexbe_states.gpd_grasp_candidates_service_state import GPDGraspCandidatesServiceState
-from armada_flexbe_states.gpd_grasp_waypoints_service_state import GPDGraspWaypointsServiceState
+from armada_flexbe_behaviors.gpd_get_grasp_waypoints_sm import gpd_get_grasp_waypointsSM
 from armada_flexbe_states.gripper_command_action_state import GripperCommandActionState
-from armada_flexbe_states.move_arm_action_state import MoveArmActionState
-from armada_flexbe_states.pcl_concatenate_pointcloud_service_state import PCLConcatenatePointCloudServiceState
-from armada_flexbe_states.pcl_euclidean_cluster_extraction_service_state import PCLEuclideanClusterExtractionServiceState
-from armada_flexbe_states.pcl_passthrough_filter_service_state import PCLPassthroughFilterServiceState
-from armada_flexbe_states.pcl_plane_segmentation_service_state import PCLPlaneSegmentationServiceState
-from armada_flexbe_states.pointcloud_publisher_state import PointCloudPublisherState
-from armada_flexbe_states.retreat_commander_state import RetreatCommanderState
-from armada_flexbe_states.snapshot_commander_state import SnapshotCommanderState
-from armada_flexbe_states.spawn_table_collision_service_state import SpawnTableCollisionServiceState
+from armada_flexbe_states.spawn_collision_service_state import SpawnCollisionServiceState
+from flexbe_gpd_states.gpd_grasp_candidates_service_state import GPDGraspCandidatesServiceState as flexbe_gpd_states__GPDGraspCandidatesServiceState
+from flexbe_gpd_states.gpd_grasp_waypoints_service_state import GPDGraspWaypointsServiceState as flexbe_gpd_states__GPDGraspWaypointsServiceState
+from flexbe_manipulation_states.approach_commander_state import ApproachCommanderState as flexbe_manipulation_states__ApproachCommanderState
+from flexbe_manipulation_states.move_arm_action_state import MoveArmActionState as flexbe_manipulation_states__MoveArmActionState
+from flexbe_manipulation_states.retreat_commander_state import RetreatCommanderState as flexbe_manipulation_states__RetreatCommanderState
+from flexbe_pointcloud_states.clear_octomap_service_state import ClearOctomapServiceState as flexbe_pointcloud_states__ClearOctomapServiceState
+from flexbe_pointcloud_states.get_pointcloud_service_state import GetPointCloudServiceState as flexbe_pointcloud_states__GetPointCloudServiceState
+from flexbe_pointcloud_states.pcl_concatenate_pointcloud_service_state import PCLConcatenatePointCloudServiceState as flexbe_pointcloud_states__PCLConcatenatePointCloudServiceState
+from flexbe_pointcloud_states.pcl_euclidean_cluster_extraction_service_state import PCLEuclideanClusterExtractionServiceState as flexbe_pointcloud_states__PCLEuclideanClusterExtractionServiceState
+from flexbe_pointcloud_states.pcl_passthrough_filter_service_state import PCLPassthroughFilterServiceState as flexbe_pointcloud_states__PCLPassthroughFilterServiceState
+from flexbe_pointcloud_states.pcl_plane_segmentation_service_state import PCLPlaneSegmentationServiceState as flexbe_pointcloud_states__PCLPlaneSegmentationServiceState
+from flexbe_pointcloud_states.pointcloud_publisher_state import PointCloudPublisherState as flexbe_pointcloud_states__PointCloudPublisherState
+from flexbe_pointcloud_states.snapshot_commander_state import SnapshotCommanderState as flexbe_pointcloud_states__SnapshotCommanderState
 from flexbe_practice_states.step_iterator_state import stepIteratorState
 from flexbe_states.wait_state import WaitState
 # Additional imports can be added inside the following tags
@@ -51,6 +52,7 @@ class PickAndPlaceSM(Behavior):
 		self.add_parameter('concatenated_cloud_topic', 'combined_cloud')
 
 		# references to used behaviors
+		self.add_behavior(gpd_get_grasp_waypointsSM, 'GPDGetGraspWaypoints')
 
 		# Additional initialization code can be added inside the following tags
 		# [MANUAL_INIT]
@@ -89,28 +91,28 @@ class PickAndPlaceSM(Behavior):
 		with _sm_solvegraspwaypointscontainer_0:
 			# x:152 y:26
 			OperatableStateMachine.add('PCLConcatenateObstaclesPointCloud',
-										PCLConcatenatePointCloudServiceState(),
+										flexbe_pointcloud_states__PCLConcatenatePointCloudServiceState(),
 										transitions={'continue': 'PublishObstaclesPointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list_in': 'obstacles_pointcloud_list', 'combined_pointcloud': 'obstacles_pointcloud', 'pointcloud_list_out': 'obstacles_pointcloud_list'})
 
 			# x:167 y:468
 			OperatableStateMachine.add('GPDGraspWaypoints',
-										GPDGraspWaypointsServiceState(),
+										flexbe_gpd_states__GPDGraspWaypointsServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_candidates': 'grasp_candidates', 'grasp_waypoints_list': 'grasp_waypoints_list'})
 
 			# x:177 y:204
 			OperatableStateMachine.add('PublishObjectsPointCloud',
-										PointCloudPublisherState(topic=self.concatenated_cloud_topic),
+										flexbe_pointcloud_states__PointCloudPublisherState(topic=self.concatenated_cloud_topic),
 										transitions={'continue': 'GPDGraspCandidates', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud': 'combined_pointcloud'})
 
 			# x:175 y:112
 			OperatableStateMachine.add('PublishObstaclesPointCloud',
-										PointCloudPublisherState(topic=self.obstacle_cloud_topic),
+										flexbe_pointcloud_states__PointCloudPublisherState(topic=self.obstacle_cloud_topic),
 										transitions={'continue': 'PublishObjectsPointCloud', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud': 'obstacles_pointcloud'})
@@ -123,7 +125,7 @@ class PickAndPlaceSM(Behavior):
 
 			# x:166 y:366
 			OperatableStateMachine.add('GPDGraspCandidates',
-										GPDGraspCandidatesServiceState(),
+										flexbe_gpd_states__GPDGraspCandidatesServiceState(),
 										transitions={'continue': 'GPDGraspWaypoints', 'failed': 'WaitForNodeRespawn'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'combined_pointcloud': 'combined_pointcloud', 'grasp_candidates': 'grasp_candidates'})
@@ -135,21 +137,21 @@ class PickAndPlaceSM(Behavior):
 		with _sm_snapshotcontainer_1:
 			# x:30 y:40
 			OperatableStateMachine.add('SnapshotCommander',
-										SnapshotCommanderState(),
+										flexbe_pointcloud_states__SnapshotCommanderState(),
 										transitions={'continue': 'finished', 'take_snapshot': 'MoveToSnapshotPose', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'take_snapshot': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'snapshot_pose_list': 'snapshot_pose_list', 'current_snapshot_step': 'current_snapshot_step', 'target_pose': 'target_pose'})
 
 			# x:158 y:192
 			OperatableStateMachine.add('MoveToSnapshotPose',
-										MoveArmActionState(),
+										flexbe_manipulation_states__MoveArmActionState(),
 										transitions={'finished': 'GetPointCloud', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose'})
 
 			# x:23 y:346
 			OperatableStateMachine.add('GetPointCloud',
-										GetPointCloudServiceState(),
+										flexbe_pointcloud_states__GetPointCloudServiceState(),
 										transitions={'continue': 'SnapshotCommander', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list': 'pointcloud_list'})
@@ -161,14 +163,14 @@ class PickAndPlaceSM(Behavior):
 		with _sm_retreatcontainer_2:
 			# x:77 y:50
 			OperatableStateMachine.add('RetreatCommander',
-										RetreatCommanderState(),
+										flexbe_manipulation_states__RetreatCommanderState(),
 										transitions={'continue': 'MoveArmRetreat', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_task_candidates': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt', 'target_pose_list': 'target_pose_list', 'gripper_target_position': 'gripper_target_position'})
 
 			# x:84 y:182
 			OperatableStateMachine.add('MoveArmRetreat',
-										MoveArmActionState(),
+										flexbe_manipulation_states__MoveArmActionState(),
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose_list'})
@@ -180,28 +182,28 @@ class PickAndPlaceSM(Behavior):
 		with _sm_pclfiltercontainer_3:
 			# x:30 y:40
 			OperatableStateMachine.add('PCLConcatenatePointCloud',
-										PCLConcatenatePointCloudServiceState(),
+										flexbe_pointcloud_states__PCLConcatenatePointCloudServiceState(),
 										transitions={'continue': 'PCLPassthroughFilter', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_list_in': 'pointcloud_list', 'combined_pointcloud': 'combined_pointcloud', 'pointcloud_list_out': 'pointcloud_list'})
 
 			# x:17 y:375
 			OperatableStateMachine.add('PCLEuclideanClusterExtraction',
-										PCLEuclideanClusterExtractionServiceState(),
+										flexbe_pointcloud_states__PCLEuclideanClusterExtractionServiceState(),
 										transitions={'continue': 'finished', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'obstacles_cloud_list_in': 'obstacles_pointcloud_list', 'target_cloud_out': 'combined_pointcloud', 'obstacles_cloud_list_out': 'obstacles_pointcloud_list'})
 
 			# x:40 y:146
 			OperatableStateMachine.add('PCLPassthroughFilter',
-										PCLPassthroughFilterServiceState(),
+										flexbe_pointcloud_states__PCLPassthroughFilterServiceState(),
 										transitions={'continue': 'PCLPlaneSegmentation', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'pointcloud_out': 'combined_pointcloud'})
 
 			# x:35 y:255
 			OperatableStateMachine.add('PCLPlaneSegmentation',
-										PCLPlaneSegmentationServiceState(),
+										flexbe_pointcloud_states__PCLPlaneSegmentationServiceState(),
 										transitions={'continue': 'PCLEuclideanClusterExtraction', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'pointcloud_in': 'combined_pointcloud', 'obstacles_cloud_list_in': 'obstacles_pointcloud_list', 'objects_cloud_out': 'combined_pointcloud', 'obstacles_cloud_list_out': 'obstacles_pointcloud_list'})
@@ -213,7 +215,7 @@ class PickAndPlaceSM(Behavior):
 		with _sm_approachcontainer_4:
 			# x:30 y:40
 			OperatableStateMachine.add('ApproachCommander',
-										ApproachCommanderState(),
+										flexbe_manipulation_states__ApproachCommanderState(),
 										transitions={'continue': 'MoveArmGrasp', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'grasp_task_candidates': 'grasp_waypoints_list', 'grasp_attempt': 'grasp_attempt', 'target_pose_list': 'target_pose_list'})
@@ -233,7 +235,7 @@ class PickAndPlaceSM(Behavior):
 
 			# x:30 y:176
 			OperatableStateMachine.add('MoveArmGrasp',
-										MoveArmActionState(),
+										flexbe_manipulation_states__MoveArmActionState(),
 										transitions={'finished': 'GripperClose', 'failed': 'GraspStepIterator'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'target_pose_list'})
@@ -242,16 +244,22 @@ class PickAndPlaceSM(Behavior):
 
 		with _state_machine:
 			# x:39 y:73
-			OperatableStateMachine.add('SpawnTableCollision',
-										SpawnTableCollisionServiceState(),
+			OperatableStateMachine.add('SpawnCollision',
+										SpawnCollisionServiceState(),
 										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:759 y:341
 			OperatableStateMachine.add('ClearOctomap',
-										ClearOctomapServiceState(),
+										flexbe_pointcloud_states__ClearOctomapServiceState(),
 										transitions={'continue': 'MoveArmPreSnapshot', 'failed': 'failed'},
 										autonomy={'continue': Autonomy.Off, 'failed': Autonomy.Off})
+
+			# x:538 y:39
+			OperatableStateMachine.add('GPDGetGraspWaypoints',
+										self.use_behavior(gpd_get_grasp_waypointsSM, 'GPDGetGraspWaypoints'),
+										transitions={'finished': 'finished', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 			# x:528 y:563
 			OperatableStateMachine.add('GripperCommandOpen',
@@ -261,35 +269,35 @@ class PickAndPlaceSM(Behavior):
 
 			# x:546 y:481
 			OperatableStateMachine.add('MoveArmDropoff',
-										MoveArmActionState(),
+										flexbe_manipulation_states__MoveArmActionState(),
 										transitions={'finished': 'GripperCommandOpen', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'dropoff_pose'})
 
 			# x:549 y:648
 			OperatableStateMachine.add('MoveArmHome',
-										MoveArmActionState(),
+										flexbe_manipulation_states__MoveArmActionState(),
 										transitions={'finished': 'finished', 'failed': 'finished'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
 			# x:545 y:401
 			OperatableStateMachine.add('MoveArmPostGrasp',
-										MoveArmActionState(),
+										flexbe_manipulation_states__MoveArmActionState(),
 										transitions={'finished': 'MoveArmDropoff', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
 			# x:548 y:240
 			OperatableStateMachine.add('MoveArmPostSnapshot',
-										MoveArmActionState(),
+										flexbe_manipulation_states__MoveArmActionState(),
 										transitions={'finished': 'PCLFilterContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
 
 			# x:551 y:161
 			OperatableStateMachine.add('MoveArmPreSnapshot',
-										MoveArmActionState(),
+										flexbe_manipulation_states__MoveArmActionState(),
 										transitions={'finished': 'SnapshotContainer', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'target_pose_list': 'wait_pose'})
