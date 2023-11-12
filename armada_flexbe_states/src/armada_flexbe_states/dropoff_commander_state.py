@@ -41,7 +41,7 @@ class DropoffCommanderState(EventState):
             userdata.target_pose_list.append(userdata.grasp_task_candidates[userdata.grasp_attempt].pre)
 
             # Increase the height of the dropoff position to 1cm above the original target grasp position for test/benchmark compliance
-            userdata.grasp_task_candidates[userdata.grasp_attempt].target.position.z  = userdata.grasp_task_candidates[userdata.grasp_attempt].target.position.z + 0.05
+            userdata.grasp_task_candidates[userdata.grasp_attempt].target.position.z  = userdata.grasp_task_candidates[userdata.grasp_attempt].target.position.z + 0.01
 
             userdata.target_pose_list.append(userdata.grasp_task_candidates[userdata.grasp_attempt].target)
             return 'continue'
