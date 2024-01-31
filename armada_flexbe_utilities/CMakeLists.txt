@@ -46,6 +46,8 @@ add_service_files(
   GPDGraspCandidates.srv
   GPDGraspWaypoints.srv
   #GQCNNGraspCandidates.srv
+  MoveArmCartesian.srv
+  MoveArmNamedPose.srv
   PCLConcatenatePointCloud.srv
   PCLConditionalOutlierRemoval.srv
   PCLEuclideanClusterExtraction.srv
@@ -93,6 +95,8 @@ add_executable(gpd_grasp_waypoint_service src/service/gpd_grasp_waypoint_service
 #add_executable(gqcnn_grasp_candidates_service src/service/gqcnn_grasp_candidates_service.cpp)
 add_executable(grasp_waypoint_service src/service/grasp_waypoint_service.cpp)
 add_executable(get_pointcloud_service src/service/get_pointcloud_service.cpp)
+add_executable(move_arm_cartesian_service src/service/move_arm_cartesian_service.cpp)
+add_executable(move_arm_named_pose_service src/service/move_arm_named_pose_service.cpp)
 add_executable(pcl_concatenate_pointcloud_service src/service/pcl_concatenate_pointcloud_service.cpp)
 add_executable(pcl_passthrough_filter_service src/service/pcl_passthrough_filter_service.cpp)
 add_executable(pcl_plane_segmentation_service src/service/pcl_plane_segmentation_service.cpp)
@@ -109,6 +113,8 @@ target_link_libraries(gpd_grasp_waypoint_service ${catkin_LIBRARIES})
 #target_link_libraries(gqcnn_grasp_candidates_service ${catkin_LIBRARIES})
 target_link_libraries(grasp_waypoint_service ${catkin_LIBRARIES})
 target_link_libraries(get_pointcloud_service ${catkin_LIBRARIES})
+target_link_libraries(move_arm_cartesian_service ${catkin_LIBRARIES})
+target_link_libraries(move_arm_named_pose_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_concatenate_pointcloud_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_passthrough_filter_service ${catkin_LIBRARIES})
 target_link_libraries(pcl_plane_segmentation_service ${catkin_LIBRARIES})
@@ -125,6 +131,8 @@ add_dependencies(gpd_grasp_waypoint_service armada_flexbe_utilities_gencpp)
 #add_dependencies(gqcnn_grasp_candidates_service armada_flexbe_utilities_gencpp)
 add_dependencies(grasp_waypoint_service armada_flexbe_utilities_gencpp)
 add_dependencies(get_pointcloud_service armada_flexbe_utilities_gencpp)
+add_dependencies(move_arm_cartesian_service armada_flexbe_utilities_gencpp)
+add_dependencies(move_arm_named_pose_service armada_flexbe_utilities_gencpp)
 add_dependencies(pcl_concatenate_pointcloud_service armada_flexbe_utilities_gencpp)
 add_dependencies(pcl_passthrough_filter_service armada_flexbe_utilities_gencpp)
 add_dependencies(pcl_plane_segmentation_service armada_flexbe_utilities_gencpp)

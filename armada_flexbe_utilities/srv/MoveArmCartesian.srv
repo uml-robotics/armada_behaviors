@@ -1,0 +1,3 @@
+geometry_msgs/Pose[] grasp_waypoints
+---
+float64 plan_success
